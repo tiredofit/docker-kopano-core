@@ -11,7 +11,7 @@
 
 This will build a container for the [Kopano Groupware](https://kopano.io/) suite. 
 
-**At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the in's and out's of the software to potentially use for a non-profit educational institution.**
+**At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the ins and outs of the software to potentially use for a non-profit educational institution. I am constantly relying on the expertise of the community in the Kopano.io Community forums and the manuals, and still have a long way to go**
 
 * Installs latest nightly builds from community build offering
 * Automatic configuration of various services
@@ -54,7 +54,7 @@ Companion @
 https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion), or [Traefik](https://github.com/tiredofit/docker-traefik) (preferred)
 in order to serve your pages. However, it will run just fine on it's own if you map appropriate ports.
 
-You will also need an external MySQL/MariaDB Container
+You will also need an external MySQL/MariaDB Container.
 
 # Installation
 
