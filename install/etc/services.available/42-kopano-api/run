@@ -1,0 +1,96 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service both 30-kopano
+
+PROCESS_NAME="kopano-api"
+check_container_initialized
+check_service_initialized 30-kopano-server
+liftoff
+
+parse_config ${CONFIG_PATH}${KAPI_CONFIG_FILE}
+
+### Defaults
+default_plugins_path=/usr/lib/kopano/kapi-plugins
+default_oidc_issuer_identifier=https://localhost
+default_kopano_grapi_sockets=/var/run/kopano-grapi
+default_plugin_pubs_secret_key_file=/config/kapid-pubs-secret.key
+default_plugin_kvs_drivername=sqlite3
+default_plugin_kvs_db_datasource=/var/lib/kopano/kapi-kvs/kvs.db
+default_plugin_kvs_db_migrations=/usr/lib/kopano/kapi-kvs/db/migrations
+
+## Grapi
+KOPANO_GRAPI_SOCKETS="${KOPANO_GRAPI_SOCKETS:-${default_kopano_grapi_sockets}}"
+if [ -n "$plugin_grapi_socket_path" ]; then
+	KOPANO_GRAPI_SOCKETS="${plugin_grapi_socket_path}"
+fi
+export KOPANO_GRAPI_SOCKETS
+
+## Plugin - PUBS
+if [ -z "$plugin_pubs_secret_key" ]; then
+	if [ -f "${default_plugin_pubs_secret_key_file}" ]; then
+		plugin_pubs_secret_key="${default_plugin_pubs_secret_key_file}"
+	fi
+fi
+if [ -n "$plugin_pubs_secret_key" ]; then
+	if [ ! -f "$plugin_pubs_secret_key" ]; then
+		>&2 echo "Error: $plugin_pubs_secret_key: plugin_pubs_secret_key value invalid, not found or is not a file"
+		exit 1
+	fi
+	KOPANO_PUBS_SECRET_KEY=$(cat "$plugin_pubs_secret_key")
+fi
+export KOPANO_PUBS_SECRET_KEY
+
+## Plugin - KVS
+if [ -z "$plugin_kvs_db_drivername" -a -z "$plugin_kvs_db_datasource" ]; then
+	plugin_kvs_db_datasource="${KOPANO_KVS_DB_DATASOURCE:-${default_plugin_kvs_db_datasource}}"
+fi
+if [ -z "$plugin_kvs_db_drivername" ]; then
+	plugin_kvs_db_drivername="${KOPANO_KVS_DB_DRIVER:-${default_plugin_kvs_drivername}}"
+fi
+if [ -z "$plugin_kvs_db_migrations" ]; then
+	plugin_kvs_db_migrations="${KOPANO_KVS_DB_MIGRATIONS:-${default_plugin_kvs_db_migrations}}"
+fi
+export KOPANO_KVS_DB_DRIVER="${plugin_kvs_db_drivername}"
+export KOPANO_KVS_DB_DATASOURCE="${plugin_kvs_db_datasource}"
+export KOPANO_KVS_DB_MIGRATIONS="${plugin_kvs_db_migrations}"
+
+## Plugins Path
+if [ -z "$plugins_path" ]; then
+	plugins_path=$default_plugins_path
+fi
+
+## OIDC Issuer
+if [ -z "$oidc_issuer_identifier" ]; then
+	oidc_issuer_identifier=${OIDC_ISSUER_IDENTIFIER:-${default_oidc_issuer_identifier}}
+fi
+
+## TLS Checks
+if [ "$insecure" = "yes" ]; then
+	set -- "$@" --insecure
+fi
+
+## Plugins to load
+if [ -n "$plugins" ]; then
+	set -- "$@" --plugins="$plugins"
+fi
+
+## Interface Setup
+if [ -n "$listen" ]; then
+	set -- "$@" --listen="$listen"
+fi
+
+## Log Level
+if [ -n "$log_level" ]; then
+	set -- "$@" --log-level="$log_level"
+fi
+
+if [ "${LOG_TYPE}" = "FILE" ] ; then
+	log_argument=">> ${LOG_PATH_KOPANO}${LOG_FILE_KWM}"
+fi
+
+## Plugins and ISS
+set -- "$@" --plugins-path="$plugins_path" --iss="$oidc_issuer_identifier"
+
+print_info "Starting Kopano API Service"
+exec /usr/libexec/kopano/kapid serve "$@"

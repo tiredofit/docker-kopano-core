@@ -1,0 +1,3 @@
+    location /contacts/ {
+		return 301 $scheme://<CONTACTS_EXT_HOSTNAME> ;
+	}

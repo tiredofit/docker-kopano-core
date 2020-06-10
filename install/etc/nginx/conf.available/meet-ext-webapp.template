@@ -1,0 +1,3 @@
+    location /webapp/ {
+		return 301 $scheme://<WEBAPP_EXT_HOSTNAME> ;
+	}

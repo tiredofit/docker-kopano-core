@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service defaults 30-kopano
+
+PROCESS_NAME="kopano-spamd"
+check_container_initialized
+check_service_initialized 34-kopano-ical
+liftoff
+
+rm -rf /var/run/kopano/spamd.pid
+
+print_info "Starting Kopano SpamD Service"
+kopano-spamd ${SPAMD_ADDITIONAL_ARGS}

@@ -1,0 +1,7 @@
+    location ~* /AutoDiscover/AutoDiscover.xml {
+        access_log  <LOG_ACCESS_LOCATION>/zpush-autodiscover-access.log;
+        error_log   <LOG_ERROR_LOCATION>/zpush-autodiscover-error.log;
+        include /etc/nginx/nginx.conf.d/php-fpm.conf;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME /usr/share/zpush/src/autodiscover/autodiscover.php;
+    }

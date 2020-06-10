@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+
+PROCESS_NAME="post-startup-routines"
+check_container_initialized
+liftoff
+
+silent create_store
+print_info "Performing Initial Container Start LDAP Sync"
+silent kopano-admin --sync
+s6-svc -d /var/run/s6/services/90-post-startup-routines

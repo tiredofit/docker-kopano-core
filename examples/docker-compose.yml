@@ -1,0 +1,192 @@
+version: '3.7'
+services:
+
+  kopano-app:
+    image: tiredofit/kopano
+    container_name: kopano-app
+    links:
+      - kopano-db
+    labels: 
+      - traefik.enable=true
+      - traefik.http.routers.kopano.rule=Host(`kopano.example.com`)
+      - traefik.http.services.kopano.loadbalancer.server.port=80    
+    volumes:
+      - ./logs:/logs
+      - ./data:/data
+      - ./config:/config
+      - /var/local/data/traefik/certs/dump/mail.example.com:/letsencrypt/mail.example.com
+      - /var/local/data/traefik/certs/dump/imap.example.com:/letsencrypt/imap.example.com
+      - ./certs:/certs
+    environment:
+      - TIMEZONE=America/Vancouver
+      - ZABBIX_HOSTNAME=mail-example-dev-app
+
+      - CONTAINER_LOG_LEVEL=DEBUG
+      - DEBUG_MODE=FALSE
+      - INSTALL_ID=randomid
+      - LOG_LEVEL=INFO
+
+     ### Nginx & PHP
+      - NGINX_FASTCGI_BUFFERS=32 32k
+      - NGINX_FASTCGI_BUFFER_SIZE=64k
+      - PHP_APC_SHM_SIZE=1024M
+      - PHP_MEMORY_LIMIT=4096M
+      - PHP_FPM_MAX_CHILDREN=64
+      - PHP_FPM_START_SERVERS=12
+      - PHP_FPM_MIN_SPARE_SERVERS=16
+      - PHP_FPM_MAX_SPARE_SERVERS=32
+      - PHP_FPM_PROCESS_MANAGER=static
+      - PHP_OPCACHE_MEM_SIZE=1024M
+
+     ### Calendar
+      - ENABLE_CALENDAR=TRUE
+      - CALENDAR_HOSTNAME=calendar.example.com
+       
+     ### DAV (CardDAV,CalDAV)
+      - KDAV_HOSTNAME=dav.example.com
+      - KDAV_REALM=Example DAV
+
+     ### DB Related
+      - DB_HOST=mail-example-dev-db
+      - DB_USER=kopano
+      - DB_PASS=dbpassword
+      - DB_NAME=kopano
+
+     ### Gateway (pop3, imap)
+      - GATEWAY_SSL_CERT_FILE=/letsencrypt/imap.example.com/cert.pem
+      - GATEWAY_SSL_KEY_FILE=/letsencrypt/imap.example.com/key.pem
+      - GATEWAY_IMAP_MAX_MESSAGE_SIZE=50M
+
+     ### ICAL
+      - ICAL_SSL_CERT_FILE=/letsencrypt/mail.example.com/cert.pem
+      - ICAL_SSL_KEY_FILE=/letsencrypt/mail.example.com/key.pem
+
+     ### LDAP
+      - LDAP_URI=ldap://ldap-example-dev-app:389
+      - LDAP_BIND_DN=cn=dsa-kopano,ou=dsa,ou=System,dc=example,dc=dev
+      - LDAP_BIND_PASS=ldappassword
+      - LDAP_BASE_DN=dc=example,dc=dev
+      - LDAP_OBJECT_ATTRIBUTE_TYPE_USER=kopano-user
+      - LDAP_OBJECT_ATTRIBUTE_TYPE_GROUP=fdGroupMail
+      - LDAP_FILTER_USER_SEARCH=(&(objectClass=kopano-user)(kopanoAccount=1))
+      - LDAP_ATTRIBUTE_USER_UNIQUE=entryUUID
+
+     ### Konnect
+      - KONNECT_HOSTNAME=meet.example.com
+
+     ### Meet
+      - MEET_HOSTNAME=meet.example.com
+      - MEET_EXTERNAL_CALENDAR_HOSTNAME=mail.example.com
+      - MEET_EXTERNAL_CONTACTS_HOSTNAME=mail.example.com
+      - MEET_EXTERNAL_KONNECT_HOSTNAME=meet.example.com
+      - MEET_EXTERNAL_MAIL_HOSTNAME=mail.example.com
+      - MEET_EXTERNAL_WEBAPP_HOSTNAME=mail.example.com
+
+     ### Search
+      - SEARCH_ENABLE_HTTPS=FALSE
+
+     ### Server
+      - SERVER_ENABLE_HTTPS=TRUE
+      - SERVER_GAB_HIDE_EVERYONE=TRUE
+      - SERVER_GAB_HIDE_SYSTEM=TRUE
+      - SERVER_ADDITIONAL_ARGS=--ignore-attachment-storage-conflict
+      - SERVER_OIDC_IDENTIFIER=https://meet.example.com
+        #### Server: S3
+      - SERVER_ATTACHMENT_BACKEND=S3
+      - SERVER_ATTACHMENT_BACKEND_S3_HOST=minio.example.com
+      - SERVER_ATTACHMENT_BACKEND_S3_URI_STYLE=path
+      - SERVER_ATTACHMENT_BACKEND_S3_PROTOCOL=https
+      - SERVER_ATTACHMENT_BACKEND_S3_REGION=earth
+      - SERVER_ATTACHMENT_BACKEND_S3_BUCKET=kopano
+      - SERVER_ATTACHMENT_BACKEND_S3_ACCESS_ID=supersecretaccesskey
+      - SERVER_ATTACHMENT_BACKEND_S3_ACCESS_KEY=superdupersecret
+
+     ### Spooler
+      - SPOOLER_SMTP_HOST=mta-example-dev-app
+      - SPOOLER_SMTP_PORT=25
+
+     ### Webapp
+      - WEBAPP_HOSTNAME=mail.example.com
+      #- WEBAPP_THEME=theme-example
+      - WEBAPP_TITLE=Webmail
+      - WEBAPP_CROSS_DOMAIN_AUTHENTICATION_ALLOWED_DOMAINS=example.com
+      - WEBAPP_ENABLE_ADCANCED_SETTINGS=TRUE
+      - WEBAPP_LOGINNAME_STRIP_DOMAIN=TRUE
+      - WEBAPP_PLUGIN_INTRANET1_TITLE=Talk
+      - WEBAPP_PLUGIN_INTRANET1_URL=https://talk.example.com
+      - WEBAPP_PLUGIN_INTRANET1_AUTOSTART=FALSE
+      - WEBAPP_PLUGIN_INTRANET1_ICON=resources/icons/icon_default.png
+      - WEBAPP_PLUGIN_INTRANET2_TITLE=Meet
+      - WEBAPP_PLUGIN_INTRANET2_URL=https://meet.example.com
+      - WEBAPP_PLUGIN_INTRANET2_AUTOSTART=FALSE
+      - WEBAPP_PLUGIN_INTRANET2_ICON=resources/icons/icon_default.png
+      - WEBAPP_PLUGIN_INTRANET3_TITLE=Portal
+      - WEBAPP_PLUGIN_INTRANET3_URL=https://portal.example.com
+      - WEBAPP_PLUGIN_INTRANET3_AUTOSTART=FALSE
+      - WEBAPP_PLUGIN_INTRANET3_ICON=resources/icons/icon_default.png
+      ### SSO
+     #- NGINX_AUTHENTICATION_TYPE=LLNG
+     #- NGINX_AUTHENTICATION_LLNG_HANDLER_HOST=auth-example-dev-app
+     #- NGINX_AUTHENTICATION_LLNG_ATTRIBUTE1=REMOTE_USER,uid,upstream_http_uid
+     #- NGINX_AUTHENTICATION_LLNG_ATTRIBUTE2=REMOTE_PASSWORD,password,upstream_http_password
+     #- SERVER_ENABLE_SSO=TRUE
+     #- WEBAPP_OIDC_ISS=https://mail.example.com
+     #- WEBPP_OIDC_CLIENT_ID=webapp
+
+      - WEBAPP_COOKIE_NAME=Mail
+      ### Rocketchat
+      - WEBAPP_PLUGIN_ROCKETCHAT_HOST=talk.example.com
+      - WEBAPP_PLUGIN_ROCKETCHAT_TITLE=IM
+      - WEBAPP_PLUGIN_ROCKETCHAT_AUTOSTART=FALSE
+    ### These final lines are for Fail2ban. If you don't want, comment and also add ENABLE_FAIL2BAN=FALSE to your environment
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - proxy
+      - services
+    restart: always
+
+  kopano-db:
+    image: tiredofit/mariadb
+    container_name: kopano-db
+    volumes:
+      - ./db/mariadb:/var/lib/mysql
+    environment:
+      - ROOT_PASS=rootpassword
+      - DB_NAME=kopano
+      - DB_USER=kopano
+      - DB_PASS=dbpassword
+
+      - ZABBIX_HOSTNAME=kopano-db
+    networks:
+      - services
+    restart: always
+
+  kopano-db-backup:
+    image: tiredofit/db-backup
+    container_name: kopano-db-backup
+    links:
+     - kopano-db
+    volumes:
+      - ./dbbackup:/backup
+    environment:
+      - DB_HOST=kopano-db
+      - DB_TYPE=mariadb
+      - DB_NAME=kopano
+      - DB_USER=kopano
+      - DB_PASS=dbpassword
+      - DB_DUMP_FREQ=1440
+      - DB_DUMP_BEGIN=0035
+      - DB_CLEANUP_TIME=8640
+      - COMPRESSION=BZ
+
+      - ZABBIX_HOSTNAME=kopano-db-backup
+    networks:
+      - services
+    restart: always
+
+networks:
+  proxy:
+    external: true
+  services:
+    external: true

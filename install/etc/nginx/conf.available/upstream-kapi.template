@@ -1,0 +1,3 @@
+upstream kapi {
+        server <KAPI_HOST>:<KAPI_PORT>;
+}

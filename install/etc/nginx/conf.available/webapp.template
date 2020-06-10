@@ -1,0 +1,35 @@
+  server {
+     ### Don't Touch This
+     server_name <WEBAPP_HOSTNAME>;
+     listen <LISTEN_PORT>;
+     root <WEBROOT>;
+
+     ### Populate your custom directives here
+     index  index.php;
+    
+     location / {
+        try_files $uri $uri/ /index.php?$args;
+
+        access_log  <LOG_ACCESS_LOCATION>/webapp-access.log;
+        error_log   <LOG_ERROR_LOCATION>/webapp-error.log;
+         location ~ \.php(/|$) {
+            include /etc/nginx/nginx.conf.d/php-fpm.conf;
+            fastcgi_split_path_info ^(.+?\.php)(/.+)$;
+            fastcgi_param PATH_INFO $fastcgi_path_info;
+            fastcgi_index index.php;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+         }
+      }
+  
+    ### Includes
+    
+    # Deny access to any files with a .php extension in the uploads directory
+     location ~* /(?:uploads|files)/.*\.php$ {
+        deny all;
+     }
+  
+    ### Don't edit past here
+    include /etc/nginx/nginx.conf.d/site_optimization.conf;
+    include /etc/nginx/nginx.conf.d/exploit_protection.conf;
+}

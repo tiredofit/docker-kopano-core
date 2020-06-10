@@ -1,0 +1,3 @@
+upstream kwmserver {
+        server <KWM_HOST>:<KWM_PORT>;
+}

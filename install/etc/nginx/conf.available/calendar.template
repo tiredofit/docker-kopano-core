@@ -1,0 +1,112 @@
+  server {
+     ### Don't Touch This
+     server_name <CALENDAR_HOSTNAME>;
+     listen <LISTEN_PORT>;
+     root <WEBROOT_CALENDAR>;
+
+
+    location /.well-known/openid-configuration {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_pass http://konnect/.well-known/openid-configuration;
+    }
+
+    location /konnect/v1/jwks.json {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_pass http://konnect/konnect/v1/jwks.json;
+    }
+
+    location /konnect/v1/token {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_pass http://konnect/konnect/v1/token ;
+    }
+
+    location /konnect/v1/userinfo {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_pass http://konnect/konnect/v1/userinfo;
+    }
+
+    location /konnect/v1/static {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_pass http://konnect/konnect/v1/static;
+    }
+
+    location /konnect/v1/session {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_pass http://konnect/konnect/v1/session;
+    }
+
+    location /signin/ {
+            access_log  <LOG_ACCESS_LOCATION>/konnect-access.log;
+            error_log   <LOG_ERROR_LOCATION>/konnect-error.log;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_set_header X-Forwarded-Port $server_port;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_pass http://konnect/signin/;
+    }
+
+    location /api/gc/ {
+            access_log  <LOG_ACCESS_LOCATION>/kapi-access.log;
+            error_log   <LOG_ERROR_LOCATION>/kapi-error.log;
+            proxy_pass http://kapi/api/gc/;
+    }
+
+    # kapi pubs
+    location /api/pubs/ {
+            access_log  <LOG_ACCESS_LOCATION>/kapi-access.log;
+            error_log   <LOG_ERROR_LOCATION>/kapi-error.log;
+            proxy_pass http://kapi/api/pubs;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+    }
+
+    # disable caching for the service-worker
+    location /meet/service-worker.js {
+            access_log  <LOG_ACCESS_LOCATION>/calendaraccess.log;
+            error_log   <LOG_ERROR_LOCATION>/calendarerror.log;
+            alias /usr/share/kopano-calendar/calendar-webapp/service-worker.js;
+            expires -1;
+    }
+
+    location /api/v1/websocket/ {
+            access_log  <LOG_ACCESS_LOCATION>/kwm-access.log;
+            error_log   <LOG_ERROR_LOCATION>/kwm-error.log;
+            proxy_pass http://kwmserver/api/v1/websocket/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+    }
+
+    location /api/v1/ {
+            access_log  <LOG_ACCESS_LOCATION>/kwm-access.log;
+            error_log   <LOG_ERROR_LOCATION>/kwm-error.log;
+            proxy_pass http://kwmserver/api/v1/;
+    }
+
+    location /api/kwm/v2/ {
+            access_log  <LOG_ACCESS_LOCATION>/kwm-access.log;
+            error_log   <LOG_ERROR_LOCATION>/kwm-error.log;
+            proxy_pass http://kwmserver/api/kwm/v2/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+    }
+
+    location /api/kvs/v1/ {
+            access_log  <LOG_ACCESS_LOCATION>/kapi-access.log;
+            error_log   <LOG_ERROR_LOCATION>/kapi-error.log;
+            proxy_pass http://kapi/api/kvs/v1/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "Upgrade";
+    }
+
+    ## Includes
+}

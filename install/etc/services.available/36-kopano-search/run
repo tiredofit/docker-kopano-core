@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service defaults 30-kopano
+
+PROCESS_NAME="kopano-search"
+check_container_initialized
+check_service_initialized 35-kopano-spamd
+liftoff
+
+rm -rf /var/run/kopano/search.pid
+
+print_info "Starting Kopano Search"
+kopano-search ${SEARCH_ADDITIONAL_ARGS}

@@ -1,0 +1,12 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service defaults 30-kopano
+
+PROCESS_NAME="kopano-ical"
+check_container_initialized
+check_service_initialized 33-kopano-dagent
+liftoff
+
+print_info "Starting Kopano ICAL Server"
+kopano-ical ${ICAL_ADDITIONAL_ARGS}
