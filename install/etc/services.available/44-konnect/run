@@ -80,10 +80,6 @@ if [ -n "$log_level" ]; then
 	set -- "$@" --log-level="$log_level"
 fi
 
-if [ "${LOG_TYPE}" = "FILE" ] ; then
-	log_argument=">> ${LOG_PATH_KOPANO}${LOG_FILE_KONNECT}"
-fi
-
 if [ -n "$allowed_scopes" ]; then
 	for scope in $allowed_scopes; do
 		set -- "$@" --allow-scope="$scope"
@@ -198,4 +194,8 @@ set -- --identifier-client-path="$web_resources_path/identifier-webapp" --identi
 wait_for_server
 
 print_info "Starting Kopano Konnect Service"
-/usr/libexec/kopano/konnectd serve "$@"
+if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	/usr/libexec/kopano/konnectd serve "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_KONNECT}
+else
+	/usr/libexec/kopano/konnectd serve "$@"
+fi

@@ -36,10 +36,6 @@ if [ -n "$log_level" ]; then
 	set -- "$@" --log-level="$log_level"
 fi
 
-if [ "${LOG_TYPE}" = "FILE" ] ; then
-	log_argument=">> ${LOG_PATH_KOPANO}${LOG_FILE_KWM}"
-fi
-
 ## OIDC
 if [ -n "$oidc_issuer_identifier" ]; then
 	set -- "$@" --iss="$oidc_issuer_identifier"
@@ -113,5 +109,8 @@ if [ -n "$public_guest_access_regexp" ]; then
 fi
 
 print_info "Starting Kopano KWM Service"
-#kopano-kwmserverd serve 
-/usr/libexec/kopano/kwmserverd serve "$@"
+if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	/usr/libexec/kopano/kwmserverd serve "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_KWM}
+else
+	/usr/libexec/kopano/kwmserverd serve "$@"
+fi

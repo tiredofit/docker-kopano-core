@@ -1,3 +1,9 @@
+## 0.0.4 2020-06-10 <dave at tiredofit dot ca>
+
+   ### Added
+      - Allow GRAPI, KAPI, KWMServer, Konnect to Log to File
+
+
 ## 0.0.3 2020-06-10 <dave at tiredofit dot ca>
 
    ### Added
