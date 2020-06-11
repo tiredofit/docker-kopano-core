@@ -107,8 +107,8 @@ services:
 
      ### Webapp
       - WEBAPP_HOSTNAME=mail.example.com
-      #- WEBAPP_THEME=theme-example
-      - WEBAPP_TITLE=Webmail
+      - WEBAPP_THEME=theme-example
+      - WEBAPP_TITLE=example
       - WEBAPP_CROSS_DOMAIN_AUTHENTICATION_ALLOWED_DOMAINS=example.com
       - WEBAPP_ENABLE_ADCANCED_SETTINGS=TRUE
       - WEBAPP_LOGINNAME_STRIP_DOMAIN=TRUE
@@ -133,7 +133,7 @@ services:
      #- WEBAPP_OIDC_ISS=https://mail.example.com
      #- WEBPP_OIDC_CLIENT_ID=webapp
 
-      - WEBAPP_COOKIE_NAME=Mail
+      - WEBAPP_COOKIE_NAME=SDMail
       ### Rocketchat
       - WEBAPP_PLUGIN_ROCKETCHAT_HOST=talk.example.com
       - WEBAPP_PLUGIN_ROCKETCHAT_TITLE=IM
@@ -141,6 +141,7 @@ services:
     ### These final lines are for Fail2ban. If you don't want, comment and also add ENABLE_FAIL2BAN=FALSE to your environment
     cap_add:
       - NET_ADMIN
+
     networks:
       - proxy
       - services

@@ -1,3 +1,12 @@
+## 0.0.3 2020-06-10 <dave at tiredofit dot ca>
+
+   ### Added
+      - Added checks to hold on starting services until sockets are ready
+
+   ### Changed
+      - Removed Backticks in scripting instead using $()
+
+
 ## 0.0.2 2020-06-10 <dave at tiredofit dot ca>
 
    ### Changed

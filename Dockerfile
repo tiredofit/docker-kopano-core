@@ -29,6 +29,7 @@ RUN set -x && \
                        iptables \
                        jq \
                        lynx \
+                       netcat-openbsd \
                        php-memcached \
                        php-tokenizer \
                        python3-pip \
@@ -50,7 +51,7 @@ RUN set -x && \
 ### Kopano Core
     mkdir -p /usr/src/core && \
     kcore_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/core:/ | grep -o core-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Core Version: ${kcore_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano Core Version: ${kcore_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/core:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/core && \
     cd /usr/src/core && \
     apt-ftparchive packages ./ > /usr/src/core/Packages && \
@@ -59,7 +60,7 @@ RUN set -x && \
 ### Kopano WebApp
     mkdir -p /usr/src/webapp && \
     webapp_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/webapp:/ | grep -o webapp-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Webapp Version: ${webapp_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano Webapp Version: ${webapp_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/webapp:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/webapp && \
     cd /usr/src/webapp && \
     apt-ftparchive packages ./ > /usr/src/webapp/Packages && \
@@ -68,7 +69,7 @@ RUN set -x && \
 ### Kopano SMIME
     mkdir -p /usr/src/smime && \
     smime_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep -o smime-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano S/MIME Version: ${smime_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano S/MIME Version: ${smime_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/smime && \
     cd /usr/src/smime && \
     apt-ftparchive packages ./ > /usr/src/smime/Packages && \
@@ -77,7 +78,7 @@ RUN set -x && \
 ### Kopano Archiver
     mkdir -p /usr/src/archiver && \
     archiver_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/archiver:/ | grep -o archiver-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Archiver Version: ${archiver_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano Archiver Version: ${archiver_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/archiver:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/archiver && \
     cd /usr/src/archiver && \
     apt-ftparchive packages ./ > /usr/src/archiver/Packages && \
@@ -86,7 +87,7 @@ RUN set -x && \
 ### Kopano Apps (Calenar)
     mkdir -p /usr/src/kapps && \
     kapps_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep -o kapps-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Apps Version: ${webapp_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano Apps Version: ${kapps_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/kapps && \
     cd /usr/src/kapps && \
     apt-ftparchive packages ./ > /usr/src/kapps/Packages && \
@@ -95,7 +96,7 @@ RUN set -x && \
 ### Kopano MDM
     mkdir -p /usr/src/mdm && \
     mdm_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/mdm:/ | grep -o mdm-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano MDM Version: ${mdm_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano MDM Version: ${mdm_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/mdm:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/mdm && \
     cd /usr/src/mdm && \
     apt-ftparchive packages ./ > /usr/src/mdm/Packages && \
@@ -104,7 +105,7 @@ RUN set -x && \
 ### Kopano Files
     mkdir -p /usr/src/files && \
     files_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/files:/ | grep -o files-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Files Version: ${files_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano Files Version: ${files_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/files:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/files && \
     cd /usr/src/files && \
     apt-ftparchive packages ./ > /usr/src/files/Packages && \
@@ -113,7 +114,7 @@ RUN set -x && \
 ### Kopano Meet
     mkdir -p /usr/src/meet && \
     meet_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep -o meet-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Meet Version: ${meet_version} on `date`" >> /.kopano-versions && \
+    echo "Kopano Meet Version: ${meet_version} on $(date)" >> /.kopano-versions && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/meet && \
     cd /usr/src/meet && \
     apt-ftparchive packages ./ > /usr/src/meet/Packages && \
@@ -219,10 +220,7 @@ RUN set -x && \
     ln -sf /config /etc/kopano && \
     \
     ##### Cleanup
-    #apt-get autoremove -y && \
-    #apt-get clean -y && \
-    #rm -rf /var/lib/apt/lists/* && \
-    #rm -rf /usr/src/* && \
+    rm -rf /usr/src/* && \
     cd /etc/fail2ban && \
     rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
 

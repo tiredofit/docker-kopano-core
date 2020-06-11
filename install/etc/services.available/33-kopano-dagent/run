@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bash
 
 source /assets/functions/00-container
-prepare_service defaults 30-kopano
+prepare_service functions 30-kopano
 
 PROCESS_NAME="kopano-dagent"
 check_container_initialized
@@ -9,6 +9,8 @@ check_service_initialized 32-kopano-gateway
 liftoff
 
 rm -rf /var/run/kopano/dagent.pid
+
+wait_for_server
 
 print_info "Starting Kopano Dagent"
 kopano-dagent -l ${DAGENT_ADDITIONAL_ARGS}

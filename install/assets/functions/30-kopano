@@ -5,7 +5,7 @@ certificates() {
     CA_SUBJECT=${CA_SUBJECT:-"/C=XX/ST=Kopano/L=Kopano/O=Kopano/CN="}
     CA_CERT_SUBJECT=${CA_CERT_SUBJECT:-${CA_SUBJECT}${CA_NAME}}
     CA_CERT_FILE=${CA_CERT_FILE:-"/certs/${CA_NAME}/${CA_NAME}.crt"}
-    CA_KEY_FILE=${CA_KEY_FILE:-"`dirname ${CA_CERT_FILE}`/${CA_NAME}.key"}
+    CA_KEY_FILE=${CA_KEY_FILE:-"$(dirname ${CA_CERT_FILE})/${CA_NAME}.key"}
     CREATE_CA=${CREATE_CA:-"TRUE"}
 
     certificates_create_certificate_authority() {
@@ -113,7 +113,7 @@ EOF
             if var_true $CREATE_CA ; then
                 if [ ! -f ${1%%.*}.cert ] ; then
                     print_debug "Certificates: Signing Certificate: ${1}"
-                    silent eval "openssl ca -batch -config `dirname ${CA_CERT_FILE}`/${CA_NAME}.conf -notext -in ${1%%.*}.csr -out ${1%%.*}.crt"
+                    silent eval "openssl ca -batch -config $(dirname ${CA_CERT_FILE})/${CA_NAME}.conf -notext -in ${1%%.*}.csr -out ${1%%.*}.crt"
                     chown -R kopano:kopano ${1%%.*}.crt
                     rm -rf $(tail -n 1 $(dirname ${CA_CERT_FILE})/certindex | awk '{print $3}').pem
                     rm -rf ${1%%.*}.csr
@@ -155,7 +155,7 @@ EOF
     certificates_trust_ca() {
         if var_true $CREATE_CA ; then
             if [ -f ${CA_CERT_FILE} ]; then
-                if [ ! -L /usr/local/share/ca-certificates/`basename ${CA_CERT_FILE}` ] ; then
+                if [ ! -L /usr/local/share/ca-certificates/$(basename ${CA_CERT_FILE}) ] ; then
                     print_debug "Certificates: Trusting CA ${CA_NAME}"
                     ln -sf ${CA_CERT_FILE} /usr/local/share/ca-certificates/
                     silent dpkg-reconfigure ca-certificates
@@ -185,7 +185,7 @@ configure_autorespond() {
         cat <<EOF > ${CONFIG_PATH}backup.cfg
 ## Custom Generated Kopano Autoresponder Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 autorespond_cc = ${AUTORESPOND_AUTORESPOND_CC}
 autorespond_bcc = ${AUTORESPOND_AUTORESPOND_BCC}
@@ -217,7 +217,7 @@ EOF
         cat <<EOF > ${CONFIG_PATH}backup.cfg
 ## Custom Generated Kopano Backup Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 server_socket = ${BACKUP_SOCKET_SERVER}
 ${backup_sslkey}
@@ -301,7 +301,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}dagent.cfg
 ## Custom Generated Kopano DAgent Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 lmtp_listen = ${DAGENT_LISTEN_HOST}:${DAGENT_LISTEN_PORT}
 
@@ -431,7 +431,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}gateway.cfg
 ## Custom Generated Kopano Gateway Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 ${gateway_interfaces}
 ssl_private_key_file = ${GATEWAY_SSL_KEY_FILE}
@@ -476,7 +476,7 @@ configure_grapi() {
                 cat <<EOF > ${CONFIG_PATH}${GRAPI_CONFIG_FILE}
 # Custom Generated Kopano GRAPI Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on `date`
+# Last Generated on $(date)
 
 enable_experimental_endpoints = ${GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS}
 insecure = ${GRAPI_DISABLE_TLS_VALIDATION}
@@ -523,7 +523,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}ical.cfg
 ## Custom Generated Kopano ICal Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 ${ical_interfaces}
 ssl_private_key_file = ${ICAL_SSL_KEY_FILE}
@@ -557,7 +557,7 @@ configure_ldap() {
         cat <<EOF > ${CONFIG_PATH}ldap.cfg
 ## Custom Generated Kopano LDAP Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 ## Generated for LDAP Type: ${LDAP_TYPE}
 
@@ -685,7 +685,7 @@ EOF
         cat <<EOF > ${CONFIG_PATH}${LDAP_FILE_PROPMAP}
 ## Custom Generated Kopano LDAP Propmap Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 # PR_EC_ENABLED_FEATURES
 0x67B3101E  =   kopanoEnabledFeatures
 
@@ -1052,7 +1052,7 @@ EOF
                 cat <<EOF > ${CONFIG_PATH}${KAPI_CONFIG_FILE}
 # Custom Generated Kopano KAPI Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on `date`
+# Last Generated on $(date)
 
 insecure = ${KAPI_DISABLE_TLS_VALIDATION}
 listen = ${KAPI_LISTEN_HOST}:${KAPI_LISTEN_PORT}
@@ -1103,7 +1103,7 @@ configure_kdav() {
 <?php
 // Custom Generated KDav Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('MAPI_SERVER', '${KDAV_SOCKET_SERVER}');
 define('SABRE_AUTH_REALM', '${KDAV_REALM}');
@@ -1202,7 +1202,7 @@ EOF
                 cat <<EOF > ${CONFIG_PATH}${KONNECT_CONFIG_FILE}            
 # Custom Generated Konnect Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on `date`
+# Last Generated on $(date)
 
 allow_client_guests = ${KONNECT_ENABLE_CLIENT_GUESTS}
 allow_dynamic_client_registration = ${KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION}
@@ -1313,7 +1313,7 @@ EOF
                 cat <<EOF > ${CONFIG_PATH}${KWM_CONFIG_FILE}
 # Custom Generated Kopano KWM Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on `date`
+# Last Generated on $(date)
 
 oidc_issuer_identifier = ${SERVER_OIDC_IDENTIFIER}
 admin_tokens_secret_key = ${KWM_TOKENS_SECRET_KEY_FILE}
@@ -1453,7 +1453,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}monitor.cfg
 # Custom Generated Kopano Monitor Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on `date`
+# Last Generated on $(date)
 
 server_socket = ${MONITOR_SOCKET_SERVER}
 ${monitor_sslkey}
@@ -1508,7 +1508,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}search.cfg
 ## Custom Generated Kopano Search Indexer Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 server_socket = ${SEARCH_SOCKET_SERVER}
 ${search_sslkey}
@@ -1621,7 +1621,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}server.cfg
 ## Custom Generated Kopano Server Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 server_pipe_name = ${SERVER_PIPE_NAME}
 server_pipe_priority = ${SERVER_PIPE_PRIORITY_NAME}
@@ -1715,7 +1715,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}spamd.cfg
 ## Custom Generated Kopano SpamD Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 server_socket = ${SPAMD_SOCKET_SERVER}
 ${spamd_sslkey}
@@ -1767,7 +1767,7 @@ EOF
             cat <<EOF > ${CONFIG_PATH}spooler.cfg
 ## Custom Generated Kopano Spooler Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`
+## Last Generated on $(date)
 
 smtp_server = ${SPOOLER_SMTP_HOST}
 smtp_port = ${SPOOLER_SMTP_PORT}
@@ -1812,7 +1812,7 @@ configure_webapp() {
               sed -i "s#<LLNG_HANDLER_PORT>#$NGINX_AUTHENTICATION_LLNG_HANDLER_PORT#g" /etc/nginx/nginx.conf.d/authentication/llng
               print_notice "Setting LLNG Authentication"
 
-              header_num=`printenv | sort | grep '\NGINX_AUTHENTICATION_LLNG_ATTRIBUTE.*' | wc -l`
+              header_num=$(printenv | sort | grep '\NGINX_AUTHENTICATION_LLNG_ATTRIBUTE.*' | wc -l)
                 for (( i = 1; i <= $header_num; i++ ))
                     do
                       headers=NGINX_AUTHENTICATION_LLNG_ATTRIBUTE${i}
@@ -1875,7 +1875,7 @@ configure_webapp() {
 <?php
 // Custom Generated Kopano Webapp Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
     define("CONFIG_CHECK", ${WEBAPP_CONFIG_CHECK});
     define("CONFIG_CHECK_COOKIES_HTTP", ${WEBAPP_CONFIG_CHECK_COOKIES_HTTP});
@@ -1997,7 +1997,7 @@ configure_webapp_plugin_desktop_notifications() {
 <?php
 // Custom Generated Kopano Webapp Desktop Notification Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${PLUGIN_WEBAPP_ENABLE_DESKTOP_NOTIFICATIONS});
 ?>
@@ -2018,7 +2018,7 @@ configure_webapp_plugin_files() {
            		cat <<EOF > ${CONFIG_PATH}webapp/key-files
 ## This is the KEY and IV for the Webapp Files Plugin. If you don't have the variables set then you will lose your account
 ## credentials upon each startup. Don't delete this file.
-## Generated on `date`
+## Generated on $(date)
 
 IV: ${WEBAPP_PLUGIN_FILES_PASSWORD_IV}
 Key: ${WEBAPP_PLUGIN_FILES_PASSWORD_KEY}
@@ -2032,7 +2032,7 @@ EOF
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_FILES_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_FILES});
 define('PLUGIN_FILES_ASK_BEFORE_DELETE', ${WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE});
@@ -2051,7 +2051,7 @@ configure_webapp_plugin_file_previewer() {
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_FILEPREVIEWER});
 define('PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM}");
@@ -2067,12 +2067,12 @@ configure_webapp_plugin_intranet () {
 <?php
 // Custom Generated Kopano Webapp Intranet Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_INTRANET});
 EOF
 
-    NUM=`printenv | sort | grep '^WEBAPP_PLUGIN_INTRANET.*TITLE' | wc -l`
+    NUM=$(printenv | sort | grep '^WEBAPP_PLUGIN_INTRANET.*TITLE' | wc -l)
     for (( i = 1; i <= $NUM; i++ ))
     do
         intranet_title=WEBAPP_PLUGIN_INTRANET${i}_TITLE
@@ -2082,7 +2082,7 @@ EOF
         print_notice "Webapp Plugin: Intranet - Adding Tab #$NUM - ${!intranet_title} - ${!intranet_url}"
         if [ "${!intranet_title}" != "" ] ; then
             if [ "${i}" != "1" ] ; then
-                suffix="_`expr ${i} - 1`"
+                suffix="_$(expr ${i} - 1)"
             fi
             cat <<EOF >> ${CONFIG_PATH}webapp/config-intranet.php
 
@@ -2103,7 +2103,7 @@ configure_webapp_plugin_manual() {
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_WEBAPPMANUAL_URL', '${WEBAPP_PLUGIN_MANUAL_URL}');
 define('PLUGIN_WEBAPPMANUAL_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_MANUAL});
@@ -2119,7 +2119,7 @@ configure_webapp_plugin_mdm() {
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_MDM_USER_DEFAULT_ENABLE_MDM', ${WEBAPP_ENABLE_PLUGIN_MDM});
 define('PLUGIN_MDM_SERVER', '${ZPUSH_HOSTNAME}');
@@ -2150,7 +2150,7 @@ configure_webapp_plugin_pim_folder() {
 <?php
 // Custom Generated Kopano Webapp PIM Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_PIMFOLDER_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_PIM_FOLDER});
 ?>
@@ -2180,7 +2180,7 @@ configure_webapp_plugin_smime() {
 <?php
 // Custom Generated Kopano Webapp S/MIME Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 DEFINE('PLUGIN_SMIME_USER_DEFAULT_ENABLE_SMIME', ${WEBAPP_ENABLE_PLUGIN_SMIME});
 DEFINE('PLUGIN_SMIME_CACERTS', '${WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION}');
@@ -2199,7 +2199,7 @@ configure_webapp_plugin_title_counter() {
 <?php
 // Custom Generated Kopano Webapp Title Counter Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('PLUGIN_TITLECOUNTER_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_TITLE_COUNTER});
 ?>
@@ -2221,9 +2221,9 @@ configure_zpush() {
         fi
         sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/zpush-activesync.template
         sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/zpush-activesync.template
-        zpush_content_body_size=`echo ${ZPUSH_CONTENT_BODY_SIZE} | tr -dc 0-9`
-        zpush_content_body_size_unit=`echo ${ZPUSH_CONTENT_BODY_SIZE} | tr -dc 'a-zA-Z'`
-        zpush_content_body_size_overhead=`echo $(scale=1; echo ${zpush_content_body_size}*1.33 | bc | awk '{printf "%.0f\n", $1}')`
+        zpush_content_body_size=$(echo ${ZPUSH_CONTENT_BODY_SIZE} | tr -dc 0-9)
+        zpush_content_body_size_unit=$(echo ${ZPUSH_CONTENT_BODY_SIZE} | tr -dc 'a-zA-Z')
+        zpush_content_body_size_overhead=$(echo $(scale=1; echo ${zpush_content_body_size}*1.33 | bc | awk '{printf "%.0f\n", $1}'))
         print_debug "Setting Z-Push Content Body overhead to '${zpush_content_body_size_overhead}${zpush_content_body_size_unit}' from message size '${ZPUSH_CONTENT_BODY_SIZE}'"
         sed -i "s|<ZPUSH_CONTENT_BODY_SIZE>|${zpush_content_body_size_overhead}${zpush_content_body_size_unit}|g" /etc/nginx/conf.available/zpush-activesync.template
         if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -2241,7 +2241,7 @@ configure_zpush() {
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('MEMCACHED_SERVERS','${ZPUSH_MEMCACHED_HOST}:${ZPUSH_MEMCACHED_PORT}');
 define('MEMCACHED_DOWN_LOCK_FILE', '/tmp/z-push-memcache-down');
@@ -2291,7 +2291,7 @@ EOF
 <?php
 // Custom Generated ZPush Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
     define('TIMEZONE', '${TIMEZONE}');
     define('BASE_PATH', dirname(\$_SERVER['SCRIPT_FILENAME']). '/');
@@ -2452,7 +2452,7 @@ EOF
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('MAPI_SERVER', '${ZPUSH_SOCKET_SERVER}');
 
@@ -2460,7 +2460,7 @@ define('READ_ONLY_NOTIFY_LOST_DATA', ${ZPUSH_READ_ONLY_NOTIFY_LOST_DATA});
 define('READ_ONLY_NOTIFY_YOURDATA', '${ZPUSH_READ_ONLY_NOTIFY_YOUR_DATA}');
 define('READ_ONLY_NOTIFY_SUBJECT', "${ZPUSH_READ_ONLY_NOTIFY_SUBJECT}");
 define('READ_ONLY_NOTIFY_BODY', <<<END
-`cat ${TEMPLATE_ZPUSH_PATH}${TEMPLATE_ZPUSH_NOTIFY}`
+$(cat ${TEMPLATE_ZPUSH_PATH}${TEMPLATE_ZPUSH_NOTIFY})
 END
          );
 
@@ -2486,7 +2486,7 @@ EOF
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('HASHFIELD', 'account');
 define('CONTACTWORKER', 'Kopano');
@@ -2530,7 +2530,7 @@ EOF
 <?php
 // Custom Generated ZPush GAB Sync Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
 define('HASHFIELD', 'account');
 define('AMOUNT_OF_CHUNKS', 10);
@@ -2573,7 +2573,7 @@ EOF
 <?php
 // Custom Generated ZPush AutoDiscover Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on `date`
+// Last Generated on $(date)
 
     define('ZPUSH_HOST', '${ZPUSH_HOSTNAME}');
     define('TIMEZONE', '${TIMEZONE}');
@@ -2617,7 +2617,7 @@ EOF
         ### Change Output of ZPush when visiting with webbrowser in Debug Mode
         if var_true ${ENABLE_ZPUSH_CUSTOM_INDEX} ; then
             print_debug "Z-Push: Changing Z-Push Custom HTML Output with template"
-            zpush_custom_index=`mktemp`
+            zpush_custom_index=$(mktemp)
             awk 'BEGIN {p=1}/print <<<END/{print;system("cat ${ZPUSH_CUSTOM_INDEX_FILE}");p=0}/^END\;/{p=1} p' /usr/share/zpush/src/lib/core/zpush.php > ${zpush_custom_index}
             cp -R ${zpush_custom_index} /usr/share/zpush/src/lib/core/zpush.php         
         fi
@@ -2625,7 +2625,7 @@ EOF
 }
 
 create_store() {
-    check_store=`kopano-cli --list-stores | tail -n 1`
+    check_store=$(kopano-cli --list-stores | tail -n 1)
     if [ "$check_store" = "--------------------------------" ] ; then
         print_notice "Server: Creating Public Store"
         silent kopano-cli --create-store
@@ -2689,18 +2689,49 @@ move_remaining_config() {
         fi
     done
 }
+
 parse_config() {
     if [ -f ${1} ] ; then
         print_debug "Parsing Config ${1}"
         while IFS="" read -r line || [ -n "$line" ]
             do
             if [[ "${line}" == *" = "* ]] ; then
-                name=`echo $line | awk '{print $1}'`
-                value=`echo $line | awk '{print $3}'`
+                name=$(echo $line | awk '{print $1}')
+                value=$(echo $line | awk '{print $3}')
                 export $name=$value
             fi
         done < ${1}
     else
         print_error "Tried to parse config ${1} but it doesn't exist!"
     fi
+}
+
+wait_for_server() {
+    case "${SOCKET_SERVER}" in
+            "file://"* )
+                print_notice "Checking to see if Kopano Server socket is avaialable"
+                wait_for_socket ${SOCKET_SERVER}
+            ;;
+            "htt"* )
+                print_notice "Checking to see if Kopano Server port is avaialable"
+                kchost=$(echo "${SOCKET_SERVER}" | awk -F / '{print $3}' | awk -F : '{print $1}')
+                kcport=$(echo "${SOCKET_SERVER}" | awk -F / '{print $3}' | awk -F : '{print $2}')
+                wait_for_port $kchost $kcport
+            ;;
+    esac
+}
+
+wait_for_search() {
+    case "${SOCKET_SEARCH}" in
+            "file://"* )
+                print_notice "Checking to see if Kopano Search socket is avaialable"
+                wait_for_socket ${SOCKET_SEARCH}
+            ;;
+            "htt"* )
+                print_notice "Checking to see if Kopano Server port is avaialable"
+                kshost=$(echo "${SOCKET_SEARCH}" | awk -F / '{print $3}' | awk -F : '{print $1}')
+                Ksport=$(echo "${SOCKET_SEARCH}" | awk -F / '{print $3}' | awk -F : '{print $2}')
+                wait_for_port $kshost $ksport
+            ;;
+    esac
 }

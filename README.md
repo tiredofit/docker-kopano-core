@@ -11,9 +11,8 @@
 
 This will build a container for the [Kopano Groupware](https://kopano.io/) suite. 
 
-**At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the ins and outs of the software to potentially use for a non-profit educational institution. I am constantly relying on the expertise of the community in the Kopano.io Community forums and the manuals, and still have a long way to go**
+**At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the in's and out's of the software to potentially use for a non-profit educational institution.**
 
-* Installs latest nightly builds from community build offering
 * Automatic configuration of various services
 * Automatic certificate and CA generation
 * Kopano Core (backup, dagent, gateway, ical, monitor, server, spamd, spooler, webapp)
@@ -54,7 +53,7 @@ Companion @
 https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion](https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion), or [Traefik](https://github.com/tiredofit/docker-traefik) (preferred)
 in order to serve your pages. However, it will run just fine on it's own if you map appropriate ports.
 
-You will also need an external MySQL/MariaDB Container.
+You will also need an external MySQL/MariaDB Container
 
 # Installation
 
@@ -90,12 +89,12 @@ The following directories are used for configuration and can be mapped for persi
 
 Along with the Environment Variables from the [Base image](https://hub.docker.com/r/tiredofit/debian), [Nginx image](https://hub.docker.com/r/tiredofit/nginx), and [PHP-FPM](https://hub.docker.com/r/tiredofit/nginx-php-fpm),below is the complete list of available options that can be used to customize your installation.
 
-## There are over 550 environment variables that can be set - They will be added once image is stable.
+## There are over 550 environment variables - They will be added once image is stable.
 
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `SETUP_TYPE` | `MANUAL` or `AUTO` to auto generate cofniguration for services on bootup, otherwise let admin control configuration. | `AUTO`
-| `MODE` | Type of Install - `STANDALONE` for all packages | `STANDALONE` |
+| Parameter | Description |
+|-----------|-------------|
+| `SETUP_TYPE` | Default: `AUTO` to auto generate cofniguration for services on bootup, otherwise let admin control configuration. |
+| `MODE` | Type of Install - `AIO` for all packages |
 
 ## Maintenance
 

@@ -1,6 +1,6 @@
 FROM registry.selfdesign.org/docker/nginx-php-fpm/7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
-###### NOT WORKING
+
 ARG GPERFTOOLS_VERSION=2.6
 ARG VMIME_VERSION=v0.9.2k4
 

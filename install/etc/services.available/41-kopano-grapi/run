@@ -73,5 +73,7 @@ if [ -n "${EXTRA_PYTHONPATH}" ]; then
 	export PYTHONPATH="${EXTRA_PYTHONPATH}:${PYTHONPATH}"
 fi
 
+wait_for_server
+
 print_info "Starting Kopano GRAPI Service"
 /usr/bin/kopano-grapi-mfr "$@" 

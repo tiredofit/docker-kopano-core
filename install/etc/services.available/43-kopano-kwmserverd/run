@@ -113,4 +113,5 @@ if [ -n "$public_guest_access_regexp" ]; then
 fi
 
 print_info "Starting Kopano KWM Service"
+#kopano-kwmserverd serve 
 /usr/libexec/kopano/kwmserverd serve "$@"

@@ -191,7 +191,11 @@ if [ "$identity_manager" = "ldap" ]; then
 	fi
 fi
 
+# set identity manager at the end
+
 set -- --identifier-client-path="$web_resources_path/identifier-webapp" --identifier-registration-conf="$identifier_registration_conf" --iss="$oidc_issuer_identifier" "$@" "$identity_manager" $identity_manager_args
+
+wait_for_server
 
 print_info "Starting Kopano Konnect Service"
 /usr/libexec/kopano/konnectd serve "$@"

@@ -1,7 +1,7 @@
 #!/usr/bin/with-contenv bash
 
 source /assets/functions/00-container
-prepare_service defaults 30-kopano
+prepare_service functions 30-kopano
 
 PROCESS_NAME="kopano-server"
 check_container_initialized
@@ -9,6 +9,8 @@ check_service_initialized 30-kopano-server
 liftoff
 
 rm -rf /var/run/kopano/spooler.pid
+
+wait_for_server
 
 print_info "Starting Kopano Spooler"
 kopano-spooler
