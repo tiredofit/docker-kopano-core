@@ -1,11 +1,12 @@
 #!/usr/bin/with-contenv bash
 
 source /assets/functions/00-container
-
+prepare_service both 30-kopano
 PROCESS_NAME="post-startup-routines"
 check_container_initialized
 liftoff
 
+wait_for_server
 silent create_store
 print_info "Performing Initial Container Start LDAP Sync"
 silent kopano-admin --sync

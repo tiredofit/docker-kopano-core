@@ -27,9 +27,7 @@ RUN set -x && \
                        fail2ban \
                        git \
                        iptables \
-                       jq \
                        lynx \
-                       netcat-openbsd \
                        php-memcached \
                        php-tokenizer \
                        python3-pip \
@@ -187,11 +185,11 @@ RUN set -x && \
     \
 ### Miscellanious Scripts
     mkdir -p /assets/kopano/scripts && \
-    git clone https://stash.kopano.io/scm/ksc/Core-tools.git /assets/kopano/scripts/core-tools && \
-    git clone https://stash.kopano.io/scm/ksc/lab-scripts.git /assets/kopano/scripts/lab-scripts && \
-    git clone https://stash.kopano.io/scm/ksc/mail-migrations.git /assets/kopano/scripts/mail-migrations && \
-    git clone https://stash.kopano.io/scm/ksc/support.git /assets/kopano/scripts/support && \
-    git clone https://stash.kopano.io/scm/ksc/webapp-tools.git /assets/kopano/scripts/webapp-tools && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/Core-tools.git /assets/kopano/scripts/core-tools && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/lab-scripts.git /assets/kopano/scripts/lab-scripts && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/mail-migrations.git /assets/kopano/scripts/mail-migrations && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/support.git /assets/kopano/scripts/support && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /assets/kopano/scripts/webapp-tools && \
     \
 ##### Configuration
     mkdir -p /assets/kopano/config && \
@@ -220,7 +218,17 @@ RUN set -x && \
     ln -sf /config /etc/kopano && \
     \
     ##### Cleanup
-    rm -rf /usr/src/* && \
+    #apt-get purge -y \
+    #                  apt-utils \
+    #                  git \
+    #                  lynx \
+    #                  && \
+    #\
+    #apt-get autoremove -y && \
+    #apt-get clean && \
+    #rm -rf /var/lib/apt/lists/*
+    #rm -rf /usr/src/* && \
+    rm -rf /var/log/* && \
     cd /etc/fail2ban && \
     rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
 

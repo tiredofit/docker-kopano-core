@@ -279,9 +279,18 @@ configure_cron_zpush_gab2contacts() {
     echo "0 * * * * sudo -u nginx /usr/share/z-push/tools/gab2contacts/gab2contacts.php -a sync" >> /assets/cron/crontab.txt
 }
 
-## Needs Work
 configure_dagent() {
     if var_true $ENABLE_DAGENT ; then
+        if var_true $DAGENT_LOW_RAW_MESSAGES ; then 
+            mkdir -p ${DAGENT_PATH_RAW_MESSAGES}
+            chown -R kopano:kopano ${DAGENT_PATH_RAW_MESSAGES}
+        fi
+
+        if var_true $DAGENT_PLUGIN_ENABLED ; then 
+            mkdir -p ${DAGENT_PATH_PLUGIN}
+            chown -R kopano: ${DAGENT_PATH_PLUGIN} 
+        fi
+
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "DAgent: Auto Configuring"
             if [[ $SOCKET_SERVER == *"https://"* ]]; then
@@ -298,83 +307,79 @@ EOF
                 fi
             fi
 
+            case "$DAGENT_LOG_RAW_MESSAGES" in
+                "TRUE" | "true" | "YES" | "yes" )
+                    dagent_log_raw_message="yes"
+                ;;
+                "FALSE" | "false" | "NO" | "no" )
+                    dagent_log_raw_message="no"
+                ;;
+                "ALL" | "all" )
+                    dagent_log_raw_message="all"
+                ;;
+                *)
+                    dagent_log_raw_message=${DAGENT_LOG_RAW_MESSAGES}
+                ;;
+            esac
+
+            if var_true DAGENT_ENABLE_FORWARD_WHITELIST ; then
+                dagent_forward_whitelist=$(cat <<EOF
+forward_whitelist_domains = ${DAGENT_FORWARD_WHITELIST_DOMAINS}
+forward_whitelist_domain_subject = ${DAGENT_FORWARD_WHITELIST_DOMAINS_SUBJECT}
+forward_whitelist_domain_message = ${DAGENT_FORWARD_WHITELIST_DOMAINS_MESSAGE}
+EOF
+                                        )
+
+                if [ -n "${DAGENT_FORWARD_WHITELIST_DOMAINS_FILE}" ] ; then
+                    dagent_forward_whitelist=$(echo "${dagent_forward_whitelist}" ; cat<<EOF
+forward_whitelist_domains_file = ${DAGENT_FORWARD_WHITELIST_DOMAINS_FILE}
+EOF
+                                            )
+                fi
+
+                if [ -n "${DAGENT_FORWARD_WHITELIST_DOMAINS_MESSAGE_FILE}" ] ; then
+                    dagent_forward_whitelist=$(echo "${dagent_forward_whitelist}" ; cat<<EOF
+forward_whitelist_domain_message_file = ${DAGENT_FORWARD_WHITELIST_DOMAINS_MESSAGE_FILE}
+EOF
+                                            )
+                fi
+            fi
+
+            if [ -n "${DAGENT_SPAM_HEADER_VALUE}" ] ; then
+                dagent_spam_header_value="spam_header_value = ${DAGENT_SPAM_HEADER_VALUE}"
+            fi
+
+            truefalse_yesno DAGENT_ENABLE_PLUGINS
+            truefalse_yesno DAGENT_ARCHIVE_ON_DELIVERY
+            truefalse_yesno DAGENT_SET_RULE_HEADERS
+            truefalse_yesno DAGENT_NO_DOUBLE_FORWARD
+            truefalse_yesno DAGENT_HTML_SAFETY_FILTER
+            truefalse_yesno DAGENT_INSECURE_HTML_JOIN
+
             cat <<EOF > ${CONFIG_PATH}dagent.cfg
 ## Custom Generated Kopano DAgent Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
 
 lmtp_listen = ${DAGENT_LISTEN_HOST}:${DAGENT_LISTEN_PORT}
-
 server_socket = ${DAGENT_SOCKET_SERVER}
 ${dagent_sslkey}
-
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_DAGENT}
 log_timestamp = ${LOG_TIMESTAMPS}
-
-# Log raw message to a file. Can be "no", "all", or a list of usernames
-# for which messages should be saved.
-#log_raw_message = no
-#log_raw_message_path = /var/lib/kopano
-
+log_raw_message = ${dagent_log_raw_message}
+log_raw_message_path = ${DAGENT_PATH_RAW_MESSAGES}
 lmtp_max_threads = ${DAGENT_LMTP_MAX_THREADS}
 spam_header_name = ${DAGENT_SPAM_HEADER_NAME}
-
-# If the above header is found, and contains the following value
-# the mail will be considered as spam.
-# Notes:
-#  - The value is case insensitive.
-#  - Leading and trailing spaces are stripped.
-#  - The word 'bayes' also contains the word 'yes'.
-#spam_header_value = Yes,
-
-# Enable archive_on_delivery to automatically archive all incoming
-# messages on delivery.
-# This will do nothing if no archive is attached to the target mailbox.
-#archive_on_delivery = no
-
-# Enable the dagent Python plugin framework. Disables threading.
-#plugin_enabled = yes
-
-# Path to the activated dagent plugins.
-#   This folder contains symlinks to the kopano plugins and custom scripts. The plugins are
-#   installed in '/usr/share/kopano-dagent/python/plugins/'. To activate a plugin create a symbolic
-#   link in the 'plugin_path' directory.
-#
-# Example:
-#  $ ln -s /usr/share/kopano-dagent/python/plugins/BMP2PNG.py /var/lib/kopano/dagent/plugins/BMP2PNG.py
-#plugin_path = /var/lib/kopano/dagent/plugins
-
-##############################################################
-# DAGENT RULE SETTINGS
-
-# Enable the addition of X-Kopano-Rule-Action headers on messages
-# that have been forwarded or replied by a rule.
-#set_rule_headers = yes
-
-# Enable this option to prevent rules from potentially causing a loop. An
-# e-mail can only be forwarded once when this option is enabled. Requires the
-# set_rule_headers option to also be enabled.
-#no_double_forward = yes
-
-# Domain list to which forwarding is allowed. (Cuts off after 1000 characters,
-# and knows no escape chars, so use the _file variants if needed.)
-#forward_whitelist_domains = *
-#forward_whitelist_domains_file =
-#forward_whitelist_domain_subject = REJECT: %subject not forwarded (administratively blocked)
-#forward_whitelist_domain_message = The Kopano mail system has rejected your request to forward your e-mail with subject %subject (via mail filters) to %sender: the operation is not permitted.\n\nRemove the rule or contact your administrator about the forward_whitelist_domains setting.
-#forward_whitelist_domain_message_file =
-
-# Whether dagent should create the PR_EC_BODY_FILTERED property for
-# incoming mails and fill it with a filtered version of the mail.
-#html_safety_filter = no
-
-# When multiple HTML MIME parts are found, they can be joined to form a
-# continuous e-mail. (If not, they will become attachments.) Joining them
-# however can compromise the document integrity, as stylesheets and JavaScripts
-# affect the entire joined document.
-#
-#insecure_html_join = no
+archive_on_delivery = ${DAGENT_ARCHIVE_ON_DELIVERY}
+plugin_enabled = ${DAGENT_ENABLE_PLUGIN}
+plugin_path = ${DAGENT_PATH_PLUGIN}
+set_rule_headers = ${DAGENT_SET_RULE_HEADERS}
+no_double_forward = ${DAGENT_NO_DOUBLE_FORWARD}
+html_safety_filter = ${DAGENT_HTML_SAFETY_FILTER}
+insecure_html_join = ${DAGENT_INSECURE_HTML_JOIN}
+${dagent_forward_whitelist}
+${dagent_spam_header_value}
 EOF
         else
             print_info "DAgent: Skipping Auto Configuration"
@@ -382,7 +387,6 @@ EOF
     fi
 }
 
-## Needs Work
 configure_gateway() {
     if var_true $ENABLE_GATEWAY ; then
         certificates ${GATEWAY_SSL_CERT_FILE}
@@ -422,6 +426,7 @@ EOF
                 )
             fi
 
+            truefalse_yesno GATEWAY_BYPASS_AUTHENTICATION_ADMIN
             truefalse_yesno GATEWAY_GREETING_SHOW_HOSTNAME
             truefalse_yesno GATEWAY_HTML_SAFETY_FILTER
             truefalse_yesno GATEWAY_IMAP_ONLY_MAIL_FOLDERS
@@ -436,15 +441,10 @@ EOF
 ${gateway_interfaces}
 ssl_private_key_file = ${GATEWAY_SSL_KEY_FILE}
 ssl_certificate_file = ${GATEWAY_SSL_CERT_FILE}
-
 disable_plaintext_auth = ${GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH}
 ssl_prefer_server_ciphers = ${GATEWAY_SSL_PREFER_SERVER_CIPHERS}
-
 server_socket = ${GATEWAY_SOCKET_SERVER}
-
-# Bypass authentification when connecting as an administrator to the UNIX socket.
-#bypass_auth = no
-
+bypass_auth = ${GATEWAY_BYPASS_AUTHENTICATION_ADMIN}
 server_hostname_greeting = ${GATEWAY_GREETING_SHOW_HOSTNAME}
 server_hostname = ${GATEWAY_HOSTNAME}
 log_level = ${LOG_LEVEL}
@@ -529,9 +529,7 @@ ${ical_interfaces}
 ssl_private_key_file = ${ICAL_SSL_KEY_FILE}
 ssl_certificate_file = ${ICAL_SSL_CERT_FILE}
 ssl_prefer_server_ciphers = ${GATEWAY_SSL_PREFER_SERVER_CIPHERS}
-
 server_socket = ${ICAL_SOCKET_SERVER}
-
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_ICAL}
 log_timestamp = ${LOG_TIMESTAMPS}
@@ -554,6 +552,7 @@ configure_install_id() {
 configure_ldap() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Configuring LDAP"
+        truefalse_yesno LDAP_STARTTLS
         cat <<EOF > ${CONFIG_PATH}ldap.cfg
 ## Custom Generated Kopano LDAP Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -562,7 +561,7 @@ configure_ldap() {
 ## Generated for LDAP Type: ${LDAP_TYPE}
 
 ldap_uri = ${LDAP_URI}
-#ldap_starttls = no
+ldap_starttls = ${LDAP_STARTTLS}
 
 ldap_bind_user = ${LDAP_BIND_DN}
 ldap_bind_passwd = ${LDAP_BIND_PASS}
@@ -826,16 +825,24 @@ EOF
 }
 
 configure_logging() {
+    
     print_debug "Logging: Configuring Kopano"
-    mkdir -p ${LOG_PATH_KOPANO}
-    chown -R kopano: ${LOG_PATH_KOPANO}
-    sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
-
-    print_debug "Logging: Configuring ZPush"
+    if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+        mkdir -p ${LOG_PATH_KOPANO}
+        chown -R kopano: ${LOG_PATH_KOPANO}
+        sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
+    else
+        rm -rf /etc/logrotate.d/kopano
+    fi
+    
     if var_true $ENABLE_ZPUSH ; then
-        mkdir -p ${LOG_PATH_ZPUSH}
-        chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_ZPUSH}
-        sed -i -e "s#<ZPUSH_LOG_LOCATION>#${LOG_PATH_ZPUSH}#g" /etc/logrotate.d/zpush
+        if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+            mkdir -p ${LOG_PATH_ZPUSH} 
+            chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_ZPUSH}
+            sed -i -e "s#<ZPUSH_LOG_LOCATION>#${LOG_PATH_ZPUSH}#g" /etc/logrotate.d/zpush
+        else
+            rm -rf /etc/logrotate.d/zpush
+        fi
     else
         rm -rf /etc/logrotate.d/zpush
     fi
@@ -1078,9 +1085,15 @@ configure_kdav() {
     if var_true $ENABLE_KDAV ; then
         mkdir -p ${KDAV_PATH}
         chown -R nginx:www-data ${KDAV_PATH}
-        touch ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
-        chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
-        sed -i "s|/var/log/kdav/kdav.log|${LOG_PATH_KOPANO}${LOG_FILE_KDAV}|g" /usr/share/kdav/log4php.xml
+        if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "FILE" ] && [ "${LOG_FILE_KDAV}" != "/dev/null" ] ; then
+            touch ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
+            chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
+        fi
+        if [ "${LOG_FILE_KDAV}" = "/dev/null" ] ; then
+            sed -i "s|/var/log/kdav/kdav.log|${LOG_FILE_KDAV}|g" /usr/share/kdav/log4php.xml
+        else
+            sed -i "s|/var/log/kdav/kdav.log|${LOG_PATH_KOPANO}${LOG_FILE_KDAV}|g" /usr/share/kdav/log4php.xml
+        fi
         sed -i "s|level value=\"TRACE\"|level value=\"${kdav_log_level}\"|g" /usr/share/kdav/log4php.xml
         
         ### Configure Nginx
@@ -1457,7 +1470,6 @@ EOF
 
 server_socket = ${MONITOR_SOCKET_SERVER}
 ${monitor_sslkey}
-
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_MONITOR}
 log_timestamp = ${LOG_TIMESTAMPS}
@@ -1514,7 +1526,6 @@ server_socket = ${SEARCH_SOCKET_SERVER}
 ${search_sslkey}
 server_bind_name = ${SOCKET_SEARCH_LISTEN}
 ${search_socket_sslkey}
-
 index_path = ${SEARCH_INDEX_PATH}
 limit_results = ${SEARCH_LIMIT_RESULTS}
 log_level = ${LOG_LEVEL}
@@ -1743,7 +1754,11 @@ configure_spooler() {
             chown -R kopano: ${SPOOLER_PATH_PLUGIN} 
         fi
         
-        mkdir -p ${SPOOLER_PATH_RAW_MESSAGES}
+        if var_true $SPOOLER_LOG_RAW_MESSAGE_STAGE1 ; then 
+            mkdir -p ${SPOOLER_PATH_RAW_MESSAGES}
+            chown -R kopano: ${SPOOLER_PATH_RAW_MESSAGES}
+        fi
+
         truefalse_yesno SPOOLER_PLUGIN_ENABLED
         truefalse_yesno SPOOLER_LOG_RAW_MESSAGE_STAGE1
         truefalse_yesno SPOOLER_ENABLE_DSN
@@ -1771,14 +1786,11 @@ EOF
 
 smtp_server = ${SPOOLER_SMTP_HOST}
 smtp_port = ${SPOOLER_SMTP_PORT}
-
 server_socket = ${SPOOLER_SOCKET_SERVER}
 ${spooler_sslkey}
-
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_SPOOLER}
 log_timestamp = ${LOG_TIMESTAMPS}
-
 log_raw_message_path = ${SPOOLER_PATH_RAW_MESSAGES}
 log_raw_message_stage1 = ${SPOOLER_LOG_RAW_MESSAGE_STAGE1}
 max_threads = ${SPOOLER_MAX_THREADS}
@@ -2324,28 +2336,10 @@ EOF
     define('SYNC_CONFLICT_DEFAULT', ${ZPUSH_CONFLICT_HANDLER});
     define('SYNC_FILTERTIME_MAX', ${ZPUSH_SYNC_MAX_FILTERTIME});
     define('PING_INTERVAL', ${ZPUSH_PING_INTERVAL});
-
-    // Set the fileas (save as) order for contacts in the webaccess/webapp/outlook.
-    // It will only affect new/modified contacts on the mobile which then are synced to the server.
-    // Possible values are:
-    // SYNC_FILEAS_FIRSTLAST    - fileas will be "Firstname Middlename Lastname"
-    // SYNC_FILEAS_LASTFIRST    - fileas will be "Lastname, Firstname Middlename"
-    // SYNC_FILEAS_COMPANYONLY  - fileas will be "Company"
-    // SYNC_FILEAS_COMPANYLAST  - fileas will be "Company (Lastname, Firstname Middlename)"
-    // SYNC_FILEAS_COMPANYFIRST - fileas will be "Company (Firstname Middlename Lastname)"
-    // SYNC_FILEAS_LASTCOMPANY  - fileas will be "Lastname, Firstname Middlename (Company)"
-    // SYNC_FILEAS_FIRSTCOMPANY - fileas will be "Firstname Middlename Lastname (Company)"
-    // The company-fileas will only be set if a contact has a company set. If one of
-    // company-fileas is selected and a contact doesn't have a company set, it will default
-    // to SYNC_FILEAS_FIRSTLAST or SYNC_FILEAS_LASTFIRST (depending on if last or first
-    // option is selected for company).
-    // If SYNC_FILEAS_COMPANYONLY is selected and company of the contact is not set
-    // SYNC_FILEAS_LASTFIRST will be used
     define('FILEAS_ORDER', ${ZPUSH_CONTACT_FILE_ORDER});
     define('SYNC_MAX_ITEMS', ${ZPUSH_SYNC_MAX_ITEMS});
     define('UNSET_UNDEFINED_PROPERTIES', ${ZPUSH_SYNC_UNSET_UNDEFINED_PROPERTIES});
     define('SYNC_CONTACTS_MAXPICTURESIZE', ${ZPUSH_SYNC_MAX_CONTACTS_PICTURE_SIZE});
-
     define('ALLOW_WEBSERVICE_USERS_ACCESS', ${ZPUSH_ENABLE_WEBSERVICE_USERS_ACCESS});
     define('USE_PARTIAL_FOLDERSYNC', ${ZPUSH_SYNC_ENABLE_PARTIAL_FOLDERSYNC});
     define('PING_LOWER_BOUND_LIFETIME', ${ZPUSH_PING_LIFETIME_HIGHER});
@@ -2357,7 +2351,6 @@ EOF
     define('SEARCH_PROVIDER', '${ZPUSH_SEARCH_PROVIDER}');
     define('SEARCH_WAIT', ${ZPUSH_SEARCH_TIME});
     define('SEARCH_MAXRESULTS', ${ZPUSH_SEARCH_MAX_RESULTS});
-
     define('KOE_CAPABILITY_GAB', ${ZPUSH_OUTLOOK_ENABLE_GAB});
     define('KOE_CAPABILITY_RECEIVEFLAGS', ${ZPUSH_OUTLOOK_ENABLE_RECEIVE_FLAGS});
     define('KOE_CAPABILITY_SENDFLAGS', ${ZPUSH_OUTLOOK_ENABLE_SEND_FLAGS});
@@ -2370,10 +2363,6 @@ EOF
     define('KOE_CAPABILITY_SIGNATURES', ${ZPUSH_OUTLOOK_ENABLE_SIGNATURES});
     define('KOE_CAPABILITY_RECEIPTS', ${ZPUSH_OUTLOOK_ENABLE_IMPERSONATE});
     define('KOE_CAPABILITY_IMPERSONATE', ${ZPUSH_OUTLOOK_ENABLE_IMPERSONATE});
-    // To synchronize the GAB KOE, the GAB store and folderid need to be specified.
-    // Use the gab-sync script to generate this data. The name needs to
-    // match the config of the gab-sync script.
-    // More information here: https://wiki.z-hub.io/x/z4Aa (GAB Sync Script)
     define('KOE_GAB_STORE', '${ZPUSH_OUTLOOK_GAB_STORE}');
     define('KOE_GAB_FOLDERID', '${ZPUSH_OUTLOOK_GAB_FOLDERID}');
     define('KOE_GAB_NAME', '${ZPUSH_OUTLOOK_GAB_NAME}');
@@ -2466,9 +2455,6 @@ END
 
 define('READ_ONLY_NOTIFY_DATE_FORMAT', "${ZPUSH_READ_ONLY_NOTIFY_TIME_FORMAT}");
 define('READ_ONLY_NOTIFY_TIME_FORMAT', "${ZPUSH_READ_ONLY_NOTIFY_TIME_FORMAT}");
-
-// Comma separated list of folder ids as string for which the notification emails of the changes in read-only folders shouldn't be sent.
-// E.g. define('READ_ONLY_NONOTIFY', '1, 2, 3, 4');
 define('READ_ONLY_NONOTIFY', '${ZPUSH_READ_ONLY_NOTIFY_NO_NOTIFY}');
 EOF
 
@@ -2497,9 +2483,6 @@ define('CERTIFICATE', null);
 define('CERTIFICATE_PASSWORD', null);
 define('SOURCE_GAB', 'default');
 define('CONTACT_FOLDERSTORE', 'SYSTEM');
-
-// Set the target FolderId.
-// You can find the id e.g. with the listfolders script of Kopano backend.
 define('CONTACT_FOLDERID', '');
 
 // Set the fileas (save as) order for contacts.

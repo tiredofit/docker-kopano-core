@@ -73,6 +73,7 @@ wait_for_server
 
 print_info "Starting Kopano GRAPI Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	if [ "${LOG_FILE_GRAPI}" = "/dev/null" ] ; then unset ${LOG_PATH_KOPANO} ; fi;
 	/usr/bin/kopano-grapi-mfr "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_GRAPI}
 else
 	/usr/bin/kopano-grapi-mfr "$@"

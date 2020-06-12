@@ -195,6 +195,7 @@ wait_for_server
 
 print_info "Starting Kopano Konnect Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	if [ "${LOG_FILE_KONNECT}" = "/dev/null" ] ; then unset ${LOG_PATH_KOPANO} ; fi;
 	/usr/libexec/kopano/konnectd serve "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_KONNECT}
 else
 	/usr/libexec/kopano/konnectd serve "$@"
