@@ -106,6 +106,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 
 
 **Fail2ban Options**
+
 In order to take advantage of host blocking you will need to add the `NET_ADMIN` capability when starting the container.
 
 | Parameter | Description | Default |
@@ -145,6 +146,7 @@ In order to take advantage of host blocking you will need to add the `NET_ADMIN`
 
 ### LDAP Settings
 **LDAP Options** (needs work)
+
 Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will generate specific options for the schema. Below are the standard settings regardless of LDAP Type.
 
 | Parameter | Description | Default |
@@ -303,8 +305,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `BACKUP_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
-| `BACKUP_SSL_CERT_FILE` | Backup SSL Certificate File | `/certs/backup.crt` |
-| `BACKUP_SSL_KEY_FILE` | Backup SSL Key File | `/certs/backup.pem` |
+| `BACKUP_SSL_CERT_FILE` | Backup SSL Certificate File | `/certs/core/backup.crt` |
+| `BACKUP_SSL_KEY_FILE` | Backup SSL Key File | `/certs/core/backup.pem` |
 | `BACKUP_WORKER_PROCESSES` | Amount of processes for backup | `1` |
 | `LOG_FILE_BACKUP` | Logfile Name | `backup.log` |
 
@@ -336,8 +338,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `DAGENT_SET_RULE_HEADERS` | | `FALSE` |
 | `DAGENT_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
 | `DAGENT_SPAM_HEADER_NAME` | | `X-Spam-Status` |
-| `DAGENT_SSL_CERT_FILE` | Backup SSL Certificate File | `/certs/backup.crt` |
-| `DAGENT_SSL_KEY_FILE` | Backup SSL Key File | `/certs/backup.pem` |
+| `DAGENT_SSL_CERT_FILE` | Backup SSL Certificate File | `/certs/core/backup.crt` |
+| `DAGENT_SSL_KEY_FILE` | Backup SSL Key File | `/certs/core/backup.pem` |
 
 **Database Options**
 | Parameter | Description | Default |
@@ -374,8 +376,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `GATEWAY_LISTEN_PORT_POP3_SECURE` | Listen port (insecure) | `995` |
 | `GATEWAY_LISTEN_PORT_POP3` | Listen port (insecure) | `143` |
 | `GATEWAY_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
-| `GATEWAY_SSL_CERT_FILE` | Gateway SSL Certificate File | `/certs/gateway.crt` |
-| `GATEWAY_SSL_KEY_FILE` | Gateway SSL Key File | `/certs/gateway.pem` |
+| `GATEWAY_SSL_CERT_FILE` | Gateway SSL Certificate File | `/certs/core/gateway.crt` |
+| `GATEWAY_SSL_KEY_FILE` | Gateway SSL Key File | `/certs/core/gateway.pem` |
 | `GATEWAY_SSL_PREFER_SERVER_CIPHERS` | Prefer Server Ciphers when using SSL | `TRUE` |
 | `GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH` | Require SSL when using AUTHPLAIN  | `TRUE` |
 | `LOG_FILE_GATEWAY` | Logfile Name | `gateway.log` |
@@ -393,8 +395,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `ICAL_LISTEN_PORT` | Listen port (insecure) | `8080` |
 | `ICAL_LISTEN_PORT_SECURE` | Listen port (insecure) | `8443` |
 | `ICAL_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
-| `ICAL_SSL_CERT_FILE` | ICAL SSL Certificate File | `/certs/ical.crt` |
-| `ICAL_SSL_KEY_FILE` | ICAL SSL Key File | `/certs/ical.pem` |
+| `ICAL_SSL_CERT_FILE` | ICAL SSL Certificate File | `/certs/core/ical.crt` |
+| `ICAL_SSL_KEY_FILE` | ICAL SSL Key File | `/certs/core/ical.pem` |
 | `LOG_FILE_ICAL` | Logfile Name | `ical.log` |
 
 
@@ -420,8 +422,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `ENABLE_MONITOR` | Enable Service | `TRUE` |
 | `MONITOR_QUOTA_CHECK_INTERVAL` | Check Quotas in minutes interval | `15` |
 | `MONITOR_QUOTA_RESEND_INTERVAL` | Resend Notifications in minutes interval | `-1` |
-| `MONITOR_SSL_CERT_FILE` | Monitor SSL Certificate File | `/certs/monitor.crt` |
-| `MONTIOR_SSL_KEY_FILE` | Monitor SSL Key File | `/certs/monitor.pem` |
+| `MONITOR_SSL_CERT_FILE` | Monitor SSL Certificate File | `/certs/core/monitor.crt` |
+| `MONTIOR_SSL_KEY_FILE` | Monitor SSL Key File | `/certs/core/monitor.pem` |
 | `MONITOR_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
 | `LOG_FILE_MONITOR` | Logfile Name | `monitor.log` |
 | `TEMPLATE_MONITOR_COMPANY_QUOTA` | Template: Company exceeded Quota | `companywarning.mail` |
@@ -448,12 +450,10 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SEARCH_LISTEN_HOST` | Listen address | `0.0.0.0` |
 | `SEARCH_LISTEN_PORT` | Listen address | `1238` |
 | `SEARCH_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
-| `SEARCH_SSL_CERT_FILE` | Search SSL Certificate File | `/certs/search.crt` |
-| `SEARCH_SSL_KEY_FILE` | Search SSL Key File | `/certs/search.pem` |
-|
-| `SEARCH_SSL_LISTEN_CERT_FILE` | Search Listen SSL Certificate File | `/certs/search-listen.crt` |
-| `SEARCH_SSL_LISTEN_KEY_FILE` | Search Listen SSL Key File | `/certs/search-listen.pem` |
-|
+| `SEARCH_SSL_CERT_FILE` | Search SSL Certificate File | `/certs/core/search.crt` |
+| `SEARCH_SSL_KEY_FILE` | Search SSL Key File | `/certs/core/search.pem` |
+| `SEARCH_SSL_LISTEN_CERT_FILE` | Search Listen SSL Certificate File | `/certs/core/search-listen.crt` |
+| `SEARCH_SSL_LISTEN_KEY_FILE` | Search Listen SSL Key File | `/certs/core/search-listen.pem` |
 | `SEARCH_SUGGESTIONS` | Respond with suggestions | `FALSE` |
 | `SEARCH_TIMEOUT` | Timeout in seconds | `10` |
 
@@ -474,8 +474,7 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SERVER_ATTACHMENT_BACKEND_FILES_FSYNC` | | `TRUE` |
 | `SERVER_ATTACHMENT_BACKEND_FILES_PATH` | | `/data/attachments/` |
 | `SERVER_ATTACHMENT_BACKEND_S3_PATH` | | `attachments` |
-| `SERVER_ATTACHMENT_BACKEND` | Files Backend `FILES` `FILES_V2` `S3` |
-| `SERVER_ATTACHMENT_BACKEND` | | `files_v2` |
+| `SERVER_ATTACHMENT_BACKEND` | Files Backend `FILES` `FILES_V2` `S3` | `files_v2` |
 | `SERVER_ATTACHMENT_COMPRESSION` | | `6` |
 | `SERVER_ATTACHMENT_S3_PROTOCOL` | | `HTTPS` |
 | `SERVER_DISABLED_FEATURES` | | `` |
@@ -497,7 +496,7 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SERVER_MULTI_TENANT_LOGINNAME_FORMAT` | | `%u` |
 | `SERVER_MULTI_TENANT_STORENAME_FORMAT` | | `%f_%c` |
 | `SERVER_OIDC_DISABLE_TLS_VALIDATION` | | `FALSE` |
-| `SERVER_OIDC_IDENTIFIER` | URL to OIDC Provider ||
+| `SERVER_OIDC_IDENTIFIER` | URL to OIDC Provider | |
 | `SERVER_OIDC_TIMEOUT_INITIALIZE` | | `60` |
 | `SERVER_PIPE_NAME` | | `/var/run/kopano/server.sock` |
 | `SERVER_PIPE_PRIORITY_NAME` | | `/var/run/kopano/prio.sock` |
@@ -513,10 +512,10 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SERVER_SCRIPT_DELETEGROUP` | | `/usr/lib/kopano/userscripts/deletegroup` |
 | `SERVER_SCRIPT_DELETEUSER` | | `/usr/lib/kopano/userscripts/deleteuser` |
 | `SERVER_SERVER_NAME` | | `Kopano` |
-| `SERVER_SSL_CERT_FILE` | Server SSL Certificate File | `/certs/server.crt` |
-| `SERVER_SSL_KEY_FILE` | Server SSL Key File | `/certs/server.pem` |
+| `SERVER_SSL_CERT_FILE` | Server SSL Certificate File | `/certs/core/server.crt` |
+| `SERVER_SSL_KEY_FILE` | Server SSL Key File | `/certs/core/server.pem` |
 | `SERVER_SSL_KEY_PASS` | Set password set on SSL Key || 
-| `SERVER_SSL_PUBLIC_PATH` | | `/certs/core/public/` |
+| `SERVER_SSL_PUBLIC_PATH` | | `/certs/core/core/public/` |
 | `SERVER_SYSTEM_EMAIL_ADDRESS` | | `postmaster@example.com` |
 | `SERVER_THREADS` | | `8` |
 | `SERVER_TIMEOUT_RECIEVE` | | `5` |
@@ -538,8 +537,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SPAMD_FILES_SPAM_PATH` | Where to store HAM files for training | `/data/spamd/spam/` |
 | `SPAMD_SA_GROUP` | Spamassassin Group | `kopano` |
 | `SPAMD_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}`
-| `SPAMD_SSL_CERT_FILE` | SpamD SSL Certificate File | `/certs/spamd.crt` |
-| `SPAMD_SSL_KEY_FILE` | SpamD SSL Key File | `/certs/spamd.pem` |
+| `SPAMD_SSL_CERT_FILE` | SpamD SSL Certificate File | `/certs/core/spamd.crt` |
+| `SPAMD_SSL_KEY_FILE` | SpamD SSL Key File | `/certs/core/spamd.pem` |
 
 
 **Spooler Options** (needs work)
@@ -556,8 +555,8 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SPOOLER_SMTP_HOST` | Host that can provide outbound MTA functionality | `localhost` |
 | `SPOOLER_SMTP_PORT` | Port to connect to on `SMTP_HOST` | 25 |
 | `SPOOLER_SOCKET_SERVER` | What should service use to contact server | `${SOCKET_SERVER}` |
-| `SPOOLER_SSL_CERT_FILE` | Spooler SSL Certificate File | `/certs/spooler.crt` |
-| `SPOOLER_SSL_KEY_FILE` | Spooler SSL Key File | `/certs/spooler.pem` |
+| `SPOOLER_SSL_CERT_FILE` | Spooler SSL Certificate File | `/certs/core/spooler.crt` |
+| `SPOOLER_SSL_KEY_FILE` | Spooler SSL Key File | `/certs/core/spooler.pem` |
 
 
 **Webapp Options** (needs work)
