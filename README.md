@@ -92,12 +92,13 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 
 ## There are over 550 environment variables that can be set - They will be added once image is stable.
 
+### General Options
 **Container Options**
-
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `SETUP_TYPE` | `MANUAL` or `AUTO` to auto generate cofniguration for services on bootup, otherwise let admin control configuration. | `AUTO`
 | `MODE` | Type of Install - `STANDALONE` for all packages | `STANDALONE` |
+
 
 **Logging Options**
 | Parameter | Description | Default |
@@ -109,9 +110,12 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `LOG_TIMESTAMPS` | Include timestamps in logs | `TRUE` |
 | `LOG_LEVEL` | Logging Level `NONE` `CRITICAL` `ERROR` `WARN` `NOTICE` `INFO` `DEBUG` `ERROR` | `INFO` |
 
+
+### Kopano Core
 **Autorespond Options** (needs work)
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+
 
 **Backup Options**
 | Parameter | Description | Default |
@@ -121,9 +125,11 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `BACKUP_WORKER_PROCESSES` | Amount of processes for backup | `1` |
 | `LOG_FILE_BACKUP` | Logfile Name | `backup.log` |
 
+
 **Calendar Options** (needs work)
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+
 
 **DAgent Options** (needs work)
 | Parameter | Description | Default |
@@ -168,18 +174,8 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `GATEWAY_SSL_KEY_FILE` | Gateway SSL Key File | `/certs/gateway.pem` |
 | `GATEWAY_SSL_PREFER_SERVER_CIPHERS` | Prefer Server Ciphers when using SSL | `TRUE` |
 | `GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH` | Require SSL when using AUTHPLAIN  | `TRUE` |
-
 | `LOG_FILE_GATEWAY` | Logfile Name | `gateway.log` |
 
-**GRAPI Options**
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `GRAPI_WORKERS` | Amount of Worker Processes | `8` |
-| `GRAPI_PATH` | Path for Storing GRAPI Data | `/data/grapi/` |
-| `GRAPI_CONFIG_FILE` | Configuration File | `grapi.cfg` |
-| `GRAPI_DISABLE_TLS_VALIDATION` | Don't validate client certificates | `FALSE` |
-| `GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS` | Enable experimental endpoints | `FALSE` |
-| `SOCKET_GRAPI` | Socket file | `/var/run/kopano-grapi` |
 
 **ICAL Options** (needs work)
 | Parameter | Description | Default |
@@ -192,6 +188,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `ICAL_SSL_KEY_FILE` | ICAL SSL Key File | `/certs/ical.pem` |
 | `LOG_FILE_ICAL` | Logfile Name | `ical.log` |
 
+
 **KDAV Options** (needs work)
 | Parameter | Description | Default |
 |-----------|-------------|---------|
@@ -199,6 +196,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `KDAV_HOSTNAME` | DAV Service Hostname ||
 | `KDAV_REALM` | KDAV Realm ||
 | `LOG_FILE_KDAV` | Logfile Name | `kdav.log` |
+
 
 **LDAP Options** (needs work)
 | Parameter | Description | Default |
@@ -218,30 +216,6 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `LDAP_TIMEOUT` | Timeout in seconds for operations | `30` |
 
 
-**KAPI Options** (needs work)
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `KAPI_CONFIG_FILE` | Configuration File | `kapi.cfg` |
-
-**Konnect Options** (needs work)
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `KONNECT_CONFIG_FILE` | Configuration File | `konnect.cfg` |
-| `KONNECT_BACKEND` | Konnect Backend | `KC` |
-| `KONNECT_HOSTNAME` | Konnect Service Hostname | |
-| `LOG_FILE_KONNECT` | Logfile Name | `konnect.log` |
-
-**KWM Server Options** (needs work)
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `KWM_CONFIG_FILE` | Configuration File | `kwm.cfg` |
-
-**Meet Options** (needs work)
-| Parameter | Description | Default |
-|-----------|-------------|---------|
-| `MEET_CONFIG_FILE` | Configuration File | `meet.json` |
-| `MEET_HOSTNAME` | Hostname to use for Kopano Meet | 
-
 **Monitor Options**
 | Parameter | Description | Default |
 |-----------|-------------|---------|
@@ -250,6 +224,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `MONITOR_SSL_CERT_FILE` | Monitor SSL Certificate File | `/certs/monitor.crt` |
 | `MONTIOR_SSL_KEY_FILE` | Monitor SSL Key File | `/certs/monitor.pem` |
 | `LOG_FILE_MONITOR` | Logfile Name | `monitor.log` |
+
 
 **Search Options** (needs work)
 | Parameter | Description | Default |
@@ -263,6 +238,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `SEARCH_SSL_LISTEN_KEY_FILE` | Search Listen SSL Key File | `/certs/search-listen.pem` |
 |
 | `LOG_FILE_SEARCH` | Logfile Name | `search.log` |
+
 
 **Server Options** (needs work)
 | Parameter | Description | Default |
@@ -282,13 +258,18 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `SERVER_SSL_KEY_FILE` | Server SSL Key File | `/certs/server.pem` |
 |
 
-**SpamD Options** (needs work)
+
+**SpamD Options**
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `LOG_FILE_SPAMD` | Logfile Name | `spamd.log` |
+| `SPAMD_FILES_HAM_PATH` | Where to store HAM files for training | `/data/spamd/ham/` |
+| `SPAMD_FILES_SPAM_PATH` | Where to store HAM files for training | `/data/spamd/spam/` |
+| `SPAMD_SA_GROUP` | Spamassassin Group | `kopano` |
 | `SPAMD_SSL_CERT_FILE` | SpamD SSL Certificate File | `/certs/spamd.crt` |
 | `SPAMD_SSL_KEY_FILE` | SpamD SSL Key File | `/certs/spamd.pem` |
 |
+
 
 **Spooler Options** (needs work)
 | Parameter | Description | Default |
@@ -314,15 +295,147 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | `WEBAPP_LOGINNAME_STRIP_DOMAIN` | Strip Doman/ Prefix from username ||
 | `WEBAPP_ENABLE_REMOTE_PASSWORD` | Perform hack to allow $_SERVER_REMOTE_PASS to auto login user | `FALSE` |
 
-**Webapp Plugin: Intranet Options** (needs work)
+### Webapp Plugins
+**Webapp Plugin: Desktop Noticiations Options**
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+
+
+**Webapp Plugin: Files Options**
+
+This plugin requires an IV and Key to encrypt credentials for users to remove services. If the env vars do not exist, a random 8 char IV and 16 char KEY will be generated and stored in ${CONFIG_PATH}webapp/key-files and reloaded on each container start. 
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_FILES_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+| `WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE` | Ask users before deleting files | `TRUE` |
+| `WEBAPP_PLUGIN_FILES_CACHE_DIR` | Files cache directory | `/data/cache/webapp/plugin_files` |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_IV` | 8 character IV | `random` |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY` | 16 character IV | `random` |
+
+**Webapp Plugin: Filepreviewer Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+| ``WEBAPP_PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `auto` |
+| ``WEBAPP_PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `page-width` |
+
+
+**Webapp Plugin: Intranet Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_INTRANET_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
 | `WEBAPP_PLUGIN_INTRANET1_TITLE` | Service Name to appear in Header Bar ||
 | `WEBAPP_PLUGIN_INTRANET1_URL` | URL to load for service ||
 | `WEBAPP_PLUGIN_INTRANET1_AUTOSTART` | Auto start service upon login ||
-| `WEBAPP_PLUGIN_INTRANET1_ICON` | Icon to load for service ||
+| `WEBAPP_PLUGIN_INTRANET1_ICON` | Icon to load for service | `` |
 
 
+**Webapp Plugin: Manual Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | URL to Load for Manual | `https://documentation.kopano.io/user_manual_webapp/`
+
+**Webapp Plugin: Mobile Device Manager Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_MDM_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+| `WEBAPP_PLUGIN_MDM_SERVER_SSL` | Whether to use SSL to connect to Z-Push server | `TRUE` |
+| `ZPUSH_HOSTNAME` | Hostname of Z-Push server | `${WEBAPP_HOSTNAME}` |
+
+
+**Webapp Plugin: Meet Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_MEET_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+| `MEET_HOSTNAME` | Hostname of meet server | `meet.example.com` |
+
+
+**Webapp Plugin: PIM Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_PIM_DEFAULT_USER` | Auto Enable for new users | `FALSE` |
+
+
+**Webapp Plugin: Rocketchat Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_ROCKETCHAT_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+| `WEBAPP_PLUGIN_ROCKETCHAT_TITLE` | Service Name to appear in Header Bar | `Rocketchat` |
+| `WEBAPP_PLUGIN_ROCKETCHAT_HOST` | Host of Rocketchat Server (no http/https://) | `rocketchat.example.com` |
+| `WEBAPP_PLUGIN_ROCKETCHAT_HOST` | Use if service has subfolder | `` |
+| `WEBAPP_PLUGIN_ROCKETCHAT_AUTOSTART` | Auto start service upon login ||
+| `WEBAPP_PLUGIN_ROCKETCHAT_ICON` | Icon to load for service | `resources/icons/icon_default.png` |
+
+
+**Webapp Plugin: S/MIME Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_SMIME_DEFAULT_USER` | Auto Enable for new users | `FALSE` |
+| `WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION` |  | `/etc/ssl/certs` |
+| `WEBAPP_PLUGIN_SMIME_CIPHER` |  | `OPENSSL_CIPHER_AES_128_CBC` |
+| `WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE` |  | `FALSE` |
+| `WEBAPP_PLUGIN_SMIME_ENABLE_OCSP` |  | `TRUE` |
+
+**Webapp Plugin: Title Counter Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER` | Auto Enable for new users | `TRUE` |
+
+| `WEBAPP_PLUGIN_INTRANET1_ICON` | Icon to load for service | `resources/icons/icon_default.png` |
+
+### Meet Video Conferencing
+**GRAPI Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `GRAPI_WORKERS` | Amount of Worker Processes | `8` |
+| `GRAPI_PATH` | Path for Storing GRAPI Data | `/data/grapi/` |
+| `GRAPI_CONFIG_FILE` | Configuration File | `grapi.cfg` |
+| `GRAPI_DISABLE_TLS_VALIDATION` | Don't validate client certificates | `FALSE` |
+| `GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS` | Enable experimental endpoints | `FALSE` |
+| `SOCKET_GRAPI` | Socket file | `/var/run/kopano-grapi` |
+
+**KAPI Options** (needs work)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `KAPI_CONFIG_FILE` | Configuration File | `kapi.cfg` |
+
+
+**Konnect Options** (needs work)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `KONNECT_CONFIG_FILE` | Configuration File | `konnect.cfg` |
+| `KONNECT_BACKEND` | Konnect Backend | `KC` |
+| `KONNECT_HOSTNAME` | Konnect Service Hostname | |
+| `LOG_FILE_KONNECT` | Logfile Name | `konnect.log` |
+
+
+**KWM Server Options** (needs work)
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `KWM_CONFIG_FILE` | Configuration File | `kwm.cfg` |
+
+
+**Meet Options**
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `MEET_CONFIG_FILE` | Configuration File | `meet.json` |
+| `MEET_ENABLE_GUESTS` | Enable Guests to join meetings | `TRUE`
+| `MEET_EXTERNAL_APPS` | What applications to show in Apps bar | `kopano-calendar,kopano-contacts,kopano-meet,kopano-mail,kopano-connect,kopano-webapp` |
+| `MEET_EXTERNAL_CALENDAR_HOSTNAME` | URL for Calendar Hostname in app bar | |
+| `MEET_EXTERNAL_CONTACTS_HOSTNAME` | URL for Contacts Hostname in app bar | |
+| `MEET_EXTERNAL_KONNECT_HOSTNAME` | URL for Konnect Hostname in app bar | |
+| `MEET_EXTERNAL_MAIL_HOSTNAME` | URL for Mail Hostname in app bar | |
+| `MEET_EXTERNAL_WEBAPP_HOSTNAME` | URL for Webapp Hostname in app bar | |
+| `MEET_GUESTS_DEFAULT_USER` | | `null` |
+| `MEET_HOSTNAME` | Hostname to use for Kopano Meet | 
+| `MEET_KWM_URL` | KWM URL | `` |
+| `MEET_OIDC_ISS` | OIDC ISS | `` |
+| `MEET_WEBROOT` | For Nginx configuration | `/usr/share/kopano-meet/meet-webapp`
+
+### Z-Push Activesync
 **Z-Push Options** (needs work)
 | Parameter | Description | Default |
 |-----------|-------------|---------|

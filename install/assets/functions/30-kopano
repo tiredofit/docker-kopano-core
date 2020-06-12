@@ -2011,7 +2011,7 @@ configure_webapp_plugin_desktop_notifications() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${PLUGIN_WEBAPP_ENABLE_DESKTOP_NOTIFICATIONS});
+define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${PLUGIN_WEBAPP_DESKTOP_NOTIFICATIONS_DEFAULT_USER});
 ?>
 EOF
     fi
@@ -2046,7 +2046,7 @@ EOF
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_FILES_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_FILES});
+define('PLUGIN_FILES_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILES_DEFAULT_USER});
 define('PLUGIN_FILES_ASK_BEFORE_DELETE', ${WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE});
 define('PLUGIN_FILES_CACHE_DIR', "${WEBAPP_PLUGIN_FILES_CACHE_DIR}");
 define('PLUGIN_FILESBROWSER_LOGLEVEL', "${files_log_level}");
@@ -2065,7 +2065,7 @@ configure_webapp_plugin_file_previewer() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_FILEPREVIEWER});
+define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USERt});
 define('PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM}");
 define('PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM}");
 EOF
@@ -2081,7 +2081,7 @@ configure_webapp_plugin_intranet () {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_INTRANET});
+define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_INTRANET_DEFAULT_USER});
 EOF
 
     NUM=$(printenv | sort | grep '^WEBAPP_PLUGIN_INTRANET.*TITLE' | wc -l)
@@ -2117,8 +2117,8 @@ configure_webapp_plugin_manual() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
+define('PLUGIN_WEBAPPMANUAL_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MANUAL_DEFAULT_USER});
 define('PLUGIN_WEBAPPMANUAL_URL', '${WEBAPP_PLUGIN_MANUAL_URL}');
-define('PLUGIN_WEBAPPMANUAL_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_MANUAL});
 ?>
 EOF
     fi
@@ -2133,7 +2133,7 @@ configure_webapp_plugin_mdm() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_MDM_USER_DEFAULT_ENABLE_MDM', ${WEBAPP_ENABLE_PLUGIN_MDM});
+define('PLUGIN_MDM_USER_DEFAULT_ENABLE_MDM', ${WEBAPP_PLUGIN_MDM_DEFAULT_USER});
 define('PLUGIN_MDM_SERVER', '${ZPUSH_HOSTNAME}');
 define('PLUGIN_MDM_SERVER_SSL', ${WEBAPP_PLUGIN_MDM_SERVER_SSL});
 ?>
@@ -2146,7 +2146,7 @@ configure_webapp_plugin_meet() {
         print_notice "Webapp Plugin: Meet - Auto Configuring"
         cat <<EOF > ${CONFIG_PATH}webapp/config-pimfolder.php
 <?php
-define('PLUGIN_MEET_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_MEET});
+define('PLUGIN_MEET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MEET_DEFAULT_USER});
 define('PLUGIN_MEET_MEET_URL', 'https://${MEET_HOSTNAME}');
 //define('PLUGIN_MEET_MEET_JOIN_URL' '/meet/r/join/group/');
 
@@ -2164,7 +2164,7 @@ configure_webapp_plugin_pim_folder() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_PIMFOLDER_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_PIM_FOLDER});
+define('PLUGIN_PIMFOLDER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_PIM_FOLDER_DEFAULT_USER});
 ?>
 EOF
     fi
@@ -2175,7 +2175,7 @@ configure_webapp_plugin_rocketchat() {
         print_notice "Webapp Plugin: Rocketchat - Auto Configuring"
         cat <<EOF > ${CONFIG_PATH}webapp/config-rchat.php
 <?php
-define('PLUGIN_RCHAT_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_ROCKETCHAT});
+define('PLUGIN_RCHAT_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_ROCKETCHAT_DEFAULT_USER});
 define('PLUGIN_RCHAT_BUTTON_TITLE', '${WEBAPP_PLUGIN_ROCKETCHAT_TITLE}');
 define('PLUGIN_RCHAT_HOST', '${WEBAPP_PLUGIN_ROCKETCHAT_HOST}');
 define('PLUGIN_RCHAT_PATH', '${WEBAPP_PLUGIN_ROCKETCHAT_PATH}');
@@ -2194,7 +2194,7 @@ configure_webapp_plugin_smime() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-DEFINE('PLUGIN_SMIME_USER_DEFAULT_ENABLE_SMIME', ${WEBAPP_ENABLE_PLUGIN_SMIME});
+DEFINE('PLUGIN_SMIME_USER_DEFAULT_ENABLE_SMIME', ${WEBAPP_PLUGIN_SMIME_DEFAULT_USER});
 DEFINE('PLUGIN_SMIME_CACERTS', '${WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION}');
 DEFINE('PLUGIN_SMIME_CIPHER', ${WEBAPP_PLUGIN_SMIME_CIPHER}); 
 DEFINE('PLUGIN_SMIME_PASSPHRASE_REMEMBER_BROWSER', ${WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE});
@@ -2213,7 +2213,7 @@ configure_webapp_plugin_title_counter() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_TITLECOUNTER_USER_DEFAULT_ENABLE', ${WEBAPP_ENABLE_PLUGIN_TITLE_COUNTER});
+define('PLUGIN_TITLECOUNTER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER});
 ?>
 EOF
     fi
