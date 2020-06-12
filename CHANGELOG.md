@@ -1,3 +1,9 @@
+## 0.0.6 2020-06-12 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Shuffle around some environment variables for Webapp Plugins
+
+
 ## 0.0.5 2020-06-11 <dave at tiredofit dot ca>
 
    ### Added

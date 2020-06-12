@@ -2027,7 +2027,7 @@ configure_webapp_plugin_files() {
             if [ ! -f ${CONFIG_PATH}webapp/key-files ]; then
                 WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"}
                 WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"}
-           		cat <<EOF > ${CONFIG_PATH}webapp/key-files
+                cat <<EOF > ${CONFIG_PATH}webapp/key-files
 ## This is the KEY and IV for the Webapp Files Plugin. If you don't have the variables set then you will lose your account
 ## credentials upon each startup. Don't delete this file.
 ## Generated on $(date)
