@@ -439,7 +439,6 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SEARCH_CACHE_SIZE_TERM` | Cache Size | `256M` |
 | `SEARCH_ENABLE_HTTP` | Enable HTTP Communications to Search Socket | `FALSE` |
 | `SEARCH_ENABLE_HTTPS` | Enable TLS Communications to Search Socket | `FALSE` 
-|
 | `SEARCH_INDEX_ATTACHMENTS` | Index File Attachments | `FALSE` |
 | `SEARCH_INDEX_ATTACHMENTS_MAX_SIZE` | Only index files under this value | `5` |
 | `SEARCH_INDEX_DRAFTS` | Index Drafts Folder | `TRUE` |
@@ -456,7 +455,6 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `SEARCH_SSL_LISTEN_KEY_FILE` | Search Listen SSL Key File | `/certs/core/search-listen.pem` |
 | `SEARCH_SUGGESTIONS` | Respond with suggestions | `FALSE` |
 | `SEARCH_TIMEOUT` | Timeout in seconds | `10` |
-
 | `SOCKET_SEARCH` | Search Socket | |
 |                 | Dependent on options above enabling HTTP or HTTPS this will auto populate with a default.
 - ENABLE_HTTP = `http://search:${SEARCH_LISTEN_PORT}`
