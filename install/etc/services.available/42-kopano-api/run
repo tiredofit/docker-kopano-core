@@ -90,6 +90,7 @@ set -- "$@" --plugins-path="$plugins_path" --iss="$oidc_issuer_identifier"
 
 print_info "Starting Kopano API Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	if [ "${LOG_FILE_KAPI}" = "/dev/null" ] ; then unset ${LOG_PATH_KOPANO} ; fi;
 	/usr/libexec/kopano/kapid serve "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_KAPI}
 else
 	/usr/libexec/kopano/kapid serve "$@"

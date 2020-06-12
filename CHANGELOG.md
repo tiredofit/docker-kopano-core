@@ -1,3 +1,14 @@
+## 0.0.5 2020-06-11 <dave at tiredofit dot ca>
+
+   ### Added
+      - Finish off DAgent Configuration
+      - Finish off Gateway Configuration
+      - Don't create log files if not set to do so
+      - Support StartTLS for LDAP
+      - Cleanup Dockerfile
+      - Misc fixes
+
+
 ## 0.0.4 2020-06-10 <dave at tiredofit dot ca>
 
    ### Added

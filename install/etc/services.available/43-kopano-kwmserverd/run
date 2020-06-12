@@ -110,6 +110,7 @@ fi
 
 print_info "Starting Kopano KWM Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	if [ "${LOG_FILE_KWM}" = "/dev/null" ] ; then unset ${LOG_PATH_KOPANO} ; fi;
 	/usr/libexec/kopano/kwmserverd serve "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_KWM}
 else
 	/usr/libexec/kopano/kwmserverd serve "$@"
