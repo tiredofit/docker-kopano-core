@@ -299,6 +299,12 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 **Autorespond Options** (needs work)
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `AUTORESPOND_AUTORESPOND_BCC` | | `FALSE` |
+| `AUTORESPOND_AUTORESPOND_CC` | | `FALSE` |
+| `AUTORESPOND_AUTORESPOND_NORECIPIENTS` | | `FALSE` |
+| `AUTORESPOND_COPY_TO_SENTMAIL` | | `TRUE` |
+| `AUTORESPOND_FILE` | | `autorespond.db` |
+| `AUTORESPOND_PATH` | | `/data/autorespond/` |
 
 
 **Backup Options**
@@ -315,6 +321,7 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | Parameter | Description | Default |
 |-----------|-------------|---------|
 | `CALENDAR_WEBROOT` | | `/usr/share/kopano-calendar/calendar-webapp` |
+
 
 **DAgent Options** (needs work)
 | Parameter | Description | Default |
@@ -340,6 +347,7 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `DAGENT_SPAM_HEADER_NAME` | | `X-Spam-Status` |
 | `DAGENT_SSL_CERT_FILE` | Backup SSL Certificate File | `/certs/core/backup.crt` |
 | `DAGENT_SSL_KEY_FILE` | Backup SSL Key File | `/certs/core/backup.pem` |
+
 
 **Database Options**
 | Parameter | Description | Default |
@@ -575,7 +583,7 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `WEBAPP_DISABLE_WHATS_NEW_DIALOG` | | `FALSE` |
 | `WEBAPP_ENABLE_ADVANCED_SETTINGS` | | `FALSE` |
 | `WEBAPP_ENABLE_CONVERSATION_VIEW` | | `FALSE` |
-| `WEBAPP_ENABLE_DEFAULT_SOFT_DELETE-"FALSE` |
+| `WEBAPP_ENABLE_DEFAULT_SOFT_DELETE` | | `FALSE` |
 | `WEBAPP_ENABLE_DIRECT_BOOKING` | | `TRUE` |
 | `WEBAPP_ENABLE_DOMPURIFY_FILTER` | | `FALSE` |
 | `WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER` | | `TRUE` |
@@ -767,6 +775,7 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `KAPI_PLUGINS` | | `grapi kvs pubs` |
 | `KAPI_PUBS_SECRET_KEY_FILE` | | `/certs/kapi/kapid-pubs-secret.key` |
 
+
 **Konnect Options** (needs work)
 | Parameter | Description | Default |
 |-----------|-------------|---------|
@@ -791,6 +800,7 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `KONNECT_VALIDATION_KEYS_PATH` | | `/certs/konnect/konnect-validation` |
 | `KONNECT_WEBROOT` | | `/usr/share/kopano-konnect` |
 | `LOG_FILE_KONNECT` | Logfile Name | `konnect.log` |
+
 
 **KWM Server Options** (needs work)
 | Parameter | Description | Default |
