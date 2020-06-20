@@ -1,3 +1,9 @@
+## 0.0.10 2020-06-20 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Updates to Server Backend
+
+
 ## 0.0.9 2020-06-20 <dave at tiredofit dot ca>
 
    ### Changed

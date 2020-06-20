@@ -1805,7 +1805,7 @@ EOF
 }
 
 configure_user_backend() {
-    case "${SERVER_USER_BACKEND}" in
+    case "${SERVER_USER_PLUGIN}" in
                 "LDAP" | "ldap" )
                     print_info "Setting LDAP for User Backend"
                     configure_ldap
@@ -1815,7 +1815,7 @@ configure_user_backend() {
                     print_info "Setting MariaDB for User Backend"
                 ;;
                 *)
-                    print_error "SERVER_USER_BACKEND value ${SERVER_USER_BACKEND} not recognized. Exiting.."
+                    print_error "SERVER_USER_PLUGIN value ${SERVER_USER_PLUGIN} not recognized. Exiting.."
                     exit 1
                 ;;
     esac
