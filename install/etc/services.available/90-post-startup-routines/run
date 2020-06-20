@@ -8,6 +8,10 @@ liftoff
 
 wait_for_server
 silent create_store
-print_info "Performing Initial Container Start LDAP Sync"
-silent kopano-admin --sync
+
+if [ "$SERVER_USER_PLUGIN" = "LDAP" ] || [ "$SERVER_USER_PLUGIN" = "ldap" ] ; then
+	print_info "Performing Initial Container Start LDAP Sync"
+	silent kopano-admin --sync
+fi
+
 s6-svc -d /var/run/s6/services/90-post-startup-routines
