@@ -1,3 +1,9 @@
+## 0.0.7 2020-06-20 <dave at tiredofit dot ca>
+
+   ### Added
+      - Support tiredofit/fusiondirectory-plugin-kopano plugin with hardcoded LDAP attributes (LDAP_TYPE=FUSIONDIRECTORY)
+
+
 ## 0.0.6 2020-06-12 <dave at tiredofit dot ca>
 
    ### Changed
