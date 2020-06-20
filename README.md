@@ -147,10 +147,13 @@ In order to take advantage of host blocking you will need to add the `NET_ADMIN`
 ### LDAP Settings
 **LDAP Options** (needs work)
 
-Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will generate specific options for the schema. Below are the standard settings regardless of LDAP Type.
+Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will generate specific options for the schema. Below are the standard settings regardless of LDAP Type. 
+
+This image also works well with the [Fusion Directory Plugin](https://github.com/tiredofit/fusiondirectory-plugin/kopano) which uses OpenLDAP as a backend. Choosing this option with `LDAP_TYPE` will set values that are compatible with this plugin.
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
+| `LDAP_TYPE` | Type of LDAP Server for defaults `AD` `OPENLDAP` `FUSIONDIRECTORY` | `OPENLDAP` |
 | `LDAP_ATTRIBUTE_ADDRESSBOOK_HIDDEN` | | `kopanoHidden` |
 | `LDAP_ATTRIBUTE_ADDRESSLIST_FILTER` | | `kopanoFilter` |
 | `LDAP_ATTRIBUTE_ADDRESSLIST_NAME` | | `cn` |
@@ -218,7 +221,7 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `LDAP_SCOPE` | Scope of searches | `sub`
 | `LDAP_STARTTLS` | Use StartTLS when connecting to `LDAP_HOST` | `FALSE` |
 | `LDAP_TIMEOUT` | Timeout in seconds for operations | `30` |
-| `LDAP_TYPE` | Type of LDAP Server for defaults `AD` `OPENLDAP` | `OPENLDAP` |
+
 
 #### Active Directory
 | Parameter | Description | Default |
@@ -294,6 +297,25 @@ Depending on your LDAP Server type (Active Directory) or OpenLDAP this tool will
 | `LDAP_OBJECT_ATTRIBUTE_TYPE_USER` | | `posixAccount` |
 | `LDAP_QUOTA_MULTIPLIER` | | `1` |
 
+#### Fusion Directory (Openldap with custom values) (needs work)
+In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit/fusiondirectory-plugin/kopano) the following values are hardcoded:
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `LDAP_ATTRIBUTE_ADDRESSLIST_UNIQUE` | | `entryUUID` |
+| `LDAP_ATTRIBUTE_COMPANY_NAME` | | `o` |
+| `LDAP_ATTRIBUTE_COMPANY_UNIQUE` | | `entryUUID` |
+| `LDAP_ATTRIBUTE_DYNAMICGROUP_UNIQUE` | | `entryUUID` |
+| `LDAP_ATTRIBUTE_GROUP_MEMBERS` | | `member` |
+| `LDAP_ATTRIBUTE_GROUP_UNIQUE` | `entryUUID` |
+| `LDAP_ATTRIBUTE_USER_UNIQUE` | `entryUUID` |
+| `LDAP_FILTER_ADDRESSLIST_SEARCH` | | `(&(objectClass=kopano-addresslist)(kopanoAccount=1))` |
+| `LDAP_FILTER_COMPANY_SEARCH` | | `(&(objectClass=kopano-company))` |
+| `LDAP_FILTER_DYNAMICGROUP_SEARCH` | | `(&(objectClass=kopano-dyanmicgroup)(kopanoAccount=1))` 
+| `LDAP_FILTER_GROUP_SEARCH` | | `(&(objectClass=kopano-group)(kopanoAccount=1))` |`
+| `LDAP_FILTER_MULTIUSER_SERVER_SEARCH` | `(&(objectClass=kopano-server))` |
+| `LDAP_FILTER_USER_SEARCH` | | `(&(objectClass=kopano-user)(kopanoAccount=1))` |`
+| `LDAP_OBJECT_ATTRIBUTE_TYPE_GROUP` | `kopano-group` |
+| `LDAP_OBJECT_ATTRIBUTE_TYPE_USER` | `kopano-user` |
 
 ### Kopano Core
 **Autorespond Options** (needs work)
