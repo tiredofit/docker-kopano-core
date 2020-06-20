@@ -1813,6 +1813,7 @@ configure_user_backend() {
                 ;;
                 "DB" | "db" )
                     print_info "Setting MariaDB for User Backend"
+                ;;
                 *)
                     print_error "SERVER_USER_BACKEND value ${SERVER_USER_BACKEND} not recognized. Exiting.."
                     exit 1

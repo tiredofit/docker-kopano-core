@@ -1,3 +1,9 @@
+## 0.0.9 2020-06-20 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix for broken case statement
+
+
 ## 0.0.8 2020-06-20 <dave at tiredofit dot ca>
 
    ### Added
