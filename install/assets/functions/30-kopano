@@ -1804,6 +1804,22 @@ EOF
     fi
 }
 
+configure_user_backend() {
+    case "${SERVER_USER_BACKEND}" in
+                "LDAP" | "ldap" )
+                    print_info "Setting LDAP for User Backend"
+                    configure_ldap
+                    configure_cron_ldap_sync
+                ;;
+                "DB" | "db" )
+                    print_info "Setting MariaDB for User Backend"
+                *)
+                    print_error "SERVER_USER_BACKEND value ${SERVER_USER_BACKEND} not recognized. Exiting.."
+                    exit 1
+                ;;
+    esac
+}
+
 configure_webapp() {
     if var_true $ENABLE_WEBAPP ; then
         print_debug "Webapp: Enabled"

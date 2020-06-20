@@ -17,7 +17,6 @@ case "$MODE" in
 		db_ready mariadb
 		create_user_scripts
 		create_quota_templates
-		configure_cron_ldap_sync
 		configure_cron_purge_deleted
 		configure_autorespond
 		configure_backup
@@ -25,7 +24,6 @@ case "$MODE" in
 		configure_dagent
 		configure_gateway
 		configure_ical
-		configure_ldap
 		configure_kdav
         configure_meet
 		configure_monitor
@@ -33,6 +31,7 @@ case "$MODE" in
 		configure_server
 		configure_spamd
 		configure_spooler
+		configure_user_backend
 		configure_webapp
 		configure_webapp_plugins
 		configure_zpush
