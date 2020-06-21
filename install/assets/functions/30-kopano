@@ -1171,7 +1171,7 @@ configure_konnect() {
                     silent openssl genpkey   -algorithm RSA \
                                              -out ${KONNECT_SIGNING_KEY_FILE} \
                                              -pkeyopt rsa_keygen_bits:4096
-                    silent genpkey -algorithm RSA -out "${KONNECT_SIGNING_KEY_FILE}" -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537
+                    silent openssl genpkey -algorithm RSA -out "${KONNECT_SIGNING_KEY_FILE}" -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537
                 fi
 
                 if [ ! -f "${KONNECT_SIGNING_SECRET_FILE}" ]; then

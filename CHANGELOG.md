@@ -1,3 +1,9 @@
+## 0.0.11 2020-06-20 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix generating Konnect PKEY
+
+
 ## 0.0.10 2020-06-20 <dave at tiredofit dot ca>
 
    ### Changed
