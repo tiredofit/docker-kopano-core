@@ -1,3 +1,9 @@
+## 0.14.0 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix Environment variables for Webapp Plugin Defaults
+
+
 ## 0.13.0 2020-06-21 <dave at tiredofit dot ca>
 
    ### Added
