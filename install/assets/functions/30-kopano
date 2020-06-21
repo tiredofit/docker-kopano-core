@@ -281,7 +281,7 @@ configure_cron_zpush_gab2contacts() {
 
 configure_dagent() {
     if var_true $ENABLE_DAGENT ; then
-        if var_true $DAGENT_LOW_RAW_MESSAGES ; then 
+        if var_true $DAGENT_LOG_RAW_MESSAGES ; then 
             mkdir -p ${DAGENT_PATH_RAW_MESSAGES}
             chown -R kopano:kopano ${DAGENT_PATH_RAW_MESSAGES}
         fi

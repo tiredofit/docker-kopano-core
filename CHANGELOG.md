@@ -1,3 +1,9 @@
+## 0.17.0 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Changed
+      - DAgent Raw Message directory fix
+
+
 ## 0.16.0 2020-06-21 <dave at tiredofit dot ca>
 
    ### Changed
