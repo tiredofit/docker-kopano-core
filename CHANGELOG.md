@@ -1,3 +1,9 @@
+## 0.16.0 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix DAgent Plugin Setting
+
+
 ## 0.15.0 2020-06-21 <dave at tiredofit dot ca>
 
    ### Added

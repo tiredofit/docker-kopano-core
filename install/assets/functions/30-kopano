@@ -349,7 +349,7 @@ EOF
                 dagent_spam_header_value="spam_header_value = ${DAGENT_SPAM_HEADER_VALUE}"
             fi
 
-            truefalse_yesno DAGENT_ENABLE_PLUGINS
+            truefalse_yesno DAGENT_ENABLE_PLUGIN
             truefalse_yesno DAGENT_ARCHIVE_ON_DELIVERY
             truefalse_yesno DAGENT_SET_RULE_HEADERS
             truefalse_yesno DAGENT_NO_DOUBLE_FORWARD
