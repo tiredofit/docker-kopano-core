@@ -364,6 +364,7 @@ EOF
 lmtp_listen = ${DAGENT_LISTEN_HOST}:${DAGENT_LISTEN_PORT}
 server_socket = ${DAGENT_SOCKET_SERVER}
 ${dagent_sslkey}
+coredump_enabled = ${ENABLE_COREDUMPS}
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_DAGENT}
 log_timestamp = ${LOG_TIMESTAMPS}
@@ -447,6 +448,7 @@ server_socket = ${GATEWAY_SOCKET_SERVER}
 bypass_auth = ${GATEWAY_BYPASS_AUTHENTICATION_ADMIN}
 server_hostname_greeting = ${GATEWAY_GREETING_SHOW_HOSTNAME}
 server_hostname = ${GATEWAY_HOSTNAME}
+coredump_enabled = ${ENABLE_COREDUMPS}
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_GATEWAY}
 log_timestamp = ${LOG_TIMESTAMPS}
@@ -530,6 +532,7 @@ ssl_private_key_file = ${ICAL_SSL_KEY_FILE}
 ssl_certificate_file = ${ICAL_SSL_CERT_FILE}
 ssl_prefer_server_ciphers = ${GATEWAY_SSL_PREFER_SERVER_CIPHERS}
 server_socket = ${ICAL_SOCKET_SERVER}
+coredump_enabled = ${ENABLE_COREDUMPS}
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_ICAL}
 log_timestamp = ${LOG_TIMESTAMPS}
@@ -1470,6 +1473,7 @@ EOF
 
 server_socket = ${MONITOR_SOCKET_SERVER}
 ${monitor_sslkey}
+coredump_enabled = ${ENABLE_COREDUMPS}
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_MONITOR}
 log_timestamp = ${LOG_TIMESTAMPS}
@@ -1588,7 +1592,7 @@ EOF
                     )
             fi
 
-            truefalse_yesno ENABLE_COREDUMPS
+            
             truefalse_yesno SERVER_ALLOW_LOCAL_USERS
             truefalse_yesno SERVER_ATTACHMENT_BACKEND_FILES_FSYNC
             truefalse_yesno SERVER_ENABLE_GAB
@@ -1788,6 +1792,7 @@ smtp_server = ${SPOOLER_SMTP_HOST}
 smtp_port = ${SPOOLER_SMTP_PORT}
 server_socket = ${SPOOLER_SOCKET_SERVER}
 ${spooler_sslkey}
+coredump_enabled = ${ENABLE_COREDUMPS}
 log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_SPOOLER}
 log_timestamp = ${LOG_TIMESTAMPS}
