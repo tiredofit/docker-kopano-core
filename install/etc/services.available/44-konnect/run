@@ -191,8 +191,6 @@ fi
 
 set -- --identifier-client-path="$web_resources_path/identifier-webapp" --identifier-registration-conf="$identifier_registration_conf" --iss="$oidc_issuer_identifier" "$@" "$identity_manager" $identity_manager_args
 
-wait_for_server
-
 print_info "Starting Kopano Konnect Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
 	if [ "${LOG_FILE_KONNECT}" = "/dev/null" ] ; then unset ${LOG_PATH_KOPANO} ; fi;
