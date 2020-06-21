@@ -218,16 +218,16 @@ RUN set -x && \
     ln -sf /config /etc/kopano && \
     \
     ##### Cleanup
-    #apt-get purge -y \
-    #                  apt-utils \
-    #                  git \
-    #                  lynx \
-    #                  && \
-    #\
-    #apt-get autoremove -y && \
-    #apt-get clean && \
-    #rm -rf /var/lib/apt/lists/*
-    #rm -rf /usr/src/* && \
+    apt-get purge -y \
+                      apt-utils \
+                      git \
+                      lynx \
+                      && \
+    \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+    rm -rf /usr/src/* && \
     rm -rf /var/log/* && \
     cd /etc/fail2ban && \
     rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf

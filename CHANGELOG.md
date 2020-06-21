@@ -1,3 +1,9 @@
+## 0.13.0 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Added
+      - Reduce size of Docker Image by enabling cleanup routines
+
+
 ## 0.0.12 2020-06-21 <dave at tiredofit dot ca>
 
    ### Changed
