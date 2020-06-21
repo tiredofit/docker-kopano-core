@@ -1,3 +1,15 @@
+## 0.15.0 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Added
+      - Cleanup Dockerfile
+
+
+## 0.14.1 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Cleanup Dockerfile
+
+
 ## 0.14.0 2020-06-21 <dave at tiredofit dot ca>
 
    ### Changed
