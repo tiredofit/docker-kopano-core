@@ -1,3 +1,10 @@
+## 0.0.12 2020-06-21 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix fail2ban startup
+      - Don't look for Kopano Server socket before starting Konnect
+
+
 ## 0.0.11 2020-06-20 <dave at tiredofit dot ca>
 
    ### Changed
