@@ -5,10 +5,11 @@ prepare_service
 
 PROCESS_NAME="kopano"
 
-mkdir -p ${CONFIG_PATH}
+mkdir -p "${CONFIG_PATH}"
 sanity_var INSTALL_ID "Installation ID"
 configure_install_id
 configure_logging
+
 ## Don't Bother with changing mode - Not working
 case "$MODE" in
 	"STANDALONE")
@@ -117,7 +118,7 @@ case "$MODE" in
 	"SEARCH" | "search" )
 		print_info "Preparing to setup standalone Kopano Search Service"
 		service_stop 10-nginx
-		service_stop 11-nginx-config-reload		
+		service_stop 11-nginx-config-reload
 		service_stop 20-php-fpm
 		configure_search
 	;;
@@ -129,7 +130,7 @@ case "$MODE" in
 		service_stop 10-nginx
 		service_stop 11-nginx-config-reload
 		service_stop 20-php-fpm
-		configure_server	
+		configure_server
 	;;
 	"SPAMD" | "spamd" )
 		print_info "Preparing to setup standalone Kopano SpamD Service"
@@ -143,7 +144,7 @@ case "$MODE" in
 		service_stop 10-nginx
 		service_stop 11-nginx-config-reload
 		service_stop 20-php-fpm
-		configure_spooler				
+		configure_spooler
 	;;
 	"WEBSERVER" | "webserver" | "web" )
         print_info "Preparing to setup standalone Nginx Webservice"

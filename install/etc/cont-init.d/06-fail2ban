@@ -4,7 +4,7 @@ source /assets/functions/00-container
 prepare_service
 PROCESS_NAME="fail2ban"
 
-if var_true ${ENABLE_FAIL2BAN} ; then
+if var_true "${ENABLE_FAIL2BAN}" ; then
 	print_notice "Enabling Fail2ban"
     fail2ban_configure_logging
 	fail2ban_create_data_dir

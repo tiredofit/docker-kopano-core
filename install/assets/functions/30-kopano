@@ -21,7 +21,7 @@ certificates() {
                   -newkey rsa:4096 -keyout ${CA_KEY_FILE} \
                   -x509 -days 3650 -nodes -out ${CA_CERT_FILE} \
                   -subj \"${CA_CERT_SUBJECT}\""
-           
+
             chown -R kopano:kopano "${CA_KEY_FILE}" "${CA_CERT_FILE}"
 
             sudo -u kopano cat > "$(dirname "${CA_CERT_FILE}")"/"${CA_NAME}".conf << EOF
@@ -85,7 +85,7 @@ EOF
                     print_debug "Certificates: No CA Found - Creating before generating certificates"
                     certificates_create_certificate_authority
                 fi
-            fi            
+            fi
             CERT_SUBJECT="${CA_SUBJECT}$(basename "${1%%.*}")"
 
             if var_true "$CREATE_CA" ; then
@@ -102,8 +102,8 @@ EOF
                 if [ ! -f "${1%%.*}".key ] ; then
                     print_debug "Certificates: Creating Certificate: ${1}"
                     silent eval "openssl req \
-                          -new -x509 -nodes -days 3650 
-                          -config /usr/lib/ssl/openssl.cnf 
+                          -new -x509 -nodes -days 3650
+                          -config /usr/lib/ssl/openssl.cnf
                           -out ${1%%.*}.crt \
                           -keyout ${1%%.*}.key"
                     chown -R kopano:kopano "${1%%.*}".key "${1%%.*}".crt
@@ -235,11 +235,11 @@ EOF
 configure_calendar() {
     if var_true "$ENABLE_CALENDAR" ; then
         print_notice "Calendar: Enabled"
-        sanity_var CALENDAR_HOSTNAME "Calendar Hostname"        
-        
+        sanity_var CALENDAR_HOSTNAME "Calendar Hostname"
+
         ### Configure Nginx
         if [ "${CALENDAR_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/calendar.template;" /etc/nginx/conf.available/webapp.template  
+            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/calendar.template;" /etc/nginx/conf.available/webapp.template
         else
             sed -i "s|<CALENDAR_HOSTNAME>|${CALENDAR_HOSTNAME}|g" /etc/nginx/conf.available/calendar.template
             ln -s /etc/nginx/conf.available/calendar.template /etc/nginx/conf.d/calendar.conf
@@ -282,9 +282,9 @@ configure_cron_zpush_gab2contacts() {
 configure_dagent() {
     if var_true "$ENABLE_DAGENT" ; then
 
-        if var_true "$DAGENT_PLUGIN_ENABLED" ; then 
+        if var_true "$DAGENT_PLUGIN_ENABLED" ; then
             mkdir -p "${DAGENT_PATH_PLUGIN}"
-            chown -R kopano: "${DAGENT_PATH_PLUGIN}" 
+            chown -R kopano: "${DAGENT_PATH_PLUGIN}"
         fi
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -392,7 +392,7 @@ configure_gateway() {
         certificates "${GATEWAY_SSL_KEY_FILE}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Gateway: Auto Configuring"
-            
+
             if var_true "$GATEWAY_ENABLE_POP3" ; then
                 print_debug "Gateway: Enabling POP3"
                 gateway_interfaces=$(echo "${gateway_interfaces}" ; cat<<EOF
@@ -598,7 +598,7 @@ ldap_resource_type_attribute = ${LDAP_ATTRIBUTE_RESOURCETYPE}
 ldap_resource_capacity_attribute = ${LDAP_ATTRIBUTE_RESOURCECAPACITY}
 ldap_sendas_attribute = ${LDAP_ATTRIBUTE_SENDAS}
 ldap_sendas_attribute_type = ${LDAP_ATTRIBUTE_TYPE_SENDAS}
-ldap_sendas_relation_attribute = ${LDAP_ATTRIBUTE_SENDAS_RELATION} 
+ldap_sendas_relation_attribute = ${LDAP_ATTRIBUTE_SENDAS_RELATION}
 ldap_user_certificate_attribute = ${LDAP_ATTRIBUTE_USER_CERTIFICATE}
 
 # Group settings
@@ -622,7 +622,7 @@ ldap_company_view_attribute_type = ${LDAP_ATTRIBUTE_TYPE_COMPANY_VIEW}
 ldap_company_view_relation_attribute = ${LDAP_ATTRIBUTE_COMPANY_VIEW_RELATION}
 ldap_company_admin_attribute = ${LDAP_ATTRIBUTE_COMPANY_ADMIN}
 ldap_company_admin_attribute_type = ${LDAP_ATTRIBUTE_TYPE_COMPANY_ADMIN}
-ldap_company_admin_relation_attribute = ${LDAP_ATTRIBUTE_COMPANY_ADMIN_RELATION} 
+ldap_company_admin_relation_attribute = ${LDAP_ATTRIBUTE_COMPANY_ADMIN_RELATION}
 ldap_company_system_admin_attribute = ${LDAP_ATTRIBUTE_COMPANY_ADMIN}
 ldap_company_system_admin_attribute_type = ${LDAP_ATTRIBUTE_TYPE_COMPANY_SYSADMIN}
 ldap_company_system_admin_relation_attribute = ${LDAP_ATTRIBUTE_COMPANY_SYSADMIN_RELATION}
@@ -678,7 +678,7 @@ ldap_server_search_filter = ${LDAP_FILTER_MULTIUSER_SERVER_SEARCH}
 ldap_server_unique_attribute = ${LDAP_ATTRIBUTE_MULTIUSER_SERVER_UNIQUE}
 
 # Load extra user properties from the propmap file
-!propmap "${CONFIG_PATH}"${LDAP_FILE_PROPMAP}
+!propmap ${CONFIG_PATH}${LDAP_FILE_PROPMAP}
 
 EOF
 
@@ -699,7 +699,7 @@ EOF
 0x67C5101E  =   kopanoUserArchiveCouplings
 
 # PR_EC_EXCHANGE_DN
-0x6788001E  =   
+0x6788001E  =
 
 # PR_EC_AB_HIDDEN
 0x67A7000B      = kopanoHidden
@@ -786,12 +786,12 @@ EOF
 0x3A2B001E  =   postOfficeBox
 
 # PR_ASSISTANT (should result in a DN to another user)
-0x3A30001E  =   
+0x3A30001E  =
 # PR_EMS_AB_WWW_HOME_PAGE
-0x8175101E  =   
+0x8175101E  =
 
 # PR_BUSINESS_HOME_PAGE
-0x3A51001E  =   
+0x3A51001E  =
 
 # This enables GAB contact photos
 # Please note that the MAPI property has a 4K size limit
@@ -826,7 +826,7 @@ EOF
 }
 
 configure_logging() {
-    
+
     print_debug "Logging: Configuring Kopano"
     if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
         mkdir -p "${LOG_PATH_KOPANO}"
@@ -835,10 +835,10 @@ configure_logging() {
     else
         rm -rf /etc/logrotate.d/kopano
     fi
-    
+
     if var_true "$ENABLE_ZPUSH" ; then
         if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-            mkdir -p "${LOG_PATH_ZPUSH}" 
+            mkdir -p "${LOG_PATH_ZPUSH}"
             chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${LOG_PATH_ZPUSH}"
             sed -i -e "s#<ZPUSH_LOG_LOCATION>#${LOG_PATH_ZPUSH}#g" /etc/logrotate.d/zpush
         else
@@ -1096,10 +1096,10 @@ configure_kdav() {
             sed -i "s|/var/log/kdav/kdav.log|${LOG_PATH_KOPANO}${LOG_FILE_KDAV}|g" /usr/share/kdav/log4php.xml
         fi
         sed -i "s|level value=\"TRACE\"|level value=\"${kdav_log_level}\"|g" /usr/share/kdav/log4php.xml
-        
+
         ### Configure Nginx
         if [ "${KDAV_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/kdav-webapp.template;" /etc/nginx/conf.available/webapp.template   
+            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/kdav-webapp.template;" /etc/nginx/conf.available/webapp.template
         else
             sed -i "s|<KDAV_HOSTNAME>|${KDAV_HOSTNAME}|g" /etc/nginx/conf.available/kdav.template
             ln -s /etc/nginx/conf.available/kdav.template /etc/nginx/conf.d/kdav.conf
@@ -1140,10 +1140,10 @@ configure_konnect() {
         else
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_notice "Konnect: Auto Configuring"
-                
+
                 mkdir -p "${KONNECT_VALIDATION_KEYS_PATH}"
 
-                if [ "${KONNECT_LISTEN_HOST}" = "0.0.0.0" ] ; then KONNECT_HOST="127.0.0.1" ; fi;                
+                if [ "${KONNECT_LISTEN_HOST}" = "0.0.0.0" ] ; then KONNECT_HOST="127.0.0.1" ; fi;
                 sed -i "s|<KONNECT_HOST>|${KONNECT_HOST}|g" /etc/nginx/conf.available/upstream-konnect.template
                 sed -i "s|<KONNECT_PORT>|${KONNECT_PORT}|g" /etc/nginx/conf.available/upstream-konnect.template
                 ln -sf /etc/nginx/conf.available/upstream-konnect.template /etc/nginx/conf.d/upstream-konnect.conf
@@ -1183,7 +1183,7 @@ configure_konnect() {
 
                 if [ -f "${CONFIG_PATH}""${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}" ] ; then
                     konnect_registration_identifier_conf=$(cat<<EOF
-identifier_registration_conf = "${CONFIG_PATH}"${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}
+identifier_registration_conf = ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}
 EOF
                     )
                 fi
@@ -1213,7 +1213,7 @@ EOF
                 truefalse_yesno KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION
                 truefalse_yesno KONNECT_ENABLE_CLIENT_GUESTS
 
-                cat <<EOF > "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"            
+                cat <<EOF > "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"
 # Custom Generated Konnect Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 # Last Generated on $(date)
@@ -1221,7 +1221,7 @@ EOF
 allow_client_guests = ${KONNECT_ENABLE_CLIENT_GUESTS}
 allow_dynamic_client_registration = ${KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION}
 encryption_secret_key = ${KONNECT_SIGNING_SECRET_FILE}
-identifier_scopes_conf = "${CONFIG_PATH}"${KONNECT_CONFIG_FILE_IDENTIFIER_SCOPES}
+identifier_scopes_conf = ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_SCOPES}
 identity_manager = ${konnect_backend}
 identity_manager_args = ${KONNECT_IDENTITY_MANAGER_ARGUMENTS}
 insecure = ${KONNECT_DISABLE_TLS_VALIDATION}
@@ -1251,7 +1251,7 @@ EOF
             else
                 print_info "Konnect: Skipping Auto Configuration"
             fi
-            
+
             kapi_configured=TRUE
         fi
     fi
@@ -1291,14 +1291,14 @@ configure_kwm() {
 
                 if [ -f "${CONFIG_PATH}""${KWM_TURN_AUTH_SERVER_FILE}" ] ; then
                     kwm_turn_service_credentials=$(cat<<EOF
-turn_service_credentials = "${CONFIG_PATH}"${KWM_TURN_AUTH_SERVER_FILE}
+turn_service_credentials = ${CONFIG_PATH}${KWM_TURN_AUTH_SERVER_FILE}
 EOF
                     )
                 fi
 
                 if [ -f "${CONFIG_PATH}""${KWM_TURN_AUTH_SECRET_FILE}" ] ; then
                     kwm_turn_auth_secret=$(cat<<EOF
-turn_server_shared_secret = ${KWM_TURN_AUTH_SECRET_FILE} 
+turn_server_shared_secret = ${KWM_TURN_AUTH_SECRET_FILE}
 EOF
                     )
                 fi
@@ -1319,7 +1319,7 @@ EOF
 
                 if [ -f "${CONFIG_PATH}""${KWM_CONFIG_FILE_REGISTRATION}" ] ; then
                     kwm_registration_conf=$(cat<<EOF
-registration_conf = "${CONFIG_PATH}"${KWM_CONFIG_FILE_REGISTRATION} 
+registration_conf = ${CONFIG_PATH}${KWM_CONFIG_FILE_REGISTRATION}
 EOF
                     )
                 fi
@@ -1357,11 +1357,11 @@ EOF
 configure_meet() {
     if var_true "$ENABLE_MEET" ; then
         print_notice "Meet: Enabled"
-        sanity_var MEET_HOSTNAME "Meet Hostname"        
-        
+        sanity_var MEET_HOSTNAME "Meet Hostname"
+
         ### Configure Nginx
         if [ "${MEET_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet.template;" /etc/nginx/conf.available/webapp.template  
+            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet.template;" /etc/nginx/conf.available/webapp.template
         else
             sed -i "s|<MEET_HOSTNAME>|${MEET_HOSTNAME}|g" /etc/nginx/conf.available/meet.template
             ln -s /etc/nginx/conf.available/meet.template /etc/nginx/conf.d/meet.conf
@@ -1408,7 +1408,7 @@ EOF
                         seperator=","
                     fi
                     external_apps_enabled="${external_apps_enabled}${seperator}\"${app}\""
-                    let counter+=1
+                    (( counter+=1 ))
                     sed -i 's|"enabled": \[.*\]|"enabled": \['"${external_apps_enabled}"'\]|g' "${CONFIG_PATH}""${MEET_CONFIG_FILE}"
                     case "${app}" in
                         "kopano-webapp" )
@@ -1421,7 +1421,7 @@ EOF
                         ;;
                         "kopano-konnect" )
                             sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-konnect.template;" /etc/nginx/conf.available/meet.template
-                            sed -i "s|<KONNECT_EXT_HOSTNAME>|${MEET_EXTERNAL_KONNECT_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-konnect.template                        
+                            sed -i "s|<KONNECT_EXT_HOSTNAME>|${MEET_EXTERNAL_KONNECT_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-konnect.template
                         ;;
                         "kopano-contacts" )
                             sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-contacts.template;" /etc/nginx/conf.available/meet.template
@@ -1432,13 +1432,13 @@ EOF
                             sed -i "s|<CALENDAR_EXT_HOSTNAME>|${MEET_EXTERNAL_CALENDAR_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-calendar.template
                         ;;
                     esac
-                done    
+                done
             fi
         else
             print_info "Meet: Skipping Auto Configuration"
         fi
 
-        
+
         configure_grapi
         configure_kapi
         configure_kwm
@@ -1476,7 +1476,7 @@ log_level = ${LOG_LEVEL}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_MONITOR}
 log_timestamp = ${LOG_TIMESTAMPS}
 quota_check_interval = ${MONITOR_QUOTA_CHECK_INTERVAL}
-mailquota_resend_interval = ${MONITOR_QUOTA_RESEND_INTERVAL} 
+mailquota_resend_interval = ${MONITOR_QUOTA_RESEND_INTERVAL}
 userquota_warning_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_COMPANY_QUOTA}
 companyquota_warning_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_COMPANY_QUOTA}
 EOF
@@ -1590,7 +1590,7 @@ EOF
                     )
             fi
 
-            
+
             truefalse_yesno SERVER_ALLOW_LOCAL_USERS
             truefalse_yesno SERVER_ATTACHMENT_BACKEND_FILES_FSYNC
             truefalse_yesno SERVER_ENABLE_GAB
@@ -1735,12 +1735,12 @@ ${spamd_sslkey}
 
 run_as_user         = kopano
 run_as_group        = kopano
-log_level = ${LOG_LEVEL}
-log_file = ${LOG_PATH_KOPANO}${LOG_FILE_SPAMD}
-log_timestamp = ${LOG_TIMESTAMPS}
+log_level           = ${LOG_LEVEL}
+log_file            = ${LOG_PATH_KOPANO}${LOG_FILE_SPAMD}
+log_timestamp       = ${LOG_TIMESTAMPS}
 sa_group            = ${SPAMD_SA_GROUP}
 header_tag          = ${DAGENT_SPAM_HEADER_NAME}
-ham_dir            = ${SPAMD_FILES_HAM_PATH}
+ham_dir             = ${SPAMD_FILES_HAM_PATH}
 spam_dir            = ${SPAMD_FILES_SPAM_PATH}
 EOF
         else
@@ -1751,12 +1751,12 @@ EOF
 
 configure_spooler() {
     if var_true "$ENABLE_SPOOLER" ; then
-        if var_true "$SPOOLER_PLUGIN_ENABLED" ; then 
+        if var_true "$SPOOLER_PLUGIN_ENABLED" ; then
             mkdir -p "${SPOOLER_PATH_PLUGIN}"
-            chown -R kopano: "${SPOOLER_PATH_PLUGIN}" 
+            chown -R kopano: "${SPOOLER_PATH_PLUGIN}"
         fi
-        
-        if var_true "$SPOOLER_LOG_RAW_MESSAGE_STAGE1" ; then 
+
+        if var_true "$SPOOLER_LOG_RAW_MESSAGE_STAGE1" ; then
             mkdir -p "${SPOOLER_PATH_RAW_MESSAGES}"
             chown -R kopano: "${SPOOLER_PATH_RAW_MESSAGES}"
         fi
@@ -1844,7 +1844,7 @@ configure_webapp() {
               sed -i "s#<LLNG_HANDLER_PORT>#$NGINX_AUTHENTICATION_LLNG_HANDLER_PORT#g" /etc/nginx/nginx.conf.d/authentication/llng
               print_notice "Setting LLNG Authentication"
 
-              header_num=$(printenv | sort | grep '\NGINX_AUTHENTICATION_LLNG_ATTRIBUTE.*' | wc -l)
+              header_num=$(printenv | sort | grep -c '\NGINX_AUTHENTICATION_LLNG_ATTRIBUTE.*')
                 for (( i = 1; i <= $header_num; i++ ))
                     do
                       headers=NGINX_AUTHENTICATION_LLNG_ATTRIBUTE${i}
@@ -1871,10 +1871,10 @@ configure_webapp() {
             print_warn "Unknown AUTHENTICATION_TYPE option. Relying on Application Authentication"
          ;;
         esac
- 
+
         if var_true "$WEBAPP_ENABLE_REMOTE_PASSWORD" ; then
-            print_debug "Webapp: Enabling Remote Password HTTP Header Support" 
-            sed -i "s|WebAppAuthentication::login(\$username, '');|WebAppAuthentication::login(\$username, \$_SERVER['REMOTE_PASSWORD']);|g" /usr/share/kopano-webapp/server/includes/core/class.webappauthentication.php 
+            print_debug "Webapp: Enabling Remote Password HTTP Header Support"
+            sed -i "s|WebAppAuthentication::login(\$username, '');|WebAppAuthentication::login(\$username, \$_SERVER['REMOTE_PASSWORD']);|g" /usr/share/kopano-webapp/server/includes/core/class.webappauthentication.php
         fi
 
         ln -s /etc/nginx/conf.available/webapp.template /etc/nginx/conf.d/webapp.conf
@@ -1889,8 +1889,8 @@ configure_webapp() {
                     seperator=";"
                 fi
                 webapp_disabled_plugins=${webapp_disabled_plugins}${seperator}${plugin}
-                let counter+=1
-            done    
+                (( counter+=1 ))
+            done
 
             webapp_always_enabled_array=$(echo "$WEBAPP_PLUGINS_ENABLED_ALWAYS" | tr "," "\n")
             counter=1
@@ -1900,8 +1900,8 @@ configure_webapp() {
                     seperator=";"
                 fi
                 webapp_always_enabled_plugins=${webapp_always_enabled_plugins}${seperator}${plugin}
-                let counter+=1
-            done    
+                (( counter+=1 ))
+            done
 
             cat <<EOF > "${CONFIG_PATH}"webapp/config.php
 <?php
@@ -1957,7 +1957,7 @@ configure_webapp() {
     define("PREFETCH_EMAIL_COUNT", ${WEBAPP_PREFETCH_EMAIL_COUNT});
     define("PREFETCH_EMAIL_INTERVAL", ${WEBAPP_PREFETCH_EMAIL_INTERVAL});
 
-    ini_set("max_execution_time", 300); 
+    ini_set("max_execution_time", 300);
     define("BLOCK_SIZE", ${WEBAPP_BLOCK_SIZE});
     define("EXPIRES_TIME", ${WEBAPP_EXPIRES_TIME});
     define("STATE_FILE_MAX_LIFETIME", ${WEBAPP_STATE_FILE_MAX_LIFETIME});
@@ -2104,7 +2104,7 @@ configure_webapp_plugin_intranet () {
 define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_INTRANET_DEFAULT_USER});
 EOF
 
-    NUM=$(printenv | sort | grep '^WEBAPP_PLUGIN_INTRANET.*TITLE' | wc -l)
+    NUM=$(printenv | sort | grep -c '^WEBAPP_PLUGIN_INTRANET.*TITLE')
     for (( i = 1; i <= $NUM; i++ ))
     do
         intranet_title=WEBAPP_PLUGIN_INTRANET${i}_TITLE
@@ -2125,7 +2125,7 @@ define('PLUGIN_INTRANET_ICON${suffix}', '${!intranet_icon}');
 EOF
             fi
         done
-    fi  
+    fi
 }
 
 configure_webapp_plugin_manual() {
@@ -2216,7 +2216,7 @@ configure_webapp_plugin_smime() {
 
 DEFINE('PLUGIN_SMIME_USER_DEFAULT_ENABLE_SMIME', ${WEBAPP_PLUGIN_SMIME_DEFAULT_USER});
 DEFINE('PLUGIN_SMIME_CACERTS', '${WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION}');
-DEFINE('PLUGIN_SMIME_CIPHER', ${WEBAPP_PLUGIN_SMIME_CIPHER}); 
+DEFINE('PLUGIN_SMIME_CIPHER', ${WEBAPP_PLUGIN_SMIME_CIPHER});
 DEFINE('PLUGIN_SMIME_PASSPHRASE_REMEMBER_BROWSER', ${WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE});
 DEFINE('PLUGIN_SMIME_ENABLE_OCSP', ${WEBAPP_PLUGIN_SMIME_ENABLE_OCSP});
 ?>
@@ -2244,7 +2244,7 @@ configure_zpush() {
         print_notice "Z-Push: Enabled"
         ### Configure Nginx
         if [ "${ZPUSH_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-activesync.template;" /etc/nginx/conf.available/webapp.template  
+            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-activesync.template;" /etc/nginx/conf.available/webapp.template
         else
             sed -i "s|<ZPUSH_HOSTNAME>|${ZPUSH_HOSTNAME}|g" /etc/nginx/conf.available/zpush.template
             sed -i "s|<LISTEN_PORT>|${NGINX_LISTEN_PORT}|g" /etc/nginx/conf.available/zpush.template
@@ -2558,12 +2558,12 @@ EOF
 
         if var_true "$ZPUSH_ENABLE_AUTODISCOVER" ; then
             print_notice "Z-Push: Enabling Autodiscover"
-            
+
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_debug "Z-Push: Autoconfiguring"
                 ### Configure Nginx
                 if [ "${ZPUSH_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-                    sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-autodiscover.template;" /etc/nginx/conf.available/webapp.template    
+                    sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-autodiscover.template;" /etc/nginx/conf.available/webapp.template
                 else
                     sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-autodiscover.template;" /etc/nginx/conf.available/zpush.template
                 fi
@@ -2616,13 +2616,13 @@ EOF
 
         ### Setup Scheduled GAB to Contacts
         configure_cron_zpush_gab2contacts
-        
+
         ### Change Output of ZPush when visiting with webbrowser in Debug Mode
         if var_true "${ENABLE_ZPUSH_CUSTOM_INDEX}" ; then
             print_debug "Z-Push: Changing Z-Push Custom HTML Output with template"
             zpush_custom_index=$(mktemp)
             awk 'BEGIN {p=1}/print <<<END/{print;system("cat ${ZPUSH_CUSTOM_INDEX_FILE}");p=0}/^END\;/{p=1} p' /usr/share/zpush/src/lib/core/zpush.php > "${zpush_custom_index}"
-            cp -R "${zpush_custom_index}" /usr/share/zpush/src/lib/core/zpush.php         
+            cp -R "${zpush_custom_index}" /usr/share/zpush/src/lib/core/zpush.php
         fi
     fi
 }

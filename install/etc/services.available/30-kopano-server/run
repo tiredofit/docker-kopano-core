@@ -11,4 +11,4 @@ liftoff
 rm -rf /var/run/kopano/server.pid
 
 print_info "Starting Kopano Server"
-kopano-server ${SERVER_ADDITIONAL_ARGS}
+kopano-server "${SERVER_ADDITIONAL_ARGS}"

@@ -8,9 +8,9 @@ check_container_initialized
 check_service_initialized 30-kopano-server
 liftoff
 
-parse_config ${CONFIG_PATH}${KONNECT_CONFIG_FILE}
+parse_config "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"
 
-## Defaults 
+## Defaults
 default_identity_manager=kc
 default_web_resources_path=/usr/share/kopano-konnect
 default_identifier_registration_file=/etc/kopano/konnectd-identifier-registration.yaml
@@ -27,7 +27,7 @@ if [ -z "$signing_private_key" -a ! -e "${default_signing_private_key_file}" -a 
 		mkdir -p "${default_validation_keys_path}" && chown "$USER" "${default_validation_keys_path}"
 		rnd=$(RANDFILE=/tmp/.rnd $OPENSSL rand -hex 2)
 		key="${default_validation_keys_path}/konnect-$(date +%Y%m%d)-${rnd}.pem"
-		>&2	echo "setup: creating new RSA private key at ${key} ..."
+		>&2	echo "Konnect Setup: creating new RSA private key at ${key} ..."
 		RANDFILE=/tmp/.rnd $OPENSSL genpkey -algorithm RSA -out "${key}" -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537 && chown "$USER" "${key}" || true
 		if [ -f "${key}" ]; then
 			ln -sn "${key}" "${default_signing_private_key_file}" || true
@@ -189,12 +189,12 @@ fi
 
 # set identity manager at the end
 
-set -- --identifier-client-path="$web_resources_path/identifier-webapp" --identifier-registration-conf="$identifier_registration_conf" --iss="$oidc_issuer_identifier" "$@" "$identity_manager" $identity_manager_args
+set -- --identifier-client-path="$web_resources_path/identifier-webapp" --identifier-registration-conf="$identifier_registration_conf" --iss="$oidc_issuer_identifier" "$@" "$identity_manager" "$identity_manager_args"
 
 print_info "Starting Kopano Konnect Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-	if [ "${LOG_FILE_KONNECT}" = "/dev/null" ] ; then unset ${LOG_PATH_KOPANO} ; fi;
-	/usr/libexec/kopano/konnectd serve "$@" 2>> ${LOG_PATH_KOPANO}${LOG_FILE_KONNECT}
+	if [ "${LOG_FILE_KONNECT}" = "/dev/null" ] ; then unset "${LOG_PATH_KOPANO}" ; fi;
+	/usr/libexec/kopano/konnectd serve "$@" 2>> "${LOG_PATH_KOPANO}""${LOG_FILE_KONNECT}"
 else
 	/usr/libexec/kopano/konnectd serve "$@"
 fi

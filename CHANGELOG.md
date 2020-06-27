@@ -1,3 +1,11 @@
+## 0.18.0 2020-06-27 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Run shellcheck against scripts adding quotes around variables
+      - Fix misspelled environment variables
+      - Fix issue with LDAP_MODE=FUSIONDIRECTORY not picking up groups
+
+
 ## 0.17.0 2020-06-21 <dave at tiredofit dot ca>
 
    ### Changed

@@ -13,4 +13,4 @@ rm -rf /var/run/kopano/dagent.pid
 wait_for_server
 
 print_info "Starting Kopano Dagent"
-kopano-dagent -l ${DAGENT_ADDITIONAL_ARGS}
+kopano-dagent -l "${DAGENT_ADDITIONAL_ARGS}"

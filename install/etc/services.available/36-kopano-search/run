@@ -13,4 +13,4 @@ rm -rf /var/run/kopano/search.pid
 wait_for_server
 
 print_info "Starting Kopano Search"
-kopano-search ${SEARCH_ADDITIONAL_ARGS}
+kopano-search "${SEARCH_ADDITIONAL_ARGS}"

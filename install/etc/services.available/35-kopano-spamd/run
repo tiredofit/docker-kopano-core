@@ -13,4 +13,4 @@ rm -rf /var/run/kopano/spamd.pid
 wait_for_server
 
 print_info "Starting Kopano SpamD Service"
-kopano-spamd ${SPAMD_ADDITIONAL_ARGS}
+kopano-spamd "${SPAMD_ADDITIONAL_ARGS}"

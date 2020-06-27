@@ -13,4 +13,4 @@ rm -rf /var/run/kopano/monitor.pid
 wait_for_server
 
 print_info "Starting Kopano Monitoring Service"
-kopano-monitor ${MONITOR_ADDITIONAL_ARGS}
+kopano-monitor "${MONITOR_ADDITIONAL_ARGS}"
