@@ -5,26 +5,26 @@ certificates() {
     CA_SUBJECT=${CA_SUBJECT:-"/C=XX/ST=Kopano/L=Kopano/O=Kopano/CN="}
     CA_CERT_SUBJECT=${CA_CERT_SUBJECT:-${CA_SUBJECT}${CA_NAME}}
     CA_CERT_FILE=${CA_CERT_FILE:-"/certs/${CA_NAME}/${CA_NAME}.crt"}
-    CA_KEY_FILE=${CA_KEY_FILE:-"$(dirname ${CA_CERT_FILE})/${CA_NAME}.key"}
+    CA_KEY_FILE=${CA_KEY_FILE:-"$(dirname "${CA_CERT_FILE}")/${CA_NAME}.key"}
     CREATE_CA=${CREATE_CA:-"TRUE"}
 
     certificates_create_certificate_authority() {
-        if [ ! -f ${CA_CERT_FILE} ] ; then
+        if [ ! -f "${CA_CERT_FILE}" ] ; then
 
             print_debug "Certificates: Creating Self Signed Certificate Authority"
-            mkdir -p $(dirname ${CA_CERT_FILE})
-            chown -R kopano:kopano $(dirname ${CA_CERT_FILE})
-            sudo -u kopano echo "000a" > $(dirname ${CA_CERT_FILE})/serial
-            sudo -u kopano touch $(dirname ${CA_CERT_FILE})/certindex
+            mkdir -p "$(dirname "${CA_CERT_FILE}")"
+            chown -R kopano:kopano "$(dirname "${CA_CERT_FILE}")"
+            sudo -u kopano echo "000a" > "$(dirname "${CA_CERT_FILE}")/serial"
+            sudo -u kopano touch "$(dirname "${CA_CERT_FILE}")/certindex"
 
             silent eval "openssl req \
                   -newkey rsa:4096 -keyout ${CA_KEY_FILE} \
                   -x509 -days 3650 -nodes -out ${CA_CERT_FILE} \
                   -subj \"${CA_CERT_SUBJECT}\""
            
-            chown -R kopano:kopano ${CA_KEY_FILE} ${CA_CERT_FILE}
+            chown -R kopano:kopano "${CA_KEY_FILE}" "${CA_CERT_FILE}"
 
-            sudo -u kopano cat > $(dirname ${CA_CERT_FILE})/$CA_NAME.conf << EOF
+            sudo -u kopano cat > "$(dirname "${CA_CERT_FILE}")"/"${CA_NAME}".conf << EOF
             [ ca ]
             default_ca = $CA_NAME
 
@@ -32,9 +32,9 @@ certificates() {
             unique_subject = no
             new_certs_dir = .
             certificate = ${CA_CERT_FILE}
-            database = $(dirname ${CA_CERT_FILE})/certindex
+            database = $(dirname "${CA_CERT_FILE}")/certindex
             private_key = ${CA_KEY_FILE}
-            serial = $(dirname ${CA_CERT_FILE})/serial
+            serial = $(dirname "${CA_CERT_FILE}")/serial
             default_days = 3650
             default_md = sha256
             policy = ${CA_NAME}_policy
@@ -80,58 +80,58 @@ EOF
     certificates_create_certificate() {
         if [ "$1" != "" ] ; then
 
-            if var_true $CREATE_CA ; then
-                if [ ! -f ${CA_CERT_FILE} ] || [ ! -f ${CA_KEY_FILE} ] ; then
+            if var_true "$CREATE_CA" ; then
+                if [ ! -f "${CA_CERT_FILE}" ] || [ ! -f "${CA_KEY_FILE}" ] ; then
                     print_debug "Certificates: No CA Found - Creating before generating certificates"
                     certificates_create_certificate_authority
                 fi
             fi            
-            CERT_SUBJECT="${CA_SUBJECT}$(basename ${1%%.*})"
+            CERT_SUBJECT="${CA_SUBJECT}$(basename "${1%%.*}")"
 
-            if var_true $CREATE_CA ; then
-                if [ ! -f ${1%%.*}.key ] ; then
+            if var_true "$CREATE_CA" ; then
+                if [ ! -f "${1%%.*}".key ] ; then
                     print_debug "Certificates: Creating Certificate: ${1}"
                     silent eval "openssl req \
                           -newkey rsa:2048 -keyout ${1%%.*}.key \
                           -nodes -out ${1%%.*}.csr \
                           -subj \"${CERT_SUBJECT}\" \
                           -addext \"subjectAltName = DNS:localhost\""
-                    chown -R kopano:kopano ${1%%.*}.key ${1%%.*}.csr
+                    chown -R kopano:kopano "${1%%.*}".key "${1%%.*}".csr
                 fi
             else
-                if [ ! -f ${1%%.*}.key ] ; then
+                if [ ! -f "${1%%.*}".key ] ; then
                     print_debug "Certificates: Creating Certificate: ${1}"
                     silent eval "openssl req \
                           -new -x509 -nodes -days 3650 
                           -config /usr/lib/ssl/openssl.cnf 
                           -out ${1%%.*}.crt \
                           -keyout ${1%%.*}.key"
-                    chown -R kopano:kopano ${1%%.*}.key ${1%%.*}.crt
+                    chown -R kopano:kopano "${1%%.*}".key "${1%%.*}".crt
                 fi
             fi
 
-            if var_true $CREATE_CA ; then
-                if [ ! -f ${1%%.*}.cert ] ; then
+            if var_true "$CREATE_CA" ; then
+                if [ ! -f "${1%%.*}".cert ] ; then
                     print_debug "Certificates: Signing Certificate: ${1}"
-                    silent eval "openssl ca -batch -config $(dirname ${CA_CERT_FILE})/${CA_NAME}.conf -notext -in ${1%%.*}.csr -out ${1%%.*}.crt"
-                    chown -R kopano:kopano ${1%%.*}.crt
-                    rm -rf $(tail -n 1 $(dirname ${CA_CERT_FILE})/certindex | awk '{print $3}').pem
-                    rm -rf ${1%%.*}.csr
+                    silent eval "openssl ca -batch -config $(dirname "${CA_CERT_FILE}")/${CA_NAME}.conf -notext -in ${1%%.*}.csr -out ${1%%.*}.crt"
+                    chown -R kopano:kopano "${1%%.*}".crt
+                    rm -rf "$(tail -n 1 "$(dirname "${CA_CERT_FILE}")"/certindex | awk '{print $3}')".pem
+                    rm -rf "${1%%.*}".csr
                 fi
             fi
 
-            if [ -f ${1%%.*}.crt ] && [ -f ${1%%.*}.key ] ; then
+            if [ -f "${1%%.*}".crt ] && [ -f "${1%%.*}".key ] ; then
                 print_debug "Certificates: Merging Certificate and Key for: ${1}"
-                sudo -u kopano cat ${1%%.*}.crt ${1%%.*}.key > ${1%%.*}.pem
-                chown -R kopano:kopano ${1%%.*}.pem
+                sudo -u kopano cat "${1%%.*}".crt "${1%%.*}".key > "${1%%.*}".pem
+                chown -R kopano:kopano "${1%%.*}".pem
             fi
 
-            if [ ! -f ${SERVER_SSL_PUBLIC_PATH}$(basename ${1%%.*})-public.pem ] ; then
+            if [ ! -f "${SERVER_SSL_PUBLIC_PATH}""$(basename "${1%%.*}")"-public.pem ] ; then
                 print_debug "Certificates: Creating Public Key for: ${1}"
-                mkdir -p ${SERVER_SSL_PUBLIC_PATH}
-                chown -R kopano:kopano ${SERVER_SSL_PUBLIC_PATH}
-                silent openssl x509 -in ${1%%.*}.crt -out ${SERVER_SSL_PUBLIC_PATH}$(basename ${1%%.*})-public.pem -pubkey
-                chown -R kopano:kopano ${SERVER_SSL_PUBLIC_PATH}$(basename ${1%%.*})-public.pem
+                mkdir -p "${SERVER_SSL_PUBLIC_PATH}"
+                chown -R kopano:kopano "${SERVER_SSL_PUBLIC_PATH}"
+                silent openssl x509 -in "${1%%.*}".crt -out "${SERVER_SSL_PUBLIC_PATH}""$(basename "${1%%.*}")"-public.pem -pubkey
+                chown -R kopano:kopano "${SERVER_SSL_PUBLIC_PATH}""$(basename "${1%%.*}")"-public.pem
             fi
         fi
     }
@@ -139,25 +139,25 @@ EOF
     certificates_check_permissions() {
         if sudo -u kopano [ ! -r "${1}" ] ; then
             print_debug "Certificates: Setting Read Permissions on ${1}"
-            chmod 444 ${1}
+            chmod 444 "${1}"
         fi
     }
 
     certificates_check_certificates() {
         print_debug "Certificates: Checking Existence of ${1}"
-        if [ ! -f ${1} ] ; then
-                mkdir -p $(dirname ${1})
-                chown -R kopano:kopano $(dirname ${1})
-                certificates_create_certificate ${1}
+        if [ ! -f "${1}" ] ; then
+                mkdir -p "$(dirname "${1}")"
+                chown -R kopano:kopano "$(dirname "${1}")"
+                certificates_create_certificate "${1}"
         fi
     }
 
     certificates_trust_ca() {
-        if var_true $CREATE_CA ; then
-            if [ -f ${CA_CERT_FILE} ]; then
-                if [ ! -L /usr/local/share/ca-certificates/$(basename ${CA_CERT_FILE}) ] ; then
+        if var_true "$CREATE_CA" ; then
+            if [ -f "${CA_CERT_FILE}" ]; then
+                if [ ! -L /usr/local/share/ca-certificates/"$(basename "${CA_CERT_FILE}")" ] ; then
                     print_debug "Certificates: Trusting CA ${CA_NAME}"
-                    ln -sf ${CA_CERT_FILE} /usr/local/share/ca-certificates/
+                    ln -sf "${CA_CERT_FILE}" /usr/local/share/ca-certificates/
                     silent dpkg-reconfigure ca-certificates
                 fi
             fi
@@ -166,23 +166,23 @@ EOF
 
     case "$1" in
         *)
-            certificates_check_certificates ${1}
-            certificates_check_permissions ${1}
+            certificates_check_certificates "${1}"
+            certificates_check_permissions "${1}"
             certificates_trust_ca
         ;;
     esac
 }
 
 configure_autorespond() {
-    mkdir -p ${AUTORESPOND_PATH}
-    chown -R kopano: ${AUTORESPOND_PATH}
+    mkdir -p "${AUTORESPOND_PATH}"
+    chown -R kopano: "${AUTORESPOND_PATH}"
     truefalse_yesno AUTORESPOND_AUTORESPOND_CC
     truefalse_yesno AUTORESPOND_AUTORESPOND_BCC
     truefalse_yesno AUTORESPOND_AUTORESPOND_NORECIPIENTS
     truefalse_yesno AUTORESPOND_COPY_TO_SENTMAIL
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Autorespond: Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}backup.cfg
+        cat <<EOF > "${CONFIG_PATH}"backup.cfg
 ## Custom Generated Kopano Autoresponder Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -214,7 +214,7 @@ EOF
                 )
             fi
         fi
-        cat <<EOF > ${CONFIG_PATH}backup.cfg
+        cat <<EOF > "${CONFIG_PATH}"backup.cfg
 ## Custom Generated Kopano Backup Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -233,7 +233,7 @@ EOF
 }
 
 configure_calendar() {
-    if var_true $ENABLE_CALENDAR ; then
+    if var_true "$ENABLE_CALENDAR" ; then
         print_notice "Calendar: Enabled"
         sanity_var CALENDAR_HOSTNAME "Calendar Hostname"        
         
@@ -249,7 +249,7 @@ configure_calendar() {
         sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/calendar.template
         sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/calendar.template
         ln -sf /etc/nginx/conf.available/calendar.template /etc/nginx/conf.d/calendar.conf
-        mkdir -p $(dirname ${CONFIG_PATH}${MEET_CONFIG_FILE})
+        mkdir -p "$(dirname "${CONFIG_PATH}""${MEET_CONFIG_FILE}")"
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Calendar: Auto Configuring"
@@ -280,21 +280,17 @@ configure_cron_zpush_gab2contacts() {
 }
 
 configure_dagent() {
-    if var_true $ENABLE_DAGENT ; then
-        if var_true $DAGENT_LOG_RAW_MESSAGES ; then 
-            mkdir -p ${DAGENT_PATH_RAW_MESSAGES}
-            chown -R kopano:kopano ${DAGENT_PATH_RAW_MESSAGES}
-        fi
+    if var_true "$ENABLE_DAGENT" ; then
 
-        if var_true $DAGENT_PLUGIN_ENABLED ; then 
-            mkdir -p ${DAGENT_PATH_PLUGIN}
-            chown -R kopano: ${DAGENT_PATH_PLUGIN} 
+        if var_true "$DAGENT_PLUGIN_ENABLED" ; then 
+            mkdir -p "${DAGENT_PATH_PLUGIN}"
+            chown -R kopano: "${DAGENT_PATH_PLUGIN}" 
         fi
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "DAgent: Auto Configuring"
             if [[ $SOCKET_SERVER == *"https://"* ]]; then
-                certificates ${DAGENT_SSL_CERT_FILE}
+                certificates "${DAGENT_SSL_CERT_FILE}"
                 dagent_sslkey=$(cat <<EOF
 sslkey_file = ${DAGENT_SSL_KEY_FILE}
 EOF
@@ -309,6 +305,8 @@ EOF
 
             case "$DAGENT_LOG_RAW_MESSAGES" in
                 "TRUE" | "true" | "YES" | "yes" )
+                    mkdir -p "${DAGENT_PATH_RAW_MESSAGES}"
+                    chown -R kopano:kopano "${DAGENT_PATH_RAW_MESSAGES}"
                     dagent_log_raw_message="yes"
                 ;;
                 "FALSE" | "false" | "NO" | "no" )
@@ -356,7 +354,7 @@ EOF
             truefalse_yesno DAGENT_HTML_SAFETY_FILTER
             truefalse_yesno DAGENT_INSECURE_HTML_JOIN
 
-            cat <<EOF > ${CONFIG_PATH}dagent.cfg
+            cat <<EOF > "${CONFIG_PATH}"dagent.cfg
 ## Custom Generated Kopano DAgent Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -389,13 +387,13 @@ EOF
 }
 
 configure_gateway() {
-    if var_true $ENABLE_GATEWAY ; then
-        certificates ${GATEWAY_SSL_CERT_FILE}
-        certificates ${GATEWAY_SSL_KEY_FILE}
+    if var_true "$ENABLE_GATEWAY" ; then
+        certificates "${GATEWAY_SSL_CERT_FILE}"
+        certificates "${GATEWAY_SSL_KEY_FILE}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Gateway: Auto Configuring"
             
-            if var_true $GATEWAY_ENABLE_POP3 ; then
+            if var_true "$GATEWAY_ENABLE_POP3" ; then
                 print_debug "Gateway: Enabling POP3"
                 gateway_interfaces=$(echo "${gateway_interfaces}" ; cat<<EOF
 pop3_listen = ${GATEWAY_LISTEN_HOST_POP3}:${GATEWAY_LISTEN_PORT_POP3}
@@ -403,7 +401,7 @@ EOF
                     )
             fi
 
-            if var_true $GATEWAY_ENABLE_POP3S ; then
+            if var_true "$GATEWAY_ENABLE_POP3S" ; then
                 print_debug "Gateway: Enabling POP3S"
                 gateway_interfaces=$(echo "${gateway_interfaces}" ; cat<<EOF
 pop3s_listen = ${GATEWAY_LISTEN_HOST_POP3_SECURE}:${GATEWAY_LISTEN_PORT_POP3_SECURE}
@@ -411,7 +409,7 @@ EOF
                     )
             fi
 
-            if var_true $GATEWAY_ENABLE_IMAP ; then
+            if var_true "$GATEWAY_ENABLE_IMAP" ; then
                 print_debug "Gateway: Enabling IMAP"
                 gateway_interfaces=$(echo "${gateway_interfaces}" ; cat<<EOF
 imap_listen = ${GATEWAY_LISTEN_HOST_IMAP}:${GATEWAY_LISTEN_PORT_IMAP}
@@ -419,7 +417,7 @@ EOF
                     )
             fi
 
-            if var_true $GATEWAY_ENABLE_IMAPS ; then
+            if var_true "$GATEWAY_ENABLE_IMAPS" ; then
                 print_debug "Gateway: Enabling IMAPS"
                 gateway_interfaces=$(echo "${gateway_interfaces}" ; cat<<EOF
 imaps_listen = ${GATEWAY_LISTEN_HOST_IMAP_SECURE}:${GATEWAY_LISTEN_PORT_IMAP_SECURE}
@@ -434,7 +432,7 @@ EOF
             truefalse_yesno GATEWAY_IMAP_SHOW_PUBLIC_FOLDERS
             truefalse_yesno GATEWAY_SSL_PREFER_SERVER_CIPHERS
             truefalse_yesno GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH
-            cat <<EOF > ${CONFIG_PATH}gateway.cfg
+            cat <<EOF > "${CONFIG_PATH}"gateway.cfg
 ## Custom Generated Kopano Gateway Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -465,17 +463,17 @@ EOF
 }
 
 configure_grapi() {
-    if var_true $ENABLE_GRAPI ; then
-        if var_true $grapi_configured ; then
+    if var_true "$ENABLE_GRAPI" ; then
+        if var_true "$grapi_configured" ; then
             :
         else
-            mkdir -p ${SOCKET_GRAPI}
+            mkdir -p "${SOCKET_GRAPI}"
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_notice "Configuring GRAPI Server"
-                mkdir -p $GRAPI_PATH
+                mkdir -p "$GRAPI_PATH"
                 truefalse_yesno GRAPI_DISABLE_TLS_VALIDATION
                 truefalse_yesno GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS
-                cat <<EOF > ${CONFIG_PATH}${GRAPI_CONFIG_FILE}
+                cat <<EOF > "${CONFIG_PATH}""${GRAPI_CONFIG_FILE}"
 # Custom Generated Kopano GRAPI Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 # Last Generated on $(date)
@@ -499,13 +497,13 @@ EOF
 
 ### ICAL Needs Work
 configure_ical() {
-    if var_true $ENABLE_ICAL ; then
-        certificates ${ICAL_SSL_CERT_FILE}
-        certificates ${ICAL_SSL_KEY_FILE}
+    if var_true "$ENABLE_ICAL" ; then
+        certificates "${ICAL_SSL_CERT_FILE}"
+        certificates "${ICAL_SSL_KEY_FILE}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "ICAL: Auto Configuring"
 
-            if var_true $ICAL_ENABLE_HTTP ; then
+            if var_true "$ICAL_ENABLE_HTTP" ; then
                 print_debug "ICAL: Enabling HTTP"
                 ical_interfaces=$(echo "${ical_interfaces}" ; cat<<EOF
 ical_listen = ${ICAL_LISTEN_HOST}:${ICAL_LISTEN_PORT}
@@ -513,7 +511,7 @@ EOF
                     )
             fi
 
-            if var_true $ICAL_ENABLE_HTTPS ; then
+            if var_true "$ICAL_ENABLE_HTTPS" ; then
                 print_debug "ICAL: Enabling HTTPS"
                 ical_interfaces=$(echo "${ical_interfaces}" ; cat<<EOF
 icals_listen = ${ICAL_LISTEN_HOST_SECURE}:${ICAL_LISTEN_PORT_SECURE}
@@ -522,7 +520,7 @@ EOF
             fi
 
             truefalse_yesno ICAL_ENABLE_ICAL_GET
-            cat <<EOF > ${CONFIG_PATH}ical.cfg
+            cat <<EOF > "${CONFIG_PATH}"ical.cfg
 ## Custom Generated Kopano ICal Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -547,8 +545,8 @@ EOF
 
 configure_install_id() {
     print_debug "Updating Machine ID with INSTALL_ID value: ${INSTALL_ID}"
-    echo ${INSTALL_ID} > /etc/machine-id
-    echo ${INSTALL_ID} > /var/lib/dbus/machine-id
+    echo "${INSTALL_ID}" > /etc/machine-id
+    echo "${INSTALL_ID}" > /var/lib/dbus/machine-id
 }
 
 ### LDAP Needs Work
@@ -556,7 +554,7 @@ configure_ldap() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Configuring LDAP"
         truefalse_yesno LDAP_STARTTLS
-        cat <<EOF > ${CONFIG_PATH}ldap.cfg
+        cat <<EOF > "${CONFIG_PATH}"ldap.cfg
 ## Custom Generated Kopano LDAP Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -680,11 +678,11 @@ ldap_server_search_filter = ${LDAP_FILTER_MULTIUSER_SERVER_SEARCH}
 ldap_server_unique_attribute = ${LDAP_ATTRIBUTE_MULTIUSER_SERVER_UNIQUE}
 
 # Load extra user properties from the propmap file
-!propmap ${CONFIG_PATH}${LDAP_FILE_PROPMAP}
+!propmap "${CONFIG_PATH}"${LDAP_FILE_PROPMAP}
 
 EOF
 
-        cat <<EOF > ${CONFIG_PATH}${LDAP_FILE_PROPMAP}
+        cat <<EOF > "${CONFIG_PATH}""${LDAP_FILE_PROPMAP}"
 ## Custom Generated Kopano LDAP Propmap Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -831,17 +829,17 @@ configure_logging() {
     
     print_debug "Logging: Configuring Kopano"
     if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-        mkdir -p ${LOG_PATH_KOPANO}
-        chown -R kopano: ${LOG_PATH_KOPANO}
+        mkdir -p "${LOG_PATH_KOPANO}"
+        chown -R kopano: "${LOG_PATH_KOPANO}"
         sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
     else
         rm -rf /etc/logrotate.d/kopano
     fi
     
-    if var_true $ENABLE_ZPUSH ; then
+    if var_true "$ENABLE_ZPUSH" ; then
         if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-            mkdir -p ${LOG_PATH_ZPUSH} 
-            chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_ZPUSH}
+            mkdir -p "${LOG_PATH_ZPUSH}" 
+            chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${LOG_PATH_ZPUSH}"
             sed -i -e "s#<ZPUSH_LOG_LOCATION>#${LOG_PATH_ZPUSH}#g" /etc/logrotate.d/zpush
         else
             rm -rf /etc/logrotate.d/zpush
@@ -1010,8 +1008,8 @@ configure_logging() {
 
 ## Needs Work
 configure_kapi() {
-    if var_true ${ENABLE_KAPI} ; then
-        if var_true ${kapi_configured}; then
+    if var_true "${ENABLE_KAPI}" ; then
+        if var_true "${kapi_configured}"; then
             :
         else
             if [ -v SERVER_OIDC_IDENTIFIER ]; then
@@ -1022,7 +1020,7 @@ configure_kapi() {
                 ln -sf /etc/nginx/conf.available/upstream-kapi.template /etc/nginx/conf.d/upstream-kapi.conf
                 if [ "${KAPI_HOST}" != "127.0.0.1" ] || [ "${KAPI_HOST}" != "localhost" ] ; then
                     print_debug "KAPI: Host is not localhost"
-                    if var_true $KAPI_HOST_SECURE ; then
+                    if var_true "$KAPI_HOST_SECURE" ; then
                         print_debug "KAPI: Changing to use HTTPS"
                         sed -i "s|proxy_pass http://kapi/|proxy_pass https://kapi/|g" /etc/nginx/confd.available/meet.template
                         sed -i "s|proxy_pass http://kapi/|proxy_pass https://kapi/|g" /etc/nginx/confd.available/calendar.template
@@ -1032,23 +1030,23 @@ configure_kapi() {
                 case "${KAPI_KVS_DB_TYPE}" in
                     "SQLITE3" | "SQLITE" | "sqlite" | "sqlite3" )
                         print_debug "KAPI: Setting SQLite3 Data Type"
-                        mkdir -p $(dirname ${KAPI_KVS_DB_SQLITE_FILE})
+                        mkdir -p "$(dirname "${KAPI_KVS_DB_SQLITE_FILE}")"
                         kapi_kvs_db_driver="sqlite3"
                         kapi_kvs_db_dsn=${KAPI_KVS_DB_SQLITE_FILE}
                         print_debug "KAPI: ${kapi_kvs_db_driver} | DSN: ${kapi_kvs_db_dsn}"
                     ;;
-                    "MYSQL" | "mysql" | "MARIADB" | "MARIADB" )
+                    "MYSQL" | "mysql" | "MARIADB" | "mariadb" )
                         print_debug "KAPI: Setting MariaDB Data Type"
                         kapi_kvs_db_driver="mysql"
-                        kapi_kvs_db_dsn="[${KAPI_KVS_DB_USER}[:${KAPI_KVS_DB_PASS}]@][protocol[(${KAPI_KVS_DB_HOST})]]/${KAPI_KVS_DB_NAME}[?param1=value1&...&paramN=valueN]" // Needs Work
-                        print_debug "KAPI: ${kapi_kvs_db_driver} | DSN: ${kapikvs_db_dsn}"
+                        kapi_kvs_db_dsn="[${KAPI_KVS_DB_USER}[:${KAPI_KVS_DB_PASS}]@][protocol[(${KAPI_KVS_DB_HOST})]]/${KAPI_KVS_DB_NAME}[?param1=value1&...&paramN=valueN]" # Needs Work
+                        print_debug "KAPI: ${kapi_kvs_db_driver} | DSN: ${kapi_kvs_db_dsn}"
                     ;;
                 esac
 
                 if [ ! -f "${KAPI_PUBS_SECRET_KEY_FILE}" ]; then
                     print_debug "KAPI: No PUBS API Secret Key File - Generating"
-                    mkdir -p $(dirname ${KAPI_PUBS_SECRET_KEY_FILE})
-                    silent openssl rand -out ${KAPI_PUBS_SECRET_KEY_FILE} -hex 64
+                    mkdir -p "$(dirname "${KAPI_PUBS_SECRET_KEY_FILE}")"
+                    silent openssl rand -out "${KAPI_PUBS_SECRET_KEY_FILE}" -hex 64
                 fi
 
                 if [ -n "${KAPI_PLUGINS}" ] ; then
@@ -1059,7 +1057,7 @@ EOF
                 fi
 
                 truefalse_yesno KAPI_DISABLE_TLS_VALIDATION
-                cat <<EOF > ${CONFIG_PATH}${KAPI_CONFIG_FILE}
+                cat <<EOF > "${CONFIG_PATH}""${KAPI_CONFIG_FILE}"
 # Custom Generated Kopano KAPI Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 # Last Generated on $(date)
@@ -1085,12 +1083,12 @@ EOF
 }
 
 configure_kdav() {
-    if var_true $ENABLE_KDAV ; then
-        mkdir -p ${KDAV_PATH}
-        chown -R nginx:www-data ${KDAV_PATH}
+    if var_true "$ENABLE_KDAV" ; then
+        mkdir -p "${KDAV_PATH}"
+        chown -R nginx:www-data "${KDAV_PATH}"
         if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "FILE" ] && [ "${LOG_FILE_KDAV}" != "/dev/null" ] ; then
-            touch ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
-            chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
+            touch "${LOG_PATH_KOPANO}"${LOG_FILE_KDAV}
+            chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${LOG_PATH_KOPANO}"${LOG_FILE_KDAV}
         fi
         if [ "${LOG_FILE_KDAV}" = "/dev/null" ] ; then
             sed -i "s|/var/log/kdav/kdav.log|${LOG_FILE_KDAV}|g" /usr/share/kdav/log4php.xml
@@ -1114,8 +1112,8 @@ configure_kdav() {
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "KDAV: Auto Configuring"
             rm -rf /usr/share/kdav/config.php
-            ln -sf ${CONFIG_PATH}${KDAV_CONFIG_FILE} /usr/share/kdav/config.php
-            cat <<EOF > ${CONFIG_PATH}${KDAV_CONFIG_FILE}
+            ln -sf "${CONFIG_PATH}""${KDAV_CONFIG_FILE}" /usr/share/kdav/config.php
+            cat <<EOF > "${CONFIG_PATH}""${KDAV_CONFIG_FILE}"
 <?php
 // Custom Generated KDav Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -1136,14 +1134,14 @@ EOF
 
 
 configure_konnect() {
-    if var_true $ENABLE_KONNECT ; then
-        if var_true $konnect_configured ; then
+    if var_true "$ENABLE_KONNECT" ; then
+        if var_true "$konnect_configured" ; then
             :
         else
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_notice "Konnect: Auto Configuring"
                 
-                mkdir -p ${KONNECT_VALIDATION_KEYS_PATH}
+                mkdir -p "${KONNECT_VALIDATION_KEYS_PATH}"
 
                 if [ "${KONNECT_LISTEN_HOST}" = "0.0.0.0" ] ; then KONNECT_HOST="127.0.0.1" ; fi;                
                 sed -i "s|<KONNECT_HOST>|${KONNECT_HOST}|g" /etc/nginx/conf.available/upstream-konnect.template
@@ -1152,7 +1150,7 @@ configure_konnect() {
 
                 if [ "${KONNECT_HOST}" != "127.0.0.1" ] || [ "${KONNECT_HOST}" != "localhost" ] ; then
                     print_debug "Konnect: Host is not localhost"
-                    if var_true $KONNECT_HOST_SECURE ; then
+                    if var_true "$KONNECT_HOST_SECURE" ; then
                         print_debug "Konnect: Changing to use HTTPS"
                         sed -i "s|proxy_pass http://konnect/|proxy_pass https://konnect/|g" /etc/nginx/confd.available/calendar.template
                         sed -i "s|proxy_pass http://konnect/|proxy_pass https://konnect/|g" /etc/nginx/confd.available/meet.template
@@ -1170,22 +1168,22 @@ configure_konnect() {
 
                 if [ ! -f "${KONNECT_SIGNING_KEY_FILE}" ]; then
                     print_debug "Konnect: No Signing Key File - Generating"
-                    mkdir -p $(dirname ${KONNECT_SIGNING_KEY_FILE})
+                    mkdir -p "$(dirname "${KONNECT_SIGNING_KEY_FILE}")"
                     silent openssl genpkey   -algorithm RSA \
-                                             -out ${KONNECT_SIGNING_KEY_FILE} \
+                                             -out "${KONNECT_SIGNING_KEY_FILE}" \
                                              -pkeyopt rsa_keygen_bits:4096
                     silent openssl genpkey -algorithm RSA -out "${KONNECT_SIGNING_KEY_FILE}" -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537
                 fi
 
                 if [ ! -f "${KONNECT_SIGNING_SECRET_FILE}" ]; then
                     print_debug "Konnect: No Signing Encryption Secret Key File - Generating"
-                    mkdir -p $(dirname ${KONNECT_SIGNING_SECRET_FILE})
-                    silent openssl rand -out ${KONNECT_SIGNING_SECRET_FILE} 32
+                    mkdir -p "$(dirname "${KONNECT_SIGNING_SECRET_FILE}")"
+                    silent openssl rand -out "${KONNECT_SIGNING_SECRET_FILE}" 32
                 fi
 
-                if [ -f ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION} ] ; then
+                if [ -f "${CONFIG_PATH}""${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}" ] ; then
                     konnect_registration_identifier_conf=$(cat<<EOF
-identifier_registration_conf = ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}
+identifier_registration_conf = "${CONFIG_PATH}"${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}
 EOF
                     )
                 fi
@@ -1215,7 +1213,7 @@ EOF
                 truefalse_yesno KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION
                 truefalse_yesno KONNECT_ENABLE_CLIENT_GUESTS
 
-                cat <<EOF > ${CONFIG_PATH}${KONNECT_CONFIG_FILE}            
+                cat <<EOF > "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"            
 # Custom Generated Konnect Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 # Last Generated on $(date)
@@ -1223,7 +1221,7 @@ EOF
 allow_client_guests = ${KONNECT_ENABLE_CLIENT_GUESTS}
 allow_dynamic_client_registration = ${KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION}
 encryption_secret_key = ${KONNECT_SIGNING_SECRET_FILE}
-identifier_scopes_conf = ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_SCOPES}
+identifier_scopes_conf = "${CONFIG_PATH}"${KONNECT_CONFIG_FILE_IDENTIFIER_SCOPES}
 identity_manager = ${konnect_backend}
 identity_manager_args = ${KONNECT_IDENTITY_MANAGER_ARGUMENTS}
 insecure = ${KONNECT_DISABLE_TLS_VALIDATION}
@@ -1260,8 +1258,8 @@ EOF
 }
 
 configure_kwm() {
-    if var_true $ENABLE_KWM ; then
-        if var_true $kwm_configured ; then
+    if var_true "$ENABLE_KWM" ; then
+        if var_true "$kwm_configured" ; then
             :
         else
             if [ -v SERVER_OIDC_IDENTIFIER ]; then
@@ -1272,7 +1270,7 @@ configure_kwm() {
                 ln -sf /etc/nginx/conf.available/upstream-kwmserver.template /etc/nginx/conf.d/upstream-kwmserver.conf
                 if [ "${KWM_HOST}" != "127.0.0.1" ] || [ "${KWM_HOST}" != "localhost" ] ; then
                     print_debug "KWM: Host is not localhost"
-                    if var_true $KWM_HOST_SECURE ; then
+                    if var_true "$KWM_HOST_SECURE" ; then
                         print_debug "KWM: Changing to use HTTPS"
                         sed -i "s|proxy_pass http://kwmserver/|proxy_pass https://kwmserver/|g" /etc/nginx/confd.available/calendar.template
                         sed -i "s|proxy_pass http://kwmserver/|proxy_pass https://kwmserver/|g" /etc/nginx/confd.available/meet.template
@@ -1287,18 +1285,18 @@ configure_kwm() {
 
                 if [ ! -f "${KWM_TOKENS_SECRET_KEY_FILE}" ]; then
                     print_debug "KWM: No Tokens Secret Key File - Generating"
-                    mkdir -p $(dirname ${KWM_TOKENS_SECRET_KEY_FILE})
-                    silent openssl rand -out ${KWM_TOKENS_SECRET_KEY_FILE} 32
+                    mkdir -p "$(dirname "${KWM_TOKENS_SECRET_KEY_FILE}")"
+                    silent openssl rand -out "${KWM_TOKENS_SECRET_KEY_FILE}" 32
                 fi
 
-                if [ -f ${CONFIG_PATH}${KWM_TURN_AUTH_SERVER_FILE} ] ; then
+                if [ -f "${CONFIG_PATH}""${KWM_TURN_AUTH_SERVER_FILE}" ] ; then
                     kwm_turn_service_credentials=$(cat<<EOF
-turn_service_credentials = ${CONFIG_PATH}${KWM_TURN_AUTH_SERVER_FILE}
+turn_service_credentials = "${CONFIG_PATH}"${KWM_TURN_AUTH_SERVER_FILE}
 EOF
                     )
                 fi
 
-                if [ -f ${CONFIG_PATH}${KWM_TURN_AUTH_SECRET_FILE} ] ; then
+                if [ -f "${CONFIG_PATH}""${KWM_TURN_AUTH_SECRET_FILE}" ] ; then
                     kwm_turn_auth_secret=$(cat<<EOF
 turn_server_shared_secret = ${KWM_TURN_AUTH_SECRET_FILE} 
 EOF
@@ -1319,14 +1317,14 @@ EOF
                     )
                 fi
 
-                if [ -f ${CONFIG_PATH}${KWM_CONFIG_FILE_REGISTRATION} ] ; then
+                if [ -f "${CONFIG_PATH}""${KWM_CONFIG_FILE_REGISTRATION}" ] ; then
                     kwm_registration_conf=$(cat<<EOF
-registration_conf = ${CONFIG_PATH}${KWM_CONFIG_FILE_REGISTRATION} 
+registration_conf = "${CONFIG_PATH}"${KWM_CONFIG_FILE_REGISTRATION} 
 EOF
                     )
                 fi
 
-                cat <<EOF > ${CONFIG_PATH}${KWM_CONFIG_FILE}
+                cat <<EOF > "${CONFIG_PATH}""${KWM_CONFIG_FILE}"
 # Custom Generated Kopano KWM Server Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 # Last Generated on $(date)
@@ -1357,7 +1355,7 @@ EOF
 }
 
 configure_meet() {
-    if var_true $ENABLE_MEET ; then
+    if var_true "$ENABLE_MEET" ; then
         print_notice "Meet: Enabled"
         sanity_var MEET_HOSTNAME "Meet Hostname"        
         
@@ -1375,11 +1373,11 @@ configure_meet() {
         sed -i "s|<MEET_CONFIG>|${MEET_CONFIG_FILE}|g" /etc/nginx/conf.available/meet.template
         sed -i "s|<CONFIG_PATH>|${CONFIG_PATH}|g" /etc/nginx/conf.available/meet.template
         ln -sf /etc/nginx/conf.available/meet.template /etc/nginx/conf.d/meet.conf
-        mkdir -p $(dirname ${CONFIG_PATH}${MEET_CONFIG_FILE})
+        mkdir -p "$(dirname "${CONFIG_PATH}""${MEET_CONFIG_FILE}")"
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Meet: Auto Configuring"
-            cat <<EOF > ${CONFIG_PATH}${MEET_CONFIG_FILE}
+            cat <<EOF > "${CONFIG_PATH}""${MEET_CONFIG_FILE}"
 {
   "apiPrefix": "/api/gc/v1",
   "disableFullGAB": "${MEET_DISABLE_FULL_GAB}",
@@ -1400,7 +1398,7 @@ configure_meet() {
 }
 EOF
             if [ -n "${MEET_EXTERNAL_APPS}" ]; then
-                meet_external_apps_array=$(echo $MEET_EXTERNAL_APPS | tr "," "\n")
+                meet_external_apps_array=$(echo "$MEET_EXTERNAL_APPS" | tr "," "\n")
                 lines=$(echo "${meet_external_apps_array}" | wc -l | awk '{print $1}')
                 counter=1
                 for app in $meet_external_apps_array
@@ -1411,7 +1409,7 @@ EOF
                     fi
                     external_apps_enabled="${external_apps_enabled}${seperator}\"${app}\""
                     let counter+=1
-                    sed -i 's|"enabled": \[.*\]|"enabled": \['${external_apps_enabled}'\]|g' ${CONFIG_PATH}${MEET_CONFIG_FILE}
+                    sed -i 's|"enabled": \[.*\]|"enabled": \['"${external_apps_enabled}"'\]|g' "${CONFIG_PATH}""${MEET_CONFIG_FILE}"
                     case "${app}" in
                         "kopano-webapp" )
                             sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-webapp.template;" /etc/nginx/conf.available/meet.template
@@ -1450,11 +1448,11 @@ EOF
 
 
 configure_monitor() {
-    if var_true $ENABLE_MONITOR ; then
+    if var_true "$ENABLE_MONITOR" ; then
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Monitor: Auto Configuring"
             if [[ $SOCKET_SERVER == *"https://"* ]]; then
-                certificates ${MONITOR_SSL_KEY_FILE}
+                certificates "${MONITOR_SSL_KEY_FILE}"
                 monitor_sslkey=$(cat <<EOF
 sslkey_file = ${MONITOR_SSL_KEY_FILE}
 EOF
@@ -1466,7 +1464,7 @@ EOF
                     )
                 fi
             fi
-            cat <<EOF > ${CONFIG_PATH}monitor.cfg
+            cat <<EOF > "${CONFIG_PATH}"monitor.cfg
 # Custom Generated Kopano Monitor Configuration! Do not edit, instead set ENV Vars
 # If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 # Last Generated on $(date)
@@ -1489,9 +1487,9 @@ EOF
 }
 
 configure_search() {
-    if var_true $ENABLE_GATEWAY ; then
-        certificates ${SEARCH_SSL_CERT_FILE}
-        certificates ${SEARCH_SSL_LISTEN_CERT_FILE}
+    if var_true "$ENABLE_GATEWAY" ; then
+        certificates "${SEARCH_SSL_CERT_FILE}"
+        certificates "${SEARCH_SSL_LISTEN_CERT_FILE}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Configuring Search"
             if [[ $SOCKET_SERVER == *"https://"* ]]; then
@@ -1515,13 +1513,13 @@ EOF
             )
             fi
 
-            mkdir -p ${SEARCH_INDEX_PATH}
-            chown -R kopano: ${SEARCH_INDEX_PATH}
+            mkdir -p "${SEARCH_INDEX_PATH}"
+            chown -R kopano: "${SEARCH_INDEX_PATH}"
             truefalse_yesno SEARCH_INDEX_ATTACHMENTS
             truefalse_yesno SEARCH_INDEX_DRAFTS
             truefalse_yesno SEARCH_INDEX_JUNK
             truefalse_yesno SEARCH_SUGGESTIONS
-            cat <<EOF > ${CONFIG_PATH}search.cfg
+            cat <<EOF > "${CONFIG_PATH}"search.cfg
 ## Custom Generated Kopano Search Indexer Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -1550,20 +1548,20 @@ EOF
 }
 
 configure_server() {
-    if var_true $ENABLE_SERVER ; then
-        touch ${CONFIG_PATH}admin.cfg
+    if var_true "$ENABLE_SERVER" ; then
+        touch "${CONFIG_PATH}"admin.cfg
         if [ "$SETUP_TYPE" = "AUTO" ]; then
         ### Server
             print_notice "Configuring Kopano Server"
-            if var_true $SERVER_ENABLE_HTTP ; then
+            if var_true "$SERVER_ENABLE_HTTP" ; then
                 print_notice "Server: Enabling HTTP Soap Endpoint"
                 server_http="server_listen = ${SERVER_LISTEN_HOST}:${SERVER_LISTEN_PORT}"
             fi
 
-            if var_true $SERVER_ENABLE_HTTPS ; then
+            if var_true "$SERVER_ENABLE_HTTPS" ; then
                 print_notice "Server: Enabling HTTPS Soap Endpoint"
-                certificates ${SERVER_SSL_KEY_FILE}
-                certificates ${CA_CERT_FILE}
+                certificates "${SERVER_SSL_KEY_FILE}"
+                certificates "${CA_CERT_FILE}"
                 server_https=$(cat <<EOF
 server_listen_tls = ${SERVER_LISTEN_HOST}:${SERVER_LISTEN_PORT_SECURE}
 server_ssl_key_file = ${SERVER_SSL_KEY_FILE}
@@ -1608,8 +1606,8 @@ EOF
             case "${SERVER_ATTACHMENT_BACKEND}" in
                 "FILES" | "files" | "FILES_V2" | "files_v2" )
                     print_debug "Selecting Files as Attachment Storage Backend"
-                    mkdir -p ${SERVER_ATTACHMENT_BACKEND_FILES_PATH}
-                    chown -R kopano: ${SERVER_ATTACHMENT_BACKEND_FILES_PATH}
+                    mkdir -p "${SERVER_ATTACHMENT_BACKEND_FILES_PATH}"
+                    chown -R kopano: "${SERVER_ATTACHMENT_BACKEND_FILES_PATH}"
                     server_attachment=$(cat <<EOF
 attachment_path = ${SERVER_ATTACHMENT_BACKEND_FILES_PATH}
 EOF
@@ -1633,7 +1631,7 @@ EOF
                 ;;
             esac
 
-            cat <<EOF > ${CONFIG_PATH}server.cfg
+            cat <<EOF > "${CONFIG_PATH}"server.cfg
 ## Custom Generated Kopano Server Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -1708,14 +1706,14 @@ EOF
 }
 
 configure_spamd() {
-    if var_true $ENABLE_SPAMD ; then
-        mkdir -p ${SPAMD_FILES_SPAM_PATH} ${SPAMD_FILES_HAM_PATH}
-        chown -R kopano: ${SPAMD_FILES_SPAM_PATH} ${SPAMD_FILES_HAM_PATH}
-        chmod -R ug+rwX ${SPAMD_FILES_HAM_PATH} ${SPAMD_FILES_HAM_PATH}
+    if var_true "$ENABLE_SPAMD" ; then
+        mkdir -p "${SPAMD_FILES_SPAM_PATH}" "${SPAMD_FILES_HAM_PATH}"
+        chown -R kopano: "${SPAMD_FILES_SPAM_PATH}" "${SPAMD_FILES_HAM_PATH}"
+        chmod -R ug+rwX "${SPAMD_FILES_HAM_PATH}" "${SPAMD_FILES_HAM_PATH}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "SpamD: Auto Configuring"
             if [[ $SOCKET_SERVER == *"https://"* ]]; then
-                certificates ${SPAMD_SSL_KEY_FILE}
+                certificates "${SPAMD_SSL_KEY_FILE}"
                 spamd_sslkey=$(cat <<EOF
 sslkey_file = ${SPAMD_SSL_KEY_FILE}
 EOF
@@ -1727,7 +1725,7 @@ EOF
                     )
                 fi
             fi
-            cat <<EOF > ${CONFIG_PATH}spamd.cfg
+            cat <<EOF > "${CONFIG_PATH}"spamd.cfg
 ## Custom Generated Kopano SpamD Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -1752,15 +1750,15 @@ EOF
 }
 
 configure_spooler() {
-    if var_true $ENABLE_SPOOLER ; then
-        if var_true $SPOOLER_PLUGIN_ENABLED ; then 
-            mkdir -p ${SPOOLER_PATH_PLUGIN}
-            chown -R kopano: ${SPOOLER_PATH_PLUGIN} 
+    if var_true "$ENABLE_SPOOLER" ; then
+        if var_true "$SPOOLER_PLUGIN_ENABLED" ; then 
+            mkdir -p "${SPOOLER_PATH_PLUGIN}"
+            chown -R kopano: "${SPOOLER_PATH_PLUGIN}" 
         fi
         
-        if var_true $SPOOLER_LOG_RAW_MESSAGE_STAGE1 ; then 
-            mkdir -p ${SPOOLER_PATH_RAW_MESSAGES}
-            chown -R kopano: ${SPOOLER_PATH_RAW_MESSAGES}
+        if var_true "$SPOOLER_LOG_RAW_MESSAGE_STAGE1" ; then 
+            mkdir -p "${SPOOLER_PATH_RAW_MESSAGES}"
+            chown -R kopano: "${SPOOLER_PATH_RAW_MESSAGES}"
         fi
 
         truefalse_yesno SPOOLER_PLUGIN_ENABLED
@@ -1771,7 +1769,7 @@ configure_spooler() {
 
             if [[ $SOCKET_SERVER == *"https://"* ]]; then
 
-                certificates ${SPOOLER_SSL_KEY_FILE}
+                certificates "${SPOOLER_SSL_KEY_FILE}"
                 spooler_sslkey=$(cat <<EOF
 sslkey_file = ${SPOOLER_SSL_KEY_FILE}
 EOF
@@ -1783,7 +1781,7 @@ EOF
                     )
                 fi
             fi
-            cat <<EOF > ${CONFIG_PATH}spooler.cfg
+            cat <<EOF > "${CONFIG_PATH}"spooler.cfg
 ## Custom Generated Kopano Spooler Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 ## Last Generated on $(date)
@@ -1827,13 +1825,13 @@ configure_user_backend() {
 }
 
 configure_webapp() {
-    if var_true $ENABLE_WEBAPP ; then
+    if var_true "$ENABLE_WEBAPP" ; then
         print_debug "Webapp: Enabled"
-        mkdir -p ${CONFIG_PATH}webapp/
-        mkdir -p ${LOG_PATH_WEBAPP}
-        chown -R ${NGINX_USER}:${NGINX_GROUP} ${LOG_PATH_WEBAPP}
-        mkdir -p ${WEBAPP_TMP_PATH}
-        chown -R ${NGINX_USER}:${NGINX_GROUP} ${WEBAPP_TMP_PATH}
+        mkdir -p "${CONFIG_PATH}"webapp/
+        mkdir -p "${LOG_PATH_WEBAPP}"
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${LOG_PATH_WEBAPP}"
+        mkdir -p "${WEBAPP_TMP_PATH}"
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_TMP_PATH}"
         ### Nginx
         sed -i "s|<WEBAPP_HOSTNAME>|${WEBAPP_HOSTNAME}|g" /etc/nginx/conf.available/webapp.template
         sed -i "s|<LISTEN_PORT>|${NGINX_LISTEN_PORT}|g" /etc/nginx/conf.available/webapp.template
@@ -1874,7 +1872,7 @@ configure_webapp() {
          ;;
         esac
  
-        if var_true $WEBAPP_ENABLE_REMOTE_PASSWORD ; then
+        if var_true "$WEBAPP_ENABLE_REMOTE_PASSWORD" ; then
             print_debug "Webapp: Enabling Remote Password HTTP Header Support" 
             sed -i "s|WebAppAuthentication::login(\$username, '');|WebAppAuthentication::login(\$username, \$_SERVER['REMOTE_PASSWORD']);|g" /usr/share/kopano-webapp/server/includes/core/class.webappauthentication.php 
         fi
@@ -1883,7 +1881,7 @@ configure_webapp() {
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp: AutoConfiguring"
-            webapp_disabled_plugins_array=$(echo $WEBAPP_PLUGINS_DISABLED | tr "," "\n")
+            webapp_disabled_plugins_array=$(echo "$WEBAPP_PLUGINS_DISABLED" | tr "," "\n")
             counter=1
             for plugin in $webapp_disabled_plugins_array
                 do
@@ -1894,9 +1892,9 @@ configure_webapp() {
                 let counter+=1
             done    
 
-            webapp_always_enabled_array=$(echo $WEBAPP_PLUGINS_ENABLED_ALWAYS | tr "," "\n")
+            webapp_always_enabled_array=$(echo "$WEBAPP_PLUGINS_ENABLED_ALWAYS" | tr "," "\n")
             counter=1
-            for plugin in $webapp_enabled_plugins_array
+            for plugin in $webapp_always_enabled_array
                 do
                 if [ "$counter" -gt "1" ]; then
                     seperator=";"
@@ -1905,7 +1903,7 @@ configure_webapp() {
                 let counter+=1
             done    
 
-            cat <<EOF > ${CONFIG_PATH}webapp/config.php
+            cat <<EOF > "${CONFIG_PATH}"webapp/config.php
 <?php
 // Custom Generated Kopano Webapp Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2008,7 +2006,7 @@ EOF
 }
 
 configure_webapp_plugins() {
-    if var_true $WEBAPP_ENABLE_PLUGINS ; then
+    if var_true "$WEBAPP_ENABLE_PLUGINS" ; then
         print_debug "Webapp Plugins Enabled"
         configure_webapp_plugin_desktop_notifications
         configure_webapp_plugin_file_previewer
@@ -2027,7 +2025,7 @@ configure_webapp_plugins() {
 configure_webapp_plugin_desktop_notifications() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-desktopnotifications.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-desktopnotifications.php
 <?php
 // Custom Generated Kopano Webapp Desktop Notification Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2040,16 +2038,16 @@ EOF
 }
 
 configure_webapp_plugin_files() {
-    mkdir -p ${WEBAPP_PLUGIN_FILES_CACHE_DIR}
-    chown -R ${NGINX_USER}:${NGINX_GROUP} ${WEBAPP_PLUGIN_FILES_CACHE_DIR}
+    mkdir -p "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
+    chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
 
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Files - Auto Configuring"
         if [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] || [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] ; then
-            if [ ! -f ${CONFIG_PATH}webapp/key-files ]; then
+            if [ ! -f "${CONFIG_PATH}"webapp/key-files ]; then
                 WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"}
                 WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"}
-                cat <<EOF > ${CONFIG_PATH}webapp/key-files
+                cat <<EOF > "${CONFIG_PATH}"webapp/key-files
 ## This is the KEY and IV for the Webapp Files Plugin. If you don't have the variables set then you will lose your account
 ## credentials upon each startup. Don't delete this file.
 ## Generated on $(date)
@@ -2058,11 +2056,11 @@ IV: ${WEBAPP_PLUGIN_FILES_PASSWORD_IV}
 Key: ${WEBAPP_PLUGIN_FILES_PASSWORD_KEY}
 EOF
             else
-                WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat ${CONFIG_PATH}webapp/key-files | grep "IV:" | awk '{print $2}')}"}
-                WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat ${CONFIG_PATH}webapp/key-files | grep "Key:" | awk '{print $2}')}"}
+                WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "IV:" | awk '{print $2}')}"}
+                WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "Key:" | awk '{print $2}')}"}
             fi
         fi
-        cat <<EOF > ${CONFIG_PATH}webapp/config-files.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-files.php
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2081,13 +2079,13 @@ EOF
 configure_webapp_plugin_file_previewer() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: File Previewer - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-filepreviewer.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-filepreviewer.php
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USERt});
+define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USER});
 define('PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM}");
 define('PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM}");
 EOF
@@ -2097,7 +2095,7 @@ EOF
 configure_webapp_plugin_intranet () {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Intranet - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-intranet.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-intranet.php
 <?php
 // Custom Generated Kopano Webapp Intranet Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2116,9 +2114,9 @@ EOF
         print_notice "Webapp Plugin: Intranet - Adding Tab #$NUM - ${!intranet_title} - ${!intranet_url}"
         if [ "${!intranet_title}" != "" ] ; then
             if [ "${i}" != "1" ] ; then
-                suffix="_$(expr ${i} - 1)"
+                suffix="_$(expr "${i}" - 1)"
             fi
-            cat <<EOF >> ${CONFIG_PATH}webapp/config-intranet.php
+            cat <<EOF >> "${CONFIG_PATH}"webapp/config-intranet.php
 
 define('PLUGIN_INTRANET_BUTTON_TITLE${suffix}', '${!intranet_title}');
 define('PLUGIN_INTRANET_URL${suffix}', '${!intranet_url}');
@@ -2133,7 +2131,7 @@ EOF
 configure_webapp_plugin_manual() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Manual - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-webappmanual.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-webappmanual.php
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2149,7 +2147,7 @@ EOF
 configure_webapp_plugin_mdm() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: MDM - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-mdm.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-mdm.php
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2166,7 +2164,7 @@ EOF
 configure_webapp_plugin_meet() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Meet - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-pimfolder.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
 <?php
 define('PLUGIN_MEET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MEET_DEFAULT_USER});
 define('PLUGIN_MEET_MEET_URL', 'https://${MEET_HOSTNAME}');
@@ -2180,7 +2178,7 @@ EOF
 configure_webapp_plugin_pim_folder() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: PIM Folder - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-pimfolder.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
 <?php
 // Custom Generated Kopano Webapp PIM Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2195,7 +2193,7 @@ EOF
 configure_webapp_plugin_rocketchat() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Rocketchat - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-rchat.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-rchat.php
 <?php
 define('PLUGIN_RCHAT_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_ROCKETCHAT_DEFAULT_USER});
 define('PLUGIN_RCHAT_BUTTON_TITLE', '${WEBAPP_PLUGIN_ROCKETCHAT_TITLE}');
@@ -2210,7 +2208,7 @@ EOF
 configure_webapp_plugin_smime() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: S/MIME - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-smime.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-smime.php
 <?php
 // Custom Generated Kopano Webapp S/MIME Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2229,7 +2227,7 @@ EOF
 configure_webapp_plugin_title_counter() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         print_notice "Webapp Plugin: Title Counter - Auto Configuring"
-        cat <<EOF > ${CONFIG_PATH}webapp/config-titlecounter.php
+        cat <<EOF > "${CONFIG_PATH}"webapp/config-titlecounter.php
 <?php
 // Custom Generated Kopano Webapp Title Counter Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2242,7 +2240,7 @@ EOF
 }
 
 configure_zpush() {
-    if var_true ${ENABLE_ZPUSH} ; then
+    if var_true "${ENABLE_ZPUSH}" ; then
         print_notice "Z-Push: Enabled"
         ### Configure Nginx
         if [ "${ZPUSH_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
@@ -2255,9 +2253,9 @@ configure_zpush() {
         fi
         sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/zpush-activesync.template
         sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/zpush-activesync.template
-        zpush_content_body_size=$(echo ${ZPUSH_CONTENT_BODY_SIZE} | tr -dc 0-9)
-        zpush_content_body_size_unit=$(echo ${ZPUSH_CONTENT_BODY_SIZE} | tr -dc 'a-zA-Z')
-        zpush_content_body_size_overhead=$(echo $(scale=1; echo ${zpush_content_body_size}*1.33 | bc | awk '{printf "%.0f\n", $1}'))
+        zpush_content_body_size=$(echo "${ZPUSH_CONTENT_BODY_SIZE}" | tr -dc 0-9)
+        zpush_content_body_size_unit=$(echo "${ZPUSH_CONTENT_BODY_SIZE}" | tr -dc 'a-zA-Z')
+        zpush_content_body_size_overhead="$(echo "$(scale=1; echo "${zpush_content_body_size}"*1.33 | bc | awk '{printf "%.0f\n", $1}')")"
         print_debug "Setting Z-Push Content Body overhead to '${zpush_content_body_size_overhead}${zpush_content_body_size_unit}' from message size '${ZPUSH_CONTENT_BODY_SIZE}'"
         sed -i "s|<ZPUSH_CONTENT_BODY_SIZE>|${zpush_content_body_size_overhead}${zpush_content_body_size_unit}|g" /etc/nginx/conf.available/zpush-activesync.template
         if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -2265,13 +2263,13 @@ configure_zpush() {
 
             ### Z-Push IPC Provider Configuration
             case "${ZPUSH_IPC_PROVIDER}" in
-                "MEMCACHED" | "memcached" | "memcache" | "memcache" )
+                "MEMCACHED" | "memcached" | "MEMCACHE" | "memcache" )
                     print_debug "Z-Push: Configuring Memcached State Type"
                     zpush_ipc_provider="IpcMemcachedProvider"
                     sanity_var ZPUSH_MEMCACHED_HOST "Z-Push Memcached Host"
                     rm -rf /usr/share/zpush/src/backend/ipcmemcached/config.php
-                    ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_MEMCACHED_FILE} /usr/share/zpush/src/backend/ipcmemcached/config.php
-                    cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_MEMCACHED_FILE}
+                    ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_MEMCACHED_FILE}" /usr/share/zpush/src/backend/ipcmemcached/config.php
+                    cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_MEMCACHED_FILE}"
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2294,16 +2292,16 @@ EOF
             ### Z-Push State Type Configuration
             case "${ZPUSH_STATE_TYPE}" in
                 "FILE" | "file" )
-                    mkdir -p ${ZPUSH_STATE_FILE_PATH}
-                    chown -R ${NGINX_USER}:${NGINX_GROUP} ${ZPUSH_STATE_FILE_PATH}
+                    mkdir -p "${ZPUSH_STATE_FILE_PATH}"
+                    chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${ZPUSH_STATE_FILE_PATH}"
                     zpush_state_type="FILE"
                 ;;
                 "SQL" | "sql" | "DB" | "db" )
                     print_debug "Configuring Z-Push SQL State Type"
                     zpush_state_type="SQL"
                     rm -rf /usr/share/zpush/src/backend/sqlstatemachine/config.php
-                    ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_SQL_FILE} /usr/share/zpush/src/backend/sqlstatemachine/config.php
-                    cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_SQL_FILE}
+                    ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_SQL_FILE}" /usr/share/zpush/src/backend/sqlstatemachine/config.php
+                    cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_SQL_FILE}"
 
 <?php
 define('STATE_SQL_ENGINE', '${ZPUSH_DB_TYPE}');
@@ -2320,8 +2318,8 @@ EOF
             ### Z-Push Configuration
             print_debug "Z-Push: Autoconfiguring"
             rm -rf /usr/share/zpush/src/config.php
-            ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_FILE} /usr/share/zpush/src/config.php
-            cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_FILE}
+            ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_FILE}" /usr/share/zpush/src/config.php
+            cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_FILE}"
 <?php
 // Custom Generated ZPush Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2458,8 +2456,8 @@ EOF
             create_zpush_templates
             print_debug "Z-Push: Configuring Kopano Settings"
             rm -rf /usr/share/zpush/src/backend/kopano/config.php
-            ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_KOPANO_FILE} /usr/share/zpush/src/backend/kopano/config.php
-            cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_KOPANO_FILE}
+            ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_KOPANO_FILE}" /usr/share/zpush/src/backend/kopano/config.php
+            cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_KOPANO_FILE}"
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2471,7 +2469,7 @@ define('READ_ONLY_NOTIFY_LOST_DATA', ${ZPUSH_READ_ONLY_NOTIFY_LOST_DATA});
 define('READ_ONLY_NOTIFY_YOURDATA', '${ZPUSH_READ_ONLY_NOTIFY_YOUR_DATA}');
 define('READ_ONLY_NOTIFY_SUBJECT', "${ZPUSH_READ_ONLY_NOTIFY_SUBJECT}");
 define('READ_ONLY_NOTIFY_BODY', <<<END
-$(cat ${TEMPLATE_ZPUSH_PATH}${TEMPLATE_ZPUSH_NOTIFY})
+$(cat "${TEMPLATE_ZPUSH_PATH}""${TEMPLATE_ZPUSH_NOTIFY}")
 END
          );
 
@@ -2489,8 +2487,8 @@ EOF
             ### Z-Push Kopano GAB2Contacts Configuration
             print_debug "Z-Push: Tools - Configuring GAB2Contacts"
             rm -rf /usr/share/zpush/tools/gab2contacts/config.php
-            ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_GAB2CONTACTS_FILE} /usr/share/zpush/tools/gab2contacts/config.php
-            cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_GAB2CONTACTS_FILE}
+            ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_GAB2CONTACTS_FILE}" /usr/share/zpush/tools/gab2contacts/config.php
+            cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_GAB2CONTACTS_FILE}"
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2530,8 +2528,8 @@ EOF
             create_zpush_templates
             print_debug "Z-Push: Configuring GAB Sync"
             rm -rf /usr/share/zpush/tools/gab-sync/config.php
-            ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_GABSYNC_FILE} /usr/share/zpush/tools/gab-sync/config.php
-            cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_GABSYNC_FILE}
+            ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_GABSYNC_FILE}" /usr/share/zpush/tools/gab-sync/config.php
+            cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_GABSYNC_FILE}"
 <?php
 // Custom Generated ZPush GAB Sync Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2558,7 +2556,7 @@ define('GAB_SYNC_TYPES', GAB_SYNC_ALL);
 EOF
         fi
 
-        if var_true $ZPUSH_ENABLE_AUTODISCOVER ; then
+        if var_true "$ZPUSH_ENABLE_AUTODISCOVER" ; then
             print_notice "Z-Push: Enabling Autodiscover"
             
             if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -2573,8 +2571,8 @@ EOF
                 sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/zpush-autodiscover.template
                 sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/zpush-autodiscover.template
                 rm -rf /usr/share/zpush/src/autodiscover/config.php
-                ln -sf ${CONFIG_PATH}${ZPUSH_CONFIG_AUTODISCOVER_FILE} /usr/share/zpush/src/autodiscover/config.php
-                cat <<EOF > ${CONFIG_PATH}${ZPUSH_CONFIG_AUTODISCOVER_FILE}
+                ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_AUTODISCOVER_FILE}" /usr/share/zpush/src/autodiscover/config.php
+                cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_AUTODISCOVER_FILE}"
 <?php
 // Custom Generated ZPush AutoDiscover Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2620,11 +2618,11 @@ EOF
         configure_cron_zpush_gab2contacts
         
         ### Change Output of ZPush when visiting with webbrowser in Debug Mode
-        if var_true ${ENABLE_ZPUSH_CUSTOM_INDEX} ; then
+        if var_true "${ENABLE_ZPUSH_CUSTOM_INDEX}" ; then
             print_debug "Z-Push: Changing Z-Push Custom HTML Output with template"
             zpush_custom_index=$(mktemp)
-            awk 'BEGIN {p=1}/print <<<END/{print;system("cat ${ZPUSH_CUSTOM_INDEX_FILE}");p=0}/^END\;/{p=1} p' /usr/share/zpush/src/lib/core/zpush.php > ${zpush_custom_index}
-            cp -R ${zpush_custom_index} /usr/share/zpush/src/lib/core/zpush.php         
+            awk 'BEGIN {p=1}/print <<<END/{print;system("cat ${ZPUSH_CUSTOM_INDEX_FILE}");p=0}/^END\;/{p=1} p' /usr/share/zpush/src/lib/core/zpush.php > "${zpush_custom_index}"
+            cp -R "${zpush_custom_index}" /usr/share/zpush/src/lib/core/zpush.php         
         fi
     fi
 }
@@ -2639,36 +2637,36 @@ create_store() {
 
 create_quota_templates() {
     print_notice "Setting up Quota Templates"
-    mkdir -p ${TEMPLATE_MONITOR_PATH}
+    mkdir -p "${TEMPLATE_MONITOR_PATH}"
     for f in /assets/kopano/templates/*
     do
-        if [ ! -f ${TEMPLATE_MONITOR_PATH}/$(basename $f) ] ; then
-            print_debug "Quota Templates: Copying Template: $(basename $f)"
-            cp -R $f ${TEMPLATE_MONITOR_PATH}
+        if [ ! -f "${TEMPLATE_MONITOR_PATH}"/"$(basename "$f")" ] ; then
+            print_debug "Quota Templates: Copying Template: $(basename "$f")"
+            cp -R "$f" "${TEMPLATE_MONITOR_PATH}"
         fi
     done
 }
 
 create_user_scripts() {
     print_notice "Setting up User Scripts"
-    mkdir -p ${USERSCRIPT_PATH}
+    mkdir -p "${USERSCRIPT_PATH}"
     for f in /assets/kopano/userscripts/*
     do
-        if [ ! -f ${USERSCRIPT_PATH}/$(basename $f) ] ; then
-            print_debug "User Scripts: Copying User Script: $(basename $f)"
-            cp -R $f ${USERSCRIPT_PATH}
+        if [ ! -f "${USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
+            print_debug "User Scripts: Copying User Script: $(basename "$f")"
+            cp -R "$f" "${USERSCRIPT_PATH}"
         fi
     done
 }
 
 create_zpush_templates() {
     print_notice "Setting up Z-Push Templates"
-    mkdir -p ${TEMPLATE_ZPUSH_PATH}
+    mkdir -p "${TEMPLATE_ZPUSH_PATH}"
     for f in /assets/zpush/templates/*
     do
-        if [ ! -f ${TEMPLATE_ZPUSH_PATH}/$(basename $f) ] ; then
-            print_debug "Copying Template: $(basename $f)"
-            cp -R $f ${TEMPLATE_ZPUSH_PATH}
+        if [ ! -f "${TEMPLATE_ZPUSH_PATH}"/"$(basename "$f")" ] ; then
+            print_debug "Copying Template: $(basename "$f")"
+            cp -R "$f" "${TEMPLATE_ZPUSH_PATH}"
         fi
     done
 }
@@ -2678,34 +2676,34 @@ move_remaining_config() {
     for f in /assets/kopano/config/*
     do
         if [ ! -d "$f" ]; then
-            if [ ! -f ${CONFIG_PATH}/$(basename $f) ] ; then
-                print_debug "Copying Config: $(basename $f)"
-                cp -R $f ${CONFIG_PATH}
+            if [ ! -f "${CONFIG_PATH}"/"$(basename "$f")" ] ; then
+                print_debug "Copying Config: $(basename "$f")"
+                cp -R "$f" "${CONFIG_PATH}"
             fi
         fi
     done
     for f in /assets/kopano/config/webapp/*
     do
         if [ ! -d "$f" ]; then
-            if [ ! -f ${CONFIG_PATH}/webapp/$(basename $f) ] ; then
-                print_debug "Copying Config: $(basename $f)"
-                cp -R $f ${CONFIG_PATH}/webapp/
+            if [ ! -f "${CONFIG_PATH}"/webapp/"$(basename "$f")" ] ; then
+                print_debug "Copying Config: $(basename "$f")"
+                cp -R "$f" "${CONFIG_PATH}"/webapp/
             fi
         fi
     done
 }
 
 parse_config() {
-    if [ -f ${1} ] ; then
+    if [ -f "${1}" ] ; then
         print_debug "Parsing Config ${1}"
         while IFS="" read -r line || [ -n "$line" ]
             do
             if [[ "${line}" == *" = "* ]] ; then
-                name=$(echo $line | awk '{print $1}')
-                value=$(echo $line | awk '{print $3}')
-                export $name=$value
+                name=$(echo "$line" | awk '{print $1}')
+                value=$(echo "$line" | awk '{print $3}')
+                export "$name"="$value"
             fi
-        done < ${1}
+        done < "${1}"
     else
         print_error "Tried to parse config ${1} but it doesn't exist!"
     fi
@@ -2715,13 +2713,13 @@ wait_for_server() {
     case "${SOCKET_SERVER}" in
             "file://"* )
                 print_notice "Checking to see if Kopano Server socket is avaialable"
-                wait_for_socket ${SOCKET_SERVER}
+                wait_for_socket "${SOCKET_SERVER}"
             ;;
             "htt"* )
                 print_notice "Checking to see if Kopano Server port is avaialable"
                 kchost=$(echo "${SOCKET_SERVER}" | awk -F / '{print $3}' | awk -F : '{print $1}')
                 kcport=$(echo "${SOCKET_SERVER}" | awk -F / '{print $3}' | awk -F : '{print $2}')
-                wait_for_port $kchost $kcport
+                wait_for_port "$kchost" "$kcport"
             ;;
     esac
 }
@@ -2730,13 +2728,13 @@ wait_for_search() {
     case "${SOCKET_SEARCH}" in
             "file://"* )
                 print_notice "Checking to see if Kopano Search socket is avaialable"
-                wait_for_socket ${SOCKET_SEARCH}
+                wait_for_socket "${SOCKET_SEARCH}"
             ;;
             "htt"* )
                 print_notice "Checking to see if Kopano Server port is avaialable"
                 kshost=$(echo "${SOCKET_SEARCH}" | awk -F / '{print $3}' | awk -F : '{print $1}')
-                Ksport=$(echo "${SOCKET_SEARCH}" | awk -F / '{print $3}' | awk -F : '{print $2}')
-                wait_for_port $kshost $ksport
+                ksport=$(echo "${SOCKET_SEARCH}" | awk -F / '{print $3}' | awk -F : '{print $2}')
+                wait_for_port "$kshost" "$ksport"
             ;;
     esac
 }
