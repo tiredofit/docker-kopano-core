@@ -5,10 +5,16 @@ prepare_service
 
 PROCESS_NAME="kopano"
 
-mkdir -p "${CONFIG_PATH}"
+mkdir -p ${CONFIG_PATH}
 sanity_var INSTALL_ID "Installation ID"
 configure_install_id
 configure_logging
+
+
+if [ -d "/assets/custom/" ] ; then
+	print_debug "Copying Custom Assets"
+	cp -R /assets/custom/* /
+fi
 
 ## Don't Bother with changing mode - Not working
 case "$MODE" in

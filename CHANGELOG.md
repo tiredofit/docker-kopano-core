@@ -1,3 +1,9 @@
+## 0.19.0 2020-07-31 <dave at tiredofit dot ca>
+
+   ### Added
+      - Add custom assets support (drop files into /assets/custom following folder structure in relation to / to overwrite it)
+
+
 ## 0.18.0 2020-06-27 <dave at tiredofit dot ca>
 
    ### Changed
