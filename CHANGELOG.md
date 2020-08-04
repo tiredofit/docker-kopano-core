@@ -1,3 +1,9 @@
+## 0.20.0 2020-08-04 <dave at tiredofit dot ca>
+
+   ### Added
+      - Add environment variables to enable or disable individual webapp plugins
+
+
 ## 0.19.0 2020-07-31 <dave at tiredofit dot ca>
 
    ### Added

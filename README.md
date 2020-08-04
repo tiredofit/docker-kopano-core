@@ -631,7 +631,7 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `WEBAPP_ICONSET`                                     |                                                               | `breeze`                                                                                                                  |
 | `WEBAPP_INSECURE_COOKIES`                            |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_LOG_SUCCESSFUL_LOGINS`                       |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_LOG_USERS`                                   |                                                               |                                                                                                                         |
+| `WEBAPP_LOG_USERS`                                   |                                                               |                                                                                                                           |
 | `WEBAPP_LOGINNAME_STRIP_DOMAIN`                      |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_MAX_EML_FILES_IN_ZIP`                        |                                                               | `50`                                                                                                                      |
 | `WEBAPP_MAX_GAB_RESULTS`                             |                                                               | `0`                                                                                                                       |
@@ -676,31 +676,48 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 
 ##### Webapp Plugins
 
-###### Webapp Plugin: Desktop Noticiations Options
+###### Webapp Plugin: Desktop Notifications Options
+| Parameter                          | Description   | Default |
+| ---------------------------------- | ------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_CONTACT_FAX` | Enable Plugin | `TRUE`  |
 
-| Parameter                                          | Description               | Default |
-| -------------------------------------------------- | ------------------------- | ------- |
-| `WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER` | Auto Enable for new users | `TRUE`  |
+###### Webapp Plugin: Desktop Notifications Options
+
+| Parameter                                          | Description                         | Default |
+| -------------------------------------------------- | ----------------------------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_DESKTOP_NOTIFICATIONS`       | Enable Desktop Notifications Plugin | `TRUE`  |
+| `WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER` | Auto Enable for new users           | `TRUE`  |
 
 ###### Webapp Plugin: Files Options
 
 This plugin requires an IV and Key to encrypt credentials for users to remove services. If the env vars do not exist, a random 8 char IV and 16 char KEY will be generated and stored in ${CONFIG_PATH}webapp/key-files and reloaded on each container start.
 
-| Parameter                               | Description                     | Default                           |
-| --------------------------------------- | ------------------------------- | --------------------------------- |
-| `WEBAPP_PLUGIN_FILES_DEFAULT_USER`      | Auto Enable for new users       | `TRUE`                            |
-| `WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE` | Ask users before deleting files | `TRUE`                            |
-| `WEBAPP_PLUGIN_FILES_CACHE_DIR`         | Files cache directory           | `/data/cache/webapp/plugin_files` |
-| `WEBAPP_PLUGIN_FILES_PASSWORD_IV`       | 8 character IV                  | `random`                          |
-| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`      | 16 character IV                 | `random`                          |
+| Parameter                                     | Description                     | Default                           |
+| --------------------------------------------- | ------------------------------- | --------------------------------- |
+| `WEBAPP_PLUGIN_ENABLE_FILES`                  | Enable Files Plugin             | `TRUE`                            |
+| `WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_OWNCLOUD` | Enable Owncloud Backend Plugin  | `TRUE`                            |
+| `WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SEAFILE`  | Enable Seafile Backend Plugin   | `TRUE`                            |
+| `WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SMB`      | Enable SMB Backed Plugin        | `TRUE`                            |
+| `WEBAPP_PLUGIN_FILES_DEFAULT_USER`            | Auto Enable for new users       | `TRUE`                            |
+| `WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE`       | Ask users before deleting files | `TRUE`                            |
+| `WEBAPP_PLUGIN_FILES_CACHE_DIR`               | Files cache directory           | `/data/cache/webapp/plugin_files` |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV                  | `random`                          |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV                 | `random`                          |
 
 ###### Webapp Plugin: Filepreviewer Options
 
 | Parameter                                      | Description                     | Default      |
 | ---------------------------------------------- | ------------------------------- | ------------ |
+| `WEBAPP_PLUGIN_ENABLE_FILEPREVIEWER`           | Enable Plugin                   | `TRUE`       |
 | `WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USER`     | Auto Enable for new users       | `TRUE`       |
 | `WEBAPP_PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `auto`       |
 | `WEBAPP_PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `page-width` |
+
+###### Webapp Plugin: Folder Widgets
+
+| Parameter                             | Description   | Default |
+| ------------------------------------- | ------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_FOLDER_WIDGETS` | Enable Plugin | `TRUE`  |
 
 ###### Webapp Plugin: Intranet Options
 
@@ -708,6 +725,7 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 
 | Parameter                             | Description                          | Default |
 | ------------------------------------- | ------------------------------------ | ------- |
+| `WEBAPP_PLUGIN_ENABLE_INTRANET`       | Enable Intranet Plugin               | `TRUE`  |
 | `WEBAPP_PLUGIN_INTRANET_DEFAULT_USER` | Auto Enable for new users            | `TRUE`  |
 | `WEBAPP_PLUGIN_INTRANET1_TITLE`       | Service Name to appear in Header Bar |         |
 | `WEBAPP_PLUGIN_INTRANET1_URL`         | URL to load for service              |         |
@@ -716,15 +734,17 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 
 ###### Webapp Plugin: Manual Options
 
-| Parameter                           | Description               | Default                                               |
-| ----------------------------------- | ------------------------- | ----------------------------------------------------- |
-| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | Auto Enable for new users | `TRUE`                                                |
-| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | URL to Load for Manual    | `https://documentation.kopano.io/user_manual_webapp/` |
+| Parameter                           | Description                 | Default                                               |
+| ----------------------------------- | --------------------------- | ----------------------------------------------------- |
+| `WEBAPP_PLUGIN_ENABLE_MANUAL`       | Enable Webapp Manual Plugin | `TRUE`                                                |
+| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | Auto Enable for new users   | `TRUE`                                                |
+| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | URL to Load for Manual      | `https://documentation.kopano.io/user_manual_webapp/` |
 
 ###### Webapp Plugin: Mobile Device Manager Options
 
 | Parameter                        | Description                                    | Default              |
 | -------------------------------- | ---------------------------------------------- | -------------------- |
+| `WEBAPP_PLUGIN_ENABLE_MDM`       | Enable Plugin                                  | `TRUE`               |
 | `WEBAPP_PLUGIN_MDM_DEFAULT_USER` | Auto Enable for new users                      | `TRUE`               |
 | `WEBAPP_PLUGIN_MDM_SERVER_SSL`   | Whether to use SSL to connect to Z-Push server | `TRUE`               |
 | `ZPUSH_HOSTNAME`                 | Hostname of Z-Push server                      | `${WEBAPP_HOSTNAME}` |
@@ -733,19 +753,28 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 
 | Parameter                         | Description               | Default            |
 | --------------------------------- | ------------------------- | ------------------ |
+| `WEBAPP_PLUGIN_ENABLE_MEET`       | Enable Plugin             | `TRUE`             |
 | `WEBAPP_PLUGIN_MEET_DEFAULT_USER` | Auto Enable for new users | `TRUE`             |
 | `MEET_HOSTNAME`                   | Hostname of meet server   | `meet.example.com` |
 
 ###### Webapp Plugin: PIM Options
 
-| Parameter                        | Description               | Default |
-| -------------------------------- | ------------------------- | ------- |
-| `WEBAPP_PLUGIN_PIM_DEFAULT_USER` | Auto Enable for new users | `FALSE` |
+| Parameter                         | Description               | Default |
+| --------------------------------- | ------------------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_PIM_FOLDER` | Enable Plugin             | `TRUE`  |
+| `WEBAPP_PLUGIN_PIM_DEFAULT_USER`  | Auto Enable for new users | `FALSE` |
+
+###### Webapp Plugin: Quick Items
+
+| Parameter                          | Description   | Default |
+| ---------------------------------- | ------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_QUICK_ITEMS` | Enable Plugin | `TRUE`  |
 
 ###### Webapp Plugin: Rocketchat Options
 
 | Parameter                               | Description                                  | Default                            |
 | --------------------------------------- | -------------------------------------------- | ---------------------------------- |
+| `WEBAPP_PLUGIN_ENABLE_ROCKETCHAT`       | Enable Plugin                                | `TRUE`                             |
 | `WEBAPP_PLUGIN_ROCKETCHAT_DEFAULT_USER` | Auto Enable for new users                    | `TRUE`                             |
 | `WEBAPP_PLUGIN_ROCKETCHAT_TITLE`        | Service Name to appear in Header Bar         | `Rocketchat`                       |
 | `WEBAPP_PLUGIN_ROCKETCHAT_HOST`         | Host of Rocketchat Server (no http/https://) | `rocketchat.example.com`           |
@@ -757,6 +786,7 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 
 | Parameter                                         | Description               | Default                      |
 | ------------------------------------------------- | ------------------------- | ---------------------------- |
+| `WEBAPP_PLUGIN_ENABLE_SMIME`                      | Enable Plugin             | `TRUE`                       |
 | `WEBAPP_PLUGIN_SMIME_DEFAULT_USER`                | Auto Enable for new users | `FALSE`                      |
 | `WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION`            |                           | `/etc/ssl/certs`             |
 | `WEBAPP_PLUGIN_SMIME_CIPHER`                      |                           | `OPENSSL_CIPHER_AES_128_CBC` |
@@ -767,6 +797,7 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 
 | Parameter                                  | Description               | Default |
 | ------------------------------------------ | ------------------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_TITLE_COUNTER`       | Enable Plugin             | `TRUE`  |
 | `WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER` | Auto Enable for new users | `TRUE`  |
 
 #### Meet Video Conferencing

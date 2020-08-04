@@ -2008,24 +2008,33 @@ EOF
 configure_webapp_plugins() {
     if var_true "$WEBAPP_ENABLE_PLUGINS" ; then
         print_debug "Webapp Plugins Enabled"
+        configure_webapp_plugin_contactfax
         configure_webapp_plugin_desktop_notifications
         configure_webapp_plugin_file_previewer
         configure_webapp_plugin_files
+        configure_webapp_plugin_files_backend_owncloud
+        configure_webapp_plugin_files_backend_seafile
+        configure_webapp_plugin_files_backend_smb
+        configure_webapp_plugin_folderwidgets
         configure_webapp_plugin_intranet
         configure_webapp_plugin_manual
         configure_webapp_plugin_mdm
         configure_webapp_plugin_meet
         configure_webapp_plugin_pim_folder
+        configure_webapp_plugin_quick_items
         configure_webapp_plugin_rocketchat
         configure_webapp_plugin_smime
         configure_webapp_plugin_title_counter
+        chown -R ${NGINX_USER}:${NGINX_GROUP} /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_desktop_notifications() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-desktopnotifications.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_DESKTOP_NOTIFICATIONS}" ; then
+        cp -R /assets/kopano/webapp-plugins/desktopnotifications /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-desktopnotifications.php
 <?php
 // Custom Generated Kopano Webapp Desktop Notification Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2034,20 +2043,23 @@ configure_webapp_plugin_desktop_notifications() {
 define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${PLUGIN_WEBAPP_DESKTOP_NOTIFICATIONS_DEFAULT_USER});
 ?>
 EOF
+        fi
     fi
 }
 
 configure_webapp_plugin_files() {
-    mkdir -p "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
-    chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
+    if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
+        cp -R /assets/kopano/webapp-plugins/files /usr/share/kopano-webapp/plugins
+        mkdir -p "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
 
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Files - Auto Configuring"
-        if [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] || [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] ; then
-            if [ ! -f "${CONFIG_PATH}"webapp/key-files ]; then
-                WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"}
-                WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"}
-                cat <<EOF > "${CONFIG_PATH}"webapp/key-files
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Files - Auto Configuring"
+            if [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] || [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] ; then
+                if [ ! -f "${CONFIG_PATH}"webapp/key-files ]; then
+                    WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"}
+                    WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"}
+                    cat <<EOF > "${CONFIG_PATH}"webapp/key-files
 ## This is the KEY and IV for the Webapp Files Plugin. If you don't have the variables set then you will lose your account
 ## credentials upon each startup. Don't delete this file.
 ## Generated on $(date)
@@ -2055,12 +2067,12 @@ configure_webapp_plugin_files() {
 IV: ${WEBAPP_PLUGIN_FILES_PASSWORD_IV}
 Key: ${WEBAPP_PLUGIN_FILES_PASSWORD_KEY}
 EOF
-            else
-                WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "IV:" | awk '{print $2}')}"}
-                WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "Key:" | awk '{print $2}')}"}
+                else
+                    WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "IV:" | awk '{print $2}')}"}
+                    WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "Key:" | awk '{print $2}')}"}
+                fi
             fi
-        fi
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-files.php
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-files.php
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2073,13 +2085,41 @@ define('PLUGIN_FILESBROWSER_LOGLEVEL', "${files_log_level}");
 define('FILES_PASSWORD_KEY', '${WEBAPP_PLUGIN_FILES_PASSWORD_KEY}');
 define('FILES_PASSWORD_IV', '${WEBAPP_PLUGIN_FILES_PASSWORD_IV}');
 EOF
+        fi
+    fi
+}
+
+configure_webapp_plugin_files_backend_owncloud() {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
+        if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_OWNCLOUD}" ; then
+            cp -R /assets/kopano/webapp-plugins/filesbackendOwncloud /usr/share/kopano-webapp/plugins
+        fi
+    fi
+}
+
+configure_webapp_plugin_files_backend_seafile() {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
+        if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SEAFILE}" ; then
+            cp -R /assets/kopano/webapp-plugins/filesbackendSeafile /usr/share/kopano-webapp/plugins
+        fi
+    fi
+}
+
+configure_webapp_plugin_files_backend_smb() {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
+        if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SMB}" ; then
+            cp -R /assets/kopano/webapp-plugins/filesbackendSMB /usr/share/kopano-webapp/plugins
+        fi
     fi
 }
 
 configure_webapp_plugin_file_previewer() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: File Previewer - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-filepreviewer.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_FILEPREVIEWER}" ; then
+        cp -R /assets/kopano/webapp-plugins/filepreviewer /usr/share/kopano-webapp/plugins
+
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: File Previewer - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-filepreviewer.php
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2089,13 +2129,22 @@ define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILEPREVIEWER
 define('PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM}");
 define('PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM', "${PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM}");
 EOF
+        fi
+    fi
+}
+
+configure_webapp_plugin_folderwidgets () {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_FOLDER_WIDGETS}" ; then
+        cp -R /assets/kopano/webapp-plugins/folderwidgets /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_intranet () {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Intranet - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-intranet.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_INTRANET}" ; then
+        cp -R /assets/kopano/webapp-plugins/intranet /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Intranet - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-intranet.php
 <?php
 // Custom Generated Kopano Webapp Intranet Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2104,34 +2153,37 @@ configure_webapp_plugin_intranet () {
 define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_INTRANET_DEFAULT_USER});
 EOF
 
-    NUM=$(printenv | sort | grep -c '^WEBAPP_PLUGIN_INTRANET.*TITLE')
-    for (( i = 1; i <= $NUM; i++ ))
-    do
-        intranet_title=WEBAPP_PLUGIN_INTRANET${i}_TITLE
-        intranet_url=WEBAPP_PLUGIN_INTRANET${i}_URL
-        intranet_autostart=WEBAPP_PLUGIN_INTRANET${i}_AUTOSTART
-        intranet_icon=WEBAPP_PLUGIN_INTRANET${i}_ICON
-        print_notice "Webapp Plugin: Intranet - Adding Tab #$NUM - ${!intranet_title} - ${!intranet_url}"
-        if [ "${!intranet_title}" != "" ] ; then
-            if [ "${i}" != "1" ] ; then
-                suffix="_$(expr "${i}" - 1)"
-            fi
-            cat <<EOF >> "${CONFIG_PATH}"webapp/config-intranet.php
+        NUM=$(printenv | sort | grep -c '^WEBAPP_PLUGIN_INTRANET.*TITLE')
+        for (( i = 1; i <= $NUM; i++ ))
+        do
+            intranet_title=WEBAPP_PLUGIN_INTRANET${i}_TITLE
+            intranet_url=WEBAPP_PLUGIN_INTRANET${i}_URL
+            intranet_autostart=WEBAPP_PLUGIN_INTRANET${i}_AUTOSTART
+            intranet_icon=WEBAPP_PLUGIN_INTRANET${i}_ICON
+            print_notice "Webapp Plugin: Intranet - Adding Tab #$NUM - ${!intranet_title} - ${!intranet_url}"
+            if [ "${!intranet_title}" != "" ] ; then
+                if [ "${i}" != "1" ] ; then
+                    suffix="_$(expr "${i}" - 1)"
+                fi
+                cat <<EOF >> "${CONFIG_PATH}"webapp/config-intranet.php
 
 define('PLUGIN_INTRANET_BUTTON_TITLE${suffix}', '${!intranet_title}');
 define('PLUGIN_INTRANET_URL${suffix}', '${!intranet_url}');
 define('PLUGIN_INTRANET_AUTOSTART${suffix}', ${!intranet_autostart});
 define('PLUGIN_INTRANET_ICON${suffix}', '${!intranet_icon}');
 EOF
-            fi
-        done
+                fi
+            done
+        fi
     fi
 }
 
 configure_webapp_plugin_manual() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Manual - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-webappmanual.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_MANUAL}" ; then
+        cp -R /assets/kopano/webapp-plugins/webappmanual /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Manual - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-webappmanual.php
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2141,13 +2193,16 @@ define('PLUGIN_WEBAPPMANUAL_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MANUAL_DEFAULT
 define('PLUGIN_WEBAPPMANUAL_URL', '${WEBAPP_PLUGIN_MANUAL_URL}');
 ?>
 EOF
+        fi
     fi
 }
 
 configure_webapp_plugin_mdm() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: MDM - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-mdm.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_MDM}" ; then
+        cp -R /assets/kopano/webapp-plugins/mdm /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: MDM - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-mdm.php
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2158,13 +2213,16 @@ define('PLUGIN_MDM_SERVER', '${ZPUSH_HOSTNAME}');
 define('PLUGIN_MDM_SERVER_SSL', ${WEBAPP_PLUGIN_MDM_SERVER_SSL});
 ?>
 EOF
+        fi
     fi
 }
 
 configure_webapp_plugin_meet() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Meet - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_MEET}" ; then
+        cp -R /assets/kopano/webapp-plugins/meet /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Meet - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
 <?php
 define('PLUGIN_MEET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MEET_DEFAULT_USER});
 define('PLUGIN_MEET_MEET_URL', 'https://${MEET_HOSTNAME}');
@@ -2172,13 +2230,16 @@ define('PLUGIN_MEET_MEET_URL', 'https://${MEET_HOSTNAME}');
 
 }
 EOF
+        fi
     fi
 }
 
 configure_webapp_plugin_pim_folder() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: PIM Folder - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_PIM_FOLDER}" ; then
+        cp -R /assets/kopano/webapp-plugins/pimfolder /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: PIM Folder - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
 <?php
 // Custom Generated Kopano Webapp PIM Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2187,13 +2248,22 @@ configure_webapp_plugin_pim_folder() {
 define('PLUGIN_PIMFOLDER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_PIM_FOLDER_DEFAULT_USER});
 ?>
 EOF
+        fi
+    fi
+}
+
+configure_webapp_plugin_quickitems() {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_QUICK_ITEMS}" ; then
+        cp -R /assets/kopano/webapp-plugins/quickitems /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_rocketchat() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Rocketchat - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-rchat.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_ROCKETCHAT}" ; then
+        cp -R /assets/kopano/webapp-plugins/rchat /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Rocketchat - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-rchat.php
 <?php
 define('PLUGIN_RCHAT_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_ROCKETCHAT_DEFAULT_USER});
 define('PLUGIN_RCHAT_BUTTON_TITLE', '${WEBAPP_PLUGIN_ROCKETCHAT_TITLE}');
@@ -2202,13 +2272,16 @@ define('PLUGIN_RCHAT_PATH', '${WEBAPP_PLUGIN_ROCKETCHAT_PATH}');
 define('PLUGIN_RCHAT_AUTOSTART', ${WEBAPP_PLUGIN_ROCKETCHAT_AUTOSTART});
 define('PLUGIN_RCHAT_ICON', '${WEBAPP_PLUGIN_ROCKETCHAT_ICON}');
 EOF
+        fi
     fi
 }
 
 configure_webapp_plugin_smime() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: S/MIME - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-smime.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_SMIME}" ; then
+        cp -R /assets/kopano/webapp-plugins/smime /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: S/MIME - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-smime.php
 <?php
 // Custom Generated Kopano Webapp S/MIME Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2221,13 +2294,16 @@ DEFINE('PLUGIN_SMIME_PASSPHRASE_REMEMBER_BROWSER', ${WEBAPP_PLUGIN_SMIME_BROWSER
 DEFINE('PLUGIN_SMIME_ENABLE_OCSP', ${WEBAPP_PLUGIN_SMIME_ENABLE_OCSP});
 ?>
 EOF
+        fi
     fi
 }
 
 configure_webapp_plugin_title_counter() {
-    if [ "$SETUP_TYPE" = "AUTO" ]; then
-        print_notice "Webapp Plugin: Title Counter - Auto Configuring"
-        cat <<EOF > "${CONFIG_PATH}"webapp/config-titlecounter.php
+    if var_true "${WEBAPP_PLUGIN_ENABLE_TITLE_COUNTER}" ; then
+        cp -R /assets/kopano/webapp-plugins/titlecounter /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Title Counter - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-titlecounter.php
 <?php
 // Custom Generated Kopano Webapp Title Counter Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -2236,6 +2312,7 @@ configure_webapp_plugin_title_counter() {
 define('PLUGIN_TITLECOUNTER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER});
 ?>
 EOF
+        fi
     fi
 }
 

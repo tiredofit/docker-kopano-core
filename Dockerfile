@@ -202,6 +202,8 @@ RUN set -x && \
     rm -rf /etc/kopano/userscripts && \
     mkdir -p /assets/kdav/config/ && \
     cp -R /usr/share/kdav/config.php /assets/kdav/config/ && \
+    mkdir -p /assets/kopano/webapp-plugins && \
+    mv /usr/share/kopano-webapp/plugins/* /assets/kopano-webapp-plugins && \
     mkdir -p /assets/zpush/config && \
     cp -R /usr/share/zpush/src/config.php /assets/zpush/config/ && \
     cp -R /usr/share/zpush/src/autodiscover/config.php /assets/zpush/config/config-autodiscover.php && \
