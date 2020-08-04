@@ -5,180 +5,124 @@ prepare_service
 
 PROCESS_NAME="kopano"
 
-mkdir -p ${CONFIG_PATH}
+mkdir -p "${CONFIG_PATH}"
 sanity_var INSTALL_ID "Installation ID"
 configure_install_id
 configure_logging
 
+### Autorespond Config
+if var_true "${ENABLE_AUTORESPOND}" ; then
+	configure_autorespond
+fi
 
+### Backup Config
+if var_true "${ENABLE_BACKUP}" ; then
+	configure_backup
+fi
+
+### Calendar Config
+if var_true "${ENABLE_CALENDAR}" ; then
+	configure_calendar
+fi
+
+### DAgent Config
+if var_true "${ENABLE_DAGENT}" ; then
+	configure_dagent
+fi
+
+### Gateway Config
+if var_true "${ENABLE_GATEWAY}" ; then
+	configure_gateway
+else
+    service_stop 32-kopano-gateway
+fi
+
+### ICAL Config
+if var_true "${ENABLE_ICAL}" ; then
+	configure_ical
+else
+	service_stop 34-kopano-ical
+fi
+
+### KDAV Config
+if var_true "${ENABLE_KDAV}" ; then
+	configure_kdav
+fi
+
+### Konnect Config
+if var_true "${ENABLE_KONNECT}" ; then
+	configure_konnect
+else
+	service_stop 44-konnect
+fi
+
+### Meet Config
+if var_true "${ENABLE_MEET}" ; then
+	configure_meet
+else
+	service_stop 41-grapi
+	service_stop 42-kopano-api
+	service_stop 43-kopano-kwmserverd
+fi
+
+### Monitor Config
+if var_true "${ENABLE_MONITOR}" ; then
+	configure_monitor
+elses
+	service_stop 37-kopano-monitor
+fi
+
+### Search Config
+if var_true "${ENABLE_SEARCH}" ; then
+	configure_search
+else
+	service_stop 36-kopano-search
+fi
+
+### Server Config
+if var_true "${ENABLE_SERVER}" ; then
+	sanity_db
+	db_ready mariadb
+	create_user_scripts
+	configure_cron_purge_deleted
+	configure_server
+else
+	service_stop 30-kopano-server
+    service_stop 90-post-startup-routines
+fi
+
+### SPAMD Config
+if var_true "${ENABLE_SPAMD}" ; then
+	configure_spamd
+else
+	service_stop 35-kopano-spamd
+fi
+
+### Spooler Config
+if var_true "${ENABLE_SPOOLER}" ; then
+	configure_spooler
+else
+	service_stop 31-kopano-spooler
+fi
+
+### Webapp Config
+if var_true "${ENABLE_WEBAPP}" ; then
+	configure_webapp
+	if var_true "${WEBAPP_ENABLE_PLUGINS}" ; then
+		configure_webapp_plugins
+	fi
+fi
+
+### Z-Push Config
+if var_true "${ENABLE_ZPUSH}" ; then
+	configure_zpush
+	create_zpush_templates
+fi
+
+### Copy custom files overtop of the root directory
 if [ -d "/assets/custom/" ] ; then
 	print_debug "Copying Custom Assets"
 	cp -R /assets/custom/* /
 fi
-
-## Don't Bother with changing mode - Not working
-case "$MODE" in
-	"STANDALONE")
-		print_info "Preparing to setup (AIO) Kopano Services"
-		sanity_db
-		db_ready mariadb
-		create_user_scripts
-		create_quota_templates
-		configure_cron_purge_deleted
-		configure_autorespond
-		configure_backup
-		configure_calendar
-		configure_dagent
-		configure_gateway
-		configure_ical
-		configure_kdav
-        configure_meet
-		configure_monitor
-		configure_search
-		configure_server
-		configure_spamd
-		configure_spooler
-		configure_user_backend
-		configure_webapp
-		configure_webapp_plugins
-		configure_zpush
-		create_user_scripts
-		create_quota_templates
-		move_remaining_config
-        print_info "Container Iniitalization Complete"
-    ;;
-	"CALENDAR" | "calendar" )
-		print_info "Preparing to setup standalone Kopano Calendar Service"
-        #service_stop 30-kopano-server
-        service_stop 31-kopano-spooler
-        service_stop 32-kopano-gateway
-        service_stop 33-kopano-dagent
-        service_stop 34-kopano-ical
-        service_stop 35-kopano-spamd
-        service_stop 36-kopano-search
-        service_stop 37-kopano-monitor
-		configure_calendar
-		configure_server
-	;;
-	"DAGENT" | "dagent" )
-		print_info "Preparing to setup standalone Kopano DAgent Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-        service_stop 30-kopano-server
-        service_stop 31-kopano-spooler
-        service_stop 32-kopano-gateway
-        service_stop 34-kopano-ical
-        service_stop 35-kopano-spamd
-        service_stop 36-kopano-search
-        service_stop 37-kopano-monitor
-		configure_dagent
-	;;
-	"GATEWAY" | "gateway" )
-		print_info "Preparing to setup standalone Kopano Gateway Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_gateway
-	;;
-	"ICAL" | "ical" )
-		print_info "Preparing to setup standalone Kopano ICAL Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_ical
-	;;
-	"KDAV" | "kdav" )
-        print_info "Preparing to setup standalone Nginx Webservice"
-        service_stop 30-kopano-server
-        service_stop 31-kopano-spooler
-        service_stop 32-kopano-gateway
-        service_stop 33-kopano-dagent
-        service_stop 34-kopano-ical
-        service_stop 35-kopano-spamd
-        service_stop 36-kopano-search
-        service_stop 37-kopano-monitor
-        configure_kdav
-    ;;
-	"MEET" | "meet" )
-		print_info "Preparing to setup standalone Kopano Meet Service"
-        #service_stop 30-kopano-server
-        service_stop 31-kopano-spooler
-        service_stop 32-kopano-gateway
-        service_stop 33-kopano-dagent
-        service_stop 34-kopano-ical
-        service_stop 35-kopano-spamd
-        service_stop 36-kopano-search
-        service_stop 37-kopano-monitor
-		configure_meet
-		configure_server
-	;;
-	"MONITOR" | "monitor" )
-		print_info "Preparing to setup standalone Kopano Monitor Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_monitor
-		create_quota_templates
-	;;
-	"SEARCH" | "search" )
-		print_info "Preparing to setup standalone Kopano Search Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_search
-	;;
-	"SERVER" | "server" )
-		print_info "Preparing to setup standalone Kopano Server Service"
-		configure_cron_ldap_sync
-		configure_cron_purge_deleted
-		create_user_scripts
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_server
-	;;
-	"SPAMD" | "spamd" )
-		print_info "Preparing to setup standalone Kopano SpamD Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_spamd
-	;;
-	"SPOOLER" | "spooler" )
-		print_info "Preparing to setup standalone Kopano Spooler Service"
-		service_stop 10-nginx
-		service_stop 11-nginx-config-reload
-		service_stop 20-php-fpm
-		configure_spooler
-	;;
-	"WEBSERVER" | "webserver" | "web" )
-        print_info "Preparing to setup standalone Nginx Webservice"
-		configure_kdav
-		configure_webapp
-		configure_webapp_plugins
-		configure_zpush
-        service_stop 30-kopano-server
-        service_stop 31-kopano-spooler
-        service_stop 32-kopano-gateway
-        service_stop 33-kopano-dagent
-        service_stop 34-kopano-ical
-        service_stop 35-kopano-spamd
-        service_stop 36-kopano-search
-        service_stop 37-kopano-monitor
-    ;;
-	"ZPUSH" | "zpush" )
-        print_info "Preparing to setup standalone Nginx Webservice"
-		configure_zpush
-        service_stop 30-kopano-server
-        service_stop 31-kopano-spooler
-        service_stop 32-kopano-gateway
-        service_stop 33-kopano-dagent
-        service_stop 34-kopano-ical
-        service_stop 35-kopano-spamd
-        service_stop 36-kopano-search
-        service_stop 37-kopano-monitor
-    ;;
-esac
 
 liftoff

@@ -21,7 +21,7 @@ ENV KOPANO_CORE_VERSION=10.0.5 \
 RUN set -x && \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
                        apt-utils \
                        bc \
                        fail2ban \
@@ -120,7 +120,7 @@ RUN set -x && \
     \
 ##### Install Packages
     apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
                        #kopano-archiver \
                        kopano-bash-completion \
                        kopano-calendar \

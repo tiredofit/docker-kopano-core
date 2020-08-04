@@ -1,3 +1,9 @@
+## 0.21.0 2020-08-04 <dave at tiredofit dot ca>
+
+   ### Added
+      - Allow to cherrypick which services to run for multi container usage
+
+
 ## 0.20.0 2020-08-04 <dave at tiredofit dot ca>
 
    ### Added
