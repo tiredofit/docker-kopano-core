@@ -35,6 +35,7 @@ RUN set -x && \
                        && \
     \
     ## Python Deps for Spamd
+    pip3 install setuptools && \
     pip3 install inotify && \
     pip3 install wheel && \
     \
