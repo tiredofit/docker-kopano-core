@@ -1,3 +1,9 @@
+## 0.23.0 2020-08-06 <dave at tiredofit dot ca>
+
+   ### Added
+      - Enable DOMPurify by Default for Webapp
+
+
 ## 0.22.0 2020-08-05 <dave at tiredofit dot ca>
 
    ### Added
