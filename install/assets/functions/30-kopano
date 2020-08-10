@@ -1018,7 +1018,7 @@ configure_kapi() {
                 sed -i "s|<KAPI_HOST>|${KAPI_HOST}|g" /etc/nginx/conf.available/upstream-kapi.template
                 sed -i "s|<KAPI_PORT>|${KAPI_PORT}|g" /etc/nginx/conf.available/upstream-kapi.template
                 ln -sf /etc/nginx/conf.available/upstream-kapi.template /etc/nginx/conf.d/upstream-kapi.conf
-                if [ "${KAPI_HOST}" != "127.0.0.1" ] || [ "${KAPI_HOST}" != "localhost" ] ; then
+                if [ "${KAPI_HOST}" != "127.0.0.1" ] && [ "${KAPI_HOST}" != "localhost" ] ; then
                     print_debug "KAPI: Host is not localhost"
                     if var_true "$KAPI_HOST_SECURE" ; then
                         print_debug "KAPI: Changing to use HTTPS"
@@ -1148,7 +1148,7 @@ configure_konnect() {
                 sed -i "s|<KONNECT_PORT>|${KONNECT_PORT}|g" /etc/nginx/conf.available/upstream-konnect.template
                 ln -sf /etc/nginx/conf.available/upstream-konnect.template /etc/nginx/conf.d/upstream-konnect.conf
 
-                if [ "${KONNECT_HOST}" != "127.0.0.1" ] || [ "${KONNECT_HOST}" != "localhost" ] ; then
+                if [ "${KONNECT_HOST}" != "127.0.0.1" ] && [ "${KONNECT_HOST}" != "localhost" ] ; then
                     print_debug "Konnect: Host is not localhost"
                     if var_true "$KONNECT_HOST_SECURE" ; then
                         print_debug "Konnect: Changing to use HTTPS"
@@ -1268,7 +1268,7 @@ configure_kwm() {
                 sed -i "s|<KWM_HOST>|${KWM_HOST}|g" /etc/nginx/conf.available/upstream-kwmserver.template
                 sed -i "s|<KWM_PORT>|${KWM_PORT}|g" /etc/nginx/conf.available/upstream-kwmserver.template
                 ln -sf /etc/nginx/conf.available/upstream-kwmserver.template /etc/nginx/conf.d/upstream-kwmserver.conf
-                if [ "${KWM_HOST}" != "127.0.0.1" ] || [ "${KWM_HOST}" != "localhost" ] ; then
+                if [ "${KWM_HOST}" != "127.0.0.1" ] && [ "${KWM_HOST}" != "localhost" ] ; then
                     print_debug "KWM: Host is not localhost"
                     if var_true "$KWM_HOST_SECURE" ; then
                         print_debug "KWM: Changing to use HTTPS"
@@ -1845,7 +1845,7 @@ configure_webapp() {
               print_notice "Setting LLNG Authentication"
 
               header_num=$(printenv | sort | grep -c '\NGINX_AUTHENTICATION_LLNG_ATTRIBUTE.*')
-                for (( i = 1; i <= $header_num; i++ ))
+                for (( i = 1; i <= header_num; i++ ))
                     do
                       headers=NGINX_AUTHENTICATION_LLNG_ATTRIBUTE${i}
                       IFS=',' read -r -a array <<< "${!headers}"
@@ -2008,7 +2008,7 @@ EOF
 configure_webapp_plugins() {
     if var_true "$WEBAPP_ENABLE_PLUGINS" ; then
         print_debug "Webapp Plugins Enabled"
-        configure_webapp_plugin_contactfax
+        configure_webapp_plugin_contact_fax
         configure_webapp_plugin_desktop_notifications
         configure_webapp_plugin_file_previewer
         configure_webapp_plugin_files
@@ -2025,7 +2025,26 @@ configure_webapp_plugins() {
         configure_webapp_plugin_rocketchat
         configure_webapp_plugin_smime
         configure_webapp_plugin_title_counter
-        chown -R ${NGINX_USER}:${NGINX_GROUP} /usr/share/kopano-webapp/plugins
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/kopano-webapp/plugins
+    fi
+}
+
+configure_webapp_plugin_contact_fax() {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_CONTACT_FAX}" ; then
+        cp -R /assets/kopano/webapp-plugins/contactfax /usr/share/kopano-webapp/plugins
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Webapp Plugin: Contact Fax - Auto Configuring"
+            cat <<EOF > "${CONFIG_PATH}"webapp/config-contactfax.php
+<?php
+// Custom Generated Kopano Webapp Contact Fax Configuration! Do not edit, instead set ENV Vars
+// If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
+// Last Generated on $(date)
+
+define('PLUGIN_CONTACTFAXPLUGIN_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_USER});
+define('PLUGIN_CONTACTFAXPLUGIN_FAX_DOMAIN_NAME', '${WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_NAME}');
+?>
+EOF
+        fi
     fi
 }
 
@@ -2154,7 +2173,7 @@ define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_INTRANET_DEFAULT_U
 EOF
 
         NUM=$(printenv | sort | grep -c '^WEBAPP_PLUGIN_INTRANET.*TITLE')
-        for (( i = 1; i <= $NUM; i++ ))
+        for (( i = 1; i <= NUM; i++ ))
         do
             intranet_title=WEBAPP_PLUGIN_INTRANET${i}_TITLE
             intranet_url=WEBAPP_PLUGIN_INTRANET${i}_URL
@@ -2252,7 +2271,7 @@ EOF
     fi
 }
 
-configure_webapp_plugin_quickitems() {
+configure_webapp_plugin_quick_items() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_QUICK_ITEMS}" ; then
         cp -R /assets/kopano/webapp-plugins/quickitems /usr/share/kopano-webapp/plugins
     fi

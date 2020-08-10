@@ -1,3 +1,9 @@
+## 0.24.0 2020-08-07 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix Quick Items and Contact Fax plugin configuration
+
+
 ## 0.23.0 2020-08-06 <dave at tiredofit dot ca>
 
    ### Added

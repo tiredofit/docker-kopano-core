@@ -1,8 +1,8 @@
 FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
-ENV KOPANO_CORE_VERSION=10.0.5 \
-    KOPANO_WEBAPP_VERSION=4.0.0 \
+ENV KOPANO_CORE_VERSION=10.0.6 \
+    KOPANO_WEBAPP_VERSION=4.2.0 \
     KOPANO_KDAV_VERSION=master \
     Z_PUSH_VERSION=2.5.2 \
     NGINX_LOG_ACCESS_LOCATION=/logs/nginx \
@@ -120,8 +120,8 @@ RUN set -x && \
     echo "deb [trusted=yes] file:/usr/src/meet/ /" >> /etc/apt/sources.list.d/kopano-meet.list && \
     \
 ##### Install Packages
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
+    apt-get update
+RUN apt-get install -y --no-install-recommends \
                        #kopano-archiver \
                        kopano-bash-completion \
                        kopano-calendar \
@@ -148,9 +148,10 @@ RUN set -x && \
                        kopano-webapp-plugin-filesbackend-owncloud \
                        kopano-webapp-plugin-filesbackend-smb \
                        kopano-webapp-plugin-folderwidgets \
-                       #kopano-webapp-plugin-htmleditor-quill \
+                       kopano-webapp-plugin-htmleditor-quill \
                        kopano-webapp-plugin-intranet \
                        kopano-webapp-plugin-mdm \
+                       kopano-webapp-plugin-mattermost \
                        kopano-webapp-plugin-meet \
                        kopano-webapp-plugin-pimfolder \
                        kopano-webapp-plugin-quickitems \
@@ -159,7 +160,7 @@ RUN set -x && \
                        kopano-webapp-plugin-webappmanual \
                        python3-grapi.backend.ldap \
                        && \
-    \
+    ls -l && \
 ### Z-Push Install
     mkdir /usr/share/zpush && \
     curl -sSL https://github.com/Z-Hub/Z-Push/archive/${Z_PUSH_VERSION}.tar.gz | tar xvfz - --strip 1 -C /usr/share/zpush && \

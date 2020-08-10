@@ -676,10 +676,12 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 
 ##### Webapp Plugins
 
-###### Webapp Plugin: Desktop Notifications Options
-| Parameter                          | Description   | Default |
-| ---------------------------------- | ------------- | ------- |
-| `WEBAPP_PLUGIN_ENABLE_CONTACT_FAX` | Enable Plugin | `TRUE`  |
+###### Webapp Plugin: Contact Fax Options
+| Parameter                                | Description               | Default         |
+| ---------------------------------------- | ------------------------- | --------------- |
+| `WEBAPP_PLUGIN_ENABLE_CONTACT_FAX`       | Enable Plugin             | `TRUE`          |
+| `WEBAPP_PLUGIN_CONTACT_FAX_DEFAULT_USER` | Auto Enable for new users | `FALSE`         |
+| `WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_NAME`  | Domain name to append     | `officefax.net` |
 
 ###### Webapp Plugin: Desktop Notifications Options
 
