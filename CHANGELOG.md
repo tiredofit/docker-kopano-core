@@ -1,3 +1,13 @@
+## 0.25.0 2020-08-10 <dave at tiredofit dot ca>
+
+   ### Added
+      - Webapp: Add Mattermost Plugin
+      - Webapp: Add HTMLEditor-Quill Plugin
+
+   ### Changed
+      - Stop configuring folder widgets, manual and quick items as they are a part of webapp core
+
+
 ## 0.24.0 2020-08-07 <dave at tiredofit dot ca>
 
    ### Changed

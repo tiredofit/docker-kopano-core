@@ -2024,7 +2024,7 @@ configure_webapp_plugins() {
         configure_webapp_plugin_quick_items
         configure_webapp_plugin_rocketchat
         configure_webapp_plugin_smime
-        configure_webapp_plugin_title_counter
+        #configure_webapp_plugin_title_counter
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/kopano-webapp/plugins
     fi
 }
