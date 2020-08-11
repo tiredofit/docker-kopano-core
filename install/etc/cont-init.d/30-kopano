@@ -10,6 +10,18 @@ sanity_var INSTALL_ID "Installation ID"
 configure_install_id
 configure_logging
 
+### Server Config
+if var_true "${ENABLE_SERVER}" ; then
+	sanity_db
+	db_ready mariadb
+	create_user_scripts
+	configure_cron_purge_deleted
+	configure_server
+else
+	service_stop 30-kopano-server
+    service_stop 90-post-startup-routines
+fi
+
 ### Autorespond Config
 if var_true "${ENABLE_AUTORESPOND}" ; then
 	configure_autorespond
@@ -44,10 +56,21 @@ else
 	service_stop 34-kopano-ical
 fi
 
-### KAPI Config
-if var_true "${ENABLE_KAPI}" ; then
-	configure_kapi
-fi
+### Meet Config
+#if var_true "${ENABLE_MEET}" ; then
+	#configure_meet
+	#configure_grapi
+	#configure_kapi
+	#configure_kwm
+#	:
+#	service_stop 41-grapi
+#	service_stop 42-kopano-api
+#	service_stop 43-kopano-kwmserverd
+#else
+#	service_stop 41-grapi
+#	service_stop 42-kopano-api
+#	service_stop 43-kopano-kwmserverd
+#fi
 
 ### KDAV Config
 if var_true "${ENABLE_KDAV}" ; then
@@ -55,20 +78,11 @@ if var_true "${ENABLE_KDAV}" ; then
 fi
 
 ### Konnect Config
-if var_true "${ENABLE_KONNECT}" ; then
-	configure_konnect
-else
-	service_stop 44-konnect
-fi
-
-### Meet Config
-if var_true "${ENABLE_MEET}" ; then
-	configure_meet
-else
-	service_stop 41-grapi
-	service_stop 42-kopano-api
-	service_stop 43-kopano-kwmserverd
-fi
+#if var_true "${ENABLE_KONNECT}" ; then
+#	configure_konnect
+#else
+#	service_stop 44-konnect
+#fi
 
 ### Monitor Config
 if var_true "${ENABLE_MONITOR}" ; then
@@ -82,18 +96,6 @@ if var_true "${ENABLE_SEARCH}" ; then
 	configure_search
 else
 	service_stop 36-kopano-search
-fi
-
-### Server Config
-if var_true "${ENABLE_SERVER}" ; then
-	sanity_db
-	db_ready mariadb
-	create_user_scripts
-	configure_cron_purge_deleted
-	configure_server
-else
-	service_stop 30-kopano-server
-    service_stop 90-post-startup-routines
 fi
 
 ### SPAMD Config

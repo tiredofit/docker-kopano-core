@@ -1442,15 +1442,8 @@ EOF
         else
             print_info "Meet: Skipping Auto Configuration"
         fi
-
-
-        configure_grapi
-        configure_kapi
-        configure_kwm
-        configure_konnect
     fi
 }
-
 
 configure_monitor() {
     if var_true "$ENABLE_MONITOR" ; then
@@ -1588,9 +1581,9 @@ EOF
             if [ -v SERVER_OIDC_IDENTIFIER ]; then
                 truefalse_yesno SERVER_OIDC_DISABLE_TLS_VALIDATION
                 server_oidc=$(cat<<EOF
-kcoidc_issuer_identifier=${SERVER_OIDC_IDENTIFIER}
-kcoidc_insecure_skip_verify=${SERVER_OIDC_DISABLE_TLS_VALIDATION}
-kcoidc_initialize_timeout=${SERVER_OIDC_TIMEOUT_INITIALIZE}
+#kcoidc_issuer_identifier=${SERVER_OIDC_IDENTIFIER}
+#kcoidc_insecure_skip_verify=${SERVER_OIDC_DISABLE_TLS_VALIDATION}
+#kcoidc_initialize_timeout=${SERVER_OIDC_TIMEOUT_INITIALIZE}
 EOF
                     )
             fi
@@ -2758,10 +2751,10 @@ EOF
 }
 
 create_store() {
-    check_store=$(kopano-cli --list-stores | tail -n 1)
-    if [ "$check_store" = "--------------------------------" ] ; then
+    check_store=$(kopano-storeadm -M |grep -c '"display_name" : "Public Folders",')
+    if [ "$check_store" -ge "1" ] ; then
         print_notice "Server: Creating Public Store"
-        silent kopano-cli --create-store
+        silent kopano-admin -s
     fi
 }
 
