@@ -1248,6 +1248,11 @@ ${konnect_signing_kid}
 ${konnect_trusted_proxies}
 
 EOF
+
+                if [ ! -f "${CONFIG_PATH}/konnectd-identifier-scopes.yaml" ] ; then
+                    cp -R /assets/kopano/config/konnectd-identifier-scopes.yaml ${CONFIG_PATH}
+                fi
+
             else
                 print_info "Konnect: Skipping Auto Configuration"
             fi

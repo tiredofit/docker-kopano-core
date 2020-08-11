@@ -44,6 +44,11 @@ else
 	service_stop 34-kopano-ical
 fi
 
+### KAPI Config
+if var_true "${ENABLE_KAPI}" ; then
+	configure_kapi
+fi
+
 ### KDAV Config
 if var_true "${ENABLE_KDAV}" ; then
 	configure_kdav
