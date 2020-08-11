@@ -68,7 +68,7 @@ fi
 ### Monitor Config
 if var_true "${ENABLE_MONITOR}" ; then
 	configure_monitor
-elses
+else
 	service_stop 37-kopano-monitor
 fi
 

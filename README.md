@@ -721,6 +721,12 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | ------------------------------------- | ------------- | ------- |
 | `WEBAPP_PLUGIN_ENABLE_FOLDER_WIDGETS` | Enable Plugin | `TRUE`  |
 
+###### Webapp Plugin: HTML Editor Quill
+
+| Parameter                               | Description   | Default |
+| --------------------------------------- | ------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_HTMLEDITOR_QUILL` | Enable Plugin | `TRUE`  |
+
 ###### Webapp Plugin: Intranet Options
 
 Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
@@ -741,6 +747,15 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 | `WEBAPP_PLUGIN_ENABLE_MANUAL`       | Enable Webapp Manual Plugin | `TRUE`                                                |
 | `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | Auto Enable for new users   | `TRUE`                                                |
 | `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | URL to Load for Manual      | `https://documentation.kopano.io/user_manual_webapp/` |
+
+###### Webapp Plugin: Mattermost Options
+
+| Parameter                               | Description                         | Default |
+| --------------------------------------- | ----------------------------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_MANUAL`           | Enable Webapp Mattermost Plugin     | `TRUE`  |
+| `WEBAPP_PLUGIN_MATTERMOST_DEFAULT_USER` | Auto Enable for new users           | `FALSE` |
+| `WEBAPP_PLUGIN_MATTERMOST_HOST`         | Hostname to mattermost installation |         |
+| `WEBAPP_PLUGIN_MATTERMOST_AUTOSTART`    | Autostart Mattermost upon login     | `FALSE` |
 
 ###### Webapp Plugin: Mobile Device Manager Options
 
