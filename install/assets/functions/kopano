@@ -1073,7 +1073,6 @@ plugins_path = ${KAPI_PATH_PLUGINS}
 ${kapi_plugins}
 EOF
                 else
-                    sanity_var SERVER_OIDC_IDENTIFIER "Server OIDC Identifier"
                     print_info "KAPI: Skipping Auto Configuration"
                 fi
             kapi_configured=TRUE
@@ -1628,6 +1627,8 @@ EOF
                 ;;
             esac
 
+            configure_user_backend
+
             cat <<EOF > "${CONFIG_PATH}"server.cfg
 ## Custom Generated Kopano Server Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
@@ -1808,6 +1809,7 @@ configure_user_backend() {
     case "${SERVER_USER_PLUGIN}" in
                 "LDAP" | "ldap" )
                     print_info "Setting LDAP for User Backend"
+                    source /assets/defaults/ldap
                     configure_ldap
                     configure_cron_ldap_sync
                 ;;
