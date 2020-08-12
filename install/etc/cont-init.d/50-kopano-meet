@@ -23,3 +23,5 @@ else
 	service_stop 53-meet-kwmserverd
 fi
 
+liftoff
+
