@@ -37,7 +37,7 @@ if [ -z "$signing_private_key" -a ! -e "${default_signing_private_key_file}" -a 
 fi
 
 if [ -z "$encryption_secret_key" -a ! -f "${default_encryption_secret_key_file}" -a -n "$USER" ]; then
-	>&2	echo "setup: creating new secret key at ${default_encryption_secret_key_file} ..."
+	>&2	echo "Konnect Setup: creating new secret key at ${default_encryption_secret_key_file} ..."
 	RANDFILE=/tmp/.rnd $OPENSSL rand -out "${default_encryption_secret_key_file}" 32 && chown "$USER" "${default_encryption_secret_key_file}" || true
 fi
 

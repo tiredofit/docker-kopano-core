@@ -8,10 +8,11 @@ check_container_initialized
 liftoff
 
 wait_for_server
-silent create_store
+create_store
 
 if [ "$SERVER_USER_PLUGIN" = "LDAP" ] || [ "$SERVER_USER_PLUGIN" = "ldap" ] ; then
 	print_info "Performing Initial Container Start LDAP Sync"
+	sleep 10
 	silent kopano-admin --sync
 fi
 
