@@ -160,7 +160,7 @@ RUN apt-get install -y --no-install-recommends \
                        kopano-webapp-plugin-webappmanual \
                        python3-grapi.backend.ldap \
                        && \
-    ls -l && \
+    \
 ### Z-Push Install
     mkdir /usr/share/zpush && \
     curl -sSL https://github.com/Z-Hub/Z-Push/archive/${Z_PUSH_VERSION}.tar.gz | tar xvfz - --strip 1 -C /usr/share/zpush && \

@@ -1,0 +1,201 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service defaults kopano-meet
+prepare_service functions kopano
+
+PROCESS_NAME="kopano-konnect"
+check_container_initialized
+#check_service_initialized 30-kopano-server
+liftoff
+
+parse_config "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"
+
+## Defaults
+default_identity_manager=kc
+default_web_resources_path=/usr/share/kopano-konnect
+default_identifier_registration_file=/etc/kopano/konnectd-identifier-registration.yaml
+default_identifier_scopes_file=/etc/kopano/konnectd-identifier-scopes.yaml
+default_oidc_issuer_identifier=https://localhost
+default_signing_private_key_file=/config/konnectd-signing-private-key.pem
+default_validation_keys_path=/config/konnectkeys
+default_encryption_secret_key_file=/config/konnectd-encryption-secret.key
+default_kopano_server_uri=file:///run/kopano/server.sock
+
+## Handle parameters for configuration.
+if [ -z "$signing_private_key" -a ! -e "${default_signing_private_key_file}" -a -n "$USER" ]; then
+	if [ -z "$signing_method" -o "$signing_method" = "PS256" -o "$signing_method" = "RS256" ]; then
+		mkdir -p "${default_validation_keys_path}" && chown "$USER" "${default_validation_keys_path}"
+		rnd=$(RANDFILE=/tmp/.rnd $OPENSSL rand -hex 2)
+		key="${default_validation_keys_path}/konnect-$(date +%Y%m%d)-${rnd}.pem"
+		>&2	echo "Konnect Setup: creating new RSA private key at ${key} ..."
+		RANDFILE=/tmp/.rnd $OPENSSL genpkey -algorithm RSA -out "${key}" -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537 && chown "$USER" "${key}" || true
+		if [ -f "${key}" ]; then
+			ln -sn "${key}" "${default_signing_private_key_file}" || true
+		fi
+	fi
+fi
+
+if [ -z "$encryption_secret_key" -a ! -f "${default_encryption_secret_key_file}" -a -n "$USER" ]; then
+	>&2	echo "setup: creating new secret key at ${default_encryption_secret_key_file} ..."
+	RANDFILE=/tmp/.rnd $OPENSSL rand -out "${default_encryption_secret_key_file}" 32 && chown "$USER" "${default_encryption_secret_key_file}" || true
+fi
+
+if [ -z "$identity_manager" ]; then
+	identity_manager="${default_identity_manager}"
+fi
+
+if [ -z "$web_resources_path" ]; then
+	web_resources_path="${default_web_resources_path}"
+fi
+
+if [ -z "$identifier_registration_conf" ]; then
+	if [ -f "${default_identifier_registration_file}" ]; then
+		identifier_registration_conf="${default_identifier_registration_file}"
+	fi
+fi
+
+if [ -z "$identifier_scopes_conf" ]; then
+	if [ -f "${default_identifier_scopes_file}" ]; then
+		identifier_scopes_conf="${default_identifier_scopes_file}"
+	fi
+fi
+
+## OIDC Issuer
+if [ -z "$oidc_issuer_identifier" ]; then
+	oidc_issuer_identifier=${OIDC_ISSUER_IDENTIFIER:-${default_oidc_issuer_identifier}}
+fi
+
+## TLS Verification
+if [ "$insecure" = "yes" ]; then
+	set -- "$@" --insecure
+fi
+
+## Interface Setup
+if [ -n "$listen" ]; then
+	set -- "$@" --listen="$listen"
+fi
+
+## Logging
+if [ -n "$log_level" ]; then
+	set -- "$@" --log-level="$log_level"
+fi
+
+if [ -n "$allowed_scopes" ]; then
+	for scope in $allowed_scopes; do
+		set -- "$@" --allow-scope="$scope"
+	done
+fi
+
+if [ -n "$identifier_scopes_conf" ]; then
+	set -- "$@" --identifier-scopes-conf="$identifier_scopes_conf"
+fi
+
+if [ -z "$signing_private_key" -a -f "${default_signing_private_key_file}" ]; then
+	signing_private_key="${default_signing_private_key_file}"
+fi
+
+if [ -n "$signing_private_key" ]; then
+	set -- "$@" --signing-private-key="$signing_private_key"
+fi
+
+if [ -n "$signing_kid" ]; then
+	set -- "$@" --signing-kid="$signing_kid"
+fi
+
+if [ -n "$signing_method" ]; then
+	set -- "$@" --signing-method="$signing_method"
+fi
+
+if [ -z "$validation_keys_path" -a -d "${default_validation_keys_path}" ]; then
+	validation_keys_path="${default_validation_keys_path}"
+fi
+if [ -n "$validation_keys_path" ]; then
+	set -- "$@" --validation-keys-path="$validation_keys_path"
+fi
+
+if [ -z "$encryption_secret_key" -a -f "${default_encryption_secret_key_file}" ]; then
+	encryption_secret_key="${default_encryption_secret_key_file}"
+fi
+if [ -n "$encryption_secret_key" ]; then
+	set -- "$@" --encryption-secret="$encryption_secret_key"
+fi
+
+if [ -n "$trusted_proxies" ]; then
+	for proxy in $trusted_proxies; do
+		set -- "$@" --trusted-proxy="$proxy"
+	done
+fi
+
+if [ "$allow_client_guests" = "yes" ]; then
+	set -- "$@" --allow-client-guests
+fi
+
+if [ "$allow_dynamic_client_registration" = "yes" ]; then
+	set -- "$@" --allow-dynamic-client-registration
+fi
+
+if [ -n "$access_token_expiration" ]; then
+	set -- "$@" --access-token-expiration="$access_token_expiration"
+fi
+
+if [ -n "$id_token_expiration" ]; then
+	set -- "$@" --id-token-expiration="$id_token_expiration"
+fi
+
+if [ -n "$refresh_token_expiration" ]; then
+	set -- "$@" --refresh-token-expiration="$refresh_token_expiration"
+fi
+
+## Identity Manager
+ ### Kopano
+if [ "$identity_manager" = "kc" ]; then
+	if [ -z "$kc_server_uri" ]; then
+		kc_server_uri=${KOPANO_SERVER_DEFAULT_URI:-${default_kopano_server_uri}}
+	fi
+	export KOPANO_SERVER_DEFAULT_URI="$kc_server_uri"
+
+	if [ -z "$kc_session_timeout" ]; then
+		export KOPANO_SERVER_SESSION_TIMEOUT="$kc_session_timeout"
+	fi
+fi
+
+ ### LDAP
+if [ "$identity_manager" = "ldap" ]; then
+	if [ -n "$ldap_uri" ]; then
+		export LDAP_URI="$ldap_uri"
+	fi
+	if [ -n "$ldap_binddn" ]; then
+		export LDAP_BINDDN="$ldap_binddn"
+	fi
+	if [ -n "$ldap_bindpw" ]; then
+		export LDAP_BINDPW="$ldap_bindpw"
+	fi
+	if [ -n "$ldap_basedn" ]; then
+		export LDAP_BASEDN="$ldap_basedn"
+	fi
+	if [ -n "$ldap_scope" ]; then
+		export LDAP_SCOPE="$ldap_scope"
+	fi
+	if [ -n "$ldap_login_attribute" ]; then
+		export LDAP_LOGIN_ATTRIBUTE="$ldap_login_attribute"
+	fi
+	if [ -n "$ldap_uuid_attribute" ]; then
+		export LDAP_UUID_ATTRIBUTE="$ldap_uuid_attribute"
+	fi
+	if [ -n "$ldap_filter" ]; then
+		export LDAP_FILTER="$ldap_filter"
+	fi
+fi
+
+# set identity manager at the end
+
+set -- --identifier-client-path="$web_resources_path/identifier-webapp" --identifier-registration-conf="$identifier_registration_conf" --iss="$oidc_issuer_identifier" "$@" "$identity_manager" "$identity_manager_args"
+
+print_info "Starting Kopano Konnect Service"
+if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	if [ "${LOG_FILE_KONNECT}" = "/dev/null" ] ; then unset "${LOG_PATH_KOPANO}" ; fi;
+	/usr/libexec/kopano/konnectd serve "$@" 2>> "${LOG_PATH_KOPANO}""${LOG_FILE_KONNECT}"
+else
+	/usr/libexec/kopano/konnectd serve "$@"
+fi

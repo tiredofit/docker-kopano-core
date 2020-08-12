@@ -1,0 +1,80 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service defaults kopano-meet
+prepare_service functions kopano
+
+PROCESS_NAME="meet-grapi"
+check_container_initialized
+liftoff
+
+parse_config "${CONFIG_PATH}""${GRAPI_CONFIG_FILE}"
+
+EXTRA_PYTHONPATH=/usr/lib/kopano/python3-extras/lib/python3.7/site-packages/
+default_socket_path=/var/run/kopano-grapi
+default_num_workers=8
+default_pid_file=${default_socket_path}/grapi.pid
+default_storage_server_socket=file:///var/run/kopano/server.sock
+default_persistency_path=
+
+## Socket Info
+if [ -z "$socket_path" ]; then
+	socket_path="${default_socket_path}"
+fi
+
+## Worker Processes
+if [ -z "$num_workers" ]; then
+	num_workers=${default_num_workers}
+fi
+
+## Pid File
+if [ -z "$pid_file" ]; then
+	pid_file="${default_pid_file}"
+fi
+
+## Kopano Socket
+if [ -z "$server_socket" ]; then
+	server_socket="${default_storage_server_socket}"
+fi
+
+## TLS Verification
+if [ "$insecure" = "yes" ]; then
+	set -- "$@" --insecure
+fi
+
+## Experimental Endpoints
+if [ "$enable_experimental_endpoints" = "yes" ]; then
+	set -- "$@" --enable-experimental-endpoints
+fi
+
+## Data Persistency
+if [ -z "$persistency_path" ]; then
+	persistency_path="${default_persistency_path}"
+fi
+
+## Logging
+if [ -n "$log_level" ]; then
+	set -- "$@" --log-level="$log_level"
+fi
+
+## Build Arguments
+set -- "$@" --socket-path="$socket_path" --workers="$num_workers" --pid-file="$pid_file" --process-name="grapi"
+
+export KOPANO_SOCKET="$server_socket"
+if [ -n "$persistency_path" ]; then
+	export GRAPI_PERSISTENCY_PATH="$persistency_path"
+fi
+
+if [ -n "${EXTRA_PYTHONPATH}" ]; then
+	export PYTHONPATH="${EXTRA_PYTHONPATH}:${PYTHONPATH}"
+fi
+
+wait_for_server
+
+print_info "Starting Kopano GRAPI Service"
+if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+	if [ "${LOG_FILE_GRAPI}" = "/dev/null" ] ; then unset "${LOG_PATH_KOPANO}" ; fi;
+	/usr/bin/kopano-grapi-mfr "$@" 2>> "${LOG_PATH_KOPANO}""${LOG_FILE_GRAPI}"
+else
+	/usr/bin/kopano-grapi-mfr "$@"
+fi

@@ -1,0 +1,51 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+source /assets/defaults/kopano-global
+source /assets/functions/kopano
+source /assets/defaults/10-nginx
+check_service_initialized init 50-kopano-meet
+PROCESS_NAME="kopano-webservices"
+
+### Calendar Config
+if var_true "${ENABLE_CALENDAR}" ; then
+	source /assets/defaults/10-nginx
+	source /assets/defaults/kopano-server
+	configure_calendar
+    enable_web=TRUE
+fi
+
+### KDAV Config
+if var_true "${ENABLE_KDAV}" ; then
+	source /assets/defaults/kopano-kdav
+	configure_kdav
+    enable_web=TRUE
+fi
+
+### Webapp Config
+if var_true "${ENABLE_WEBAPP}" ; then
+	source /assets/defaults/kopano-webapp
+	configure_webapp
+	if var_true "${WEBAPP_ENABLE_PLUGINS}" ; then
+		configure_webapp_plugins
+	fi
+    enable_web=TRUE
+fi
+
+### Z-Push Config
+if var_true "${ENABLE_ZPUSH}" ; then
+	source /assets/defaults/z-push
+	configure_zpush
+	create_zpush_templates
+    enable_web=TRUE
+fi
+
+if var_true $enable_web ; then
+    :
+else
+    service_stop 10-nginx
+    service stop 11-nginx-config-reload
+    service_stop 20-php-fpm
+fi
+
+liftoff

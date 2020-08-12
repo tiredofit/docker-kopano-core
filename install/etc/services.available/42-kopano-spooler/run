@@ -1,0 +1,15 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service functions kopano
+
+PROCESS_NAME="kopano-server"
+check_container_initialized
+liftoff
+
+rm -rf /var/run/kopano/spooler.pid
+
+wait_for_server
+
+print_info "Starting Kopano Spooler"
+kopano-spooler

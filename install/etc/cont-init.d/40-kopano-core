@@ -1,0 +1,119 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+source /assets/defaults/kopano-global
+source /assets/functions/kopano
+
+PROCESS_NAME="kopano-core"
+
+mkdir -p "${CONFIG_PATH}"
+configure_logging
+
+### Server Config
+if var_true "${ENABLE_SERVER}" ; then
+	print_debug "Configuring Kopano Server"
+    source /assets/defaults/kopano-server
+	sanity_db
+	db_ready mariadb
+	create_user_scripts
+	configure_cron_purge_deleted
+	configure_server
+	print_debug "Finished Configuring Kopano Server"
+else
+	service_stop 30-kopano-server
+    service_stop 90-post-server-startup-routines
+fi
+
+### Autorespond Config
+if var_true "${ENABLE_AUTORESPOND}" ; then
+	print_debug "Configuring Autorespond"
+	source /assets/defaults/kopano-autorespond
+	configure_autorespond
+	print_debug "Finished Configuring Autorespond"
+fi
+
+### Backup Config
+if var_true "${ENABLE_BACKUP}" ; then
+	print_debug "Configuring Backup"
+	source /assets/defaults/kopano-backup
+	configure_backup
+	print_debug "Finished Configuring Backup"
+fi
+
+### DAgent Config
+if var_true "${ENABLE_DAGENT}" ; then
+	print_debug "Configuring DAgent"
+	source /assets/defaults/kopano-dagent
+	configure_dagent
+	print_debug "Finished Configuring DAgent"
+else
+	service_stop 44-kopano-dagent
+fi
+
+### Gateway Config
+if var_true "${ENABLE_GATEWAY}" ; then
+	print_debug "Configuring Gateway"
+	source /assets/defaults/kopano-gateway
+	configure_gateway
+	print_debug "Finished Configuring Gateway"
+else
+    service_stop 43-kopano-gateway
+fi
+
+### ICAL Config
+if var_true "${ENABLE_ICAL}" ; then
+	print_debug "Configuring ICAL"
+	source /assets/defaults/kopano-ical
+	configure_ical
+	print_debug "Finished Configuring ICAL"
+else
+	service_stop 45-kopano-ical
+fi
+
+### Monitor Config
+if var_true "${ENABLE_MONITOR}" ; then
+	print_debug "Configuring Monitor"
+	source /assets/defaults/kopano-monitor
+	configure_monitor
+	print_debug "Finished Configuring Monitor"
+else
+	service_stop 48-kopano-monitor
+fi
+
+### Search Config
+if var_true "${ENABLE_SEARCH}" ; then
+	print_debug "Configuring Search"
+	source /assets/defaults/kopano-search
+	configure_search
+	print_debug "Finished Configuring Search"
+else
+	service_stop 47-kopano-search
+fi
+
+### SPAMD Config
+if var_true "${ENABLE_SPAMD}" ; then
+	print_debug "Configuring Spamd"
+	source /assets/defaults/kopano-spamd
+	configure_spamd
+	print_debug "Finished Configuring Spamd"
+else
+	service_stop 46-kopano-spamd
+fi
+
+### Spooler Config
+if var_true "${ENABLE_SPOOLER}" ; then
+	print_debug "Configuring Spooler"
+	source /assets/defaults/kopano-spooler
+	configure_spooler
+	print_debug "Finished Configuring Spooler"
+else
+	service_stop 42-kopano-spooler
+fi
+
+### Copy custom files overtop of the root directory
+if [ -d "/assets/custom/" ] ; then
+	print_debug "Copying Custom Assets"
+	cp -R /assets/custom/* /
+fi
+
+liftoff

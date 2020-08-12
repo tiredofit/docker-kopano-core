@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+source /assets/functions/kopano
+source /assets/defaults/kopano-global
+source /assets/defaults/kopano-konnect
+
+PROCESS_NAME="kopano-konnect"
+
+if var_true "${ENABLE_KONNECT}" ; then
+    print_debug "Configuring Konnect"
+    source /assets/defaults/kopano-konnect
+    configure_konnect
+    print_debug "Finished Configuring Konnect"
+else
+    service_stop 30-kopano-konnect
+fi
+
+liftoff

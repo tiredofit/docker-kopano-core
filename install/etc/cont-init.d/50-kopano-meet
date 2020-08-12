@@ -1,0 +1,33 @@
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+source /assets/functions/kopano
+source /assets/defaults/kopano-global
+
+if [ -z $SERVER_OIDC_IDENTIFIER ]; then
+    print_notice "No \$SERVER_OIDC_IDENTIFIER variable found. Disabling Kopano Meet functionality"
+    export ENABLE_MEET=FALSE
+fi
+
+### Meet Config
+if var_true "${ENABLE_MEET}" ; then
+    source /assets/defaults/10-nginx
+    source /assets/defaults/kopano-meet
+	configure_meet
+	configure_grapi
+	configure_kapi
+	configure_kwm
+else
+	service_stop 51-meet-grapi
+	service_stop 52-meet-api
+	service_stop 53-meet-kwmserverd
+fi
+
+### Konnect Config
+if var_true "${ENABLE_KONNECT}" ; then
+	configure_konnect
+else
+	service_stop 30-kopano-konnect
+fi
+
+liftoff
