@@ -2,6 +2,7 @@
 
 source /assets/functions/00-container
 prepare_service
+source /assets/defdaults/kopano-global
 PROCESS_NAME="fail2ban"
 
 if var_true "${ENABLE_FAIL2BAN}" ; then
