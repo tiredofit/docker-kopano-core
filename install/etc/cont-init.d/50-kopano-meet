@@ -23,11 +23,3 @@ else
 	service_stop 53-meet-kwmserverd
 fi
 
-### Konnect Config
-if var_true "${ENABLE_KONNECT}" ; then
-	configure_konnect
-else
-	service_stop 30-kopano-konnect
-fi
-
-liftoff
