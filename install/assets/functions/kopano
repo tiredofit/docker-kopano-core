@@ -540,12 +540,6 @@ EOF
     fi
 }
 
-configure_install_id() {
-    print_debug "Updating Machine ID with INSTALL_ID value: ${INSTALL_ID}"
-    echo "${INSTALL_ID}" > /etc/machine-id
-    echo "${INSTALL_ID}" > /var/lib/dbus/machine-id
-}
-
 ### LDAP Needs Work
 configure_ldap() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -1160,7 +1154,18 @@ configure_konnect() {
                         konnect_backend="kc"
                     ;;
                     "LDAP" | "ldap" )
+                        source /assets/defaults/ldap
                         konnect_backend="ldap"
+                        konnect_backend_ldap=$(cat<<EOF
+ldap_basedn = ${LDAP_BASE_DN}
+ldap_binddn = ${LDAP_BIND_DN}
+ldap_bindpw = ${LDAP_BIND_PASS}
+ldap_filter = ${LDAP_FILTER_KONNECT}
+ldap_login_attribute = ${LDAP_ATTRIBUTE_LOGINNAME}
+ldap_scope = ${LDAP_SCOPE}
+ldap_uri = ${LDAP_URI}
+ldap_uuid_attribute = ${LDAP_ATTRIBUTE_USER_UNIQUE}
+EOF
                     ;;
                 esac
 
@@ -1225,14 +1230,6 @@ identity_manager_args = ${KONNECT_IDENTITY_MANAGER_ARGUMENTS}
 insecure = ${KONNECT_DISABLE_TLS_VALIDATION}
 kc_server_uri = ${KONNECT_SOCKET_SERVER}
 kc_session_timeout = ${KONNECT_TIMEOUT_SESSION_KOPANO}
-ldap_basedn = ${LDAP_BASE_DN}
-ldap_binddn = ${LDAP_BIND_DN}
-ldap_bindpw = ${LDAP_BIND_PASS}
-ldap_filter = ${LDAP_FILTER_KONNECT}
-ldap_login_attribute = ${LDAP_ATTRIBUTE_LOGINNAME}
-ldap_scope = ${LDAP_SCOPE}
-ldap_uri = ${LDAP_URI}
-ldap_uuid_attribute = ${LDAP_ATTRIBUTE_USER_UNIQUE}
 listen = ${KONNECT_LISTEN_HOST}:${KONNECT_LISTEN_PORT}
 log_level = ${konnect_log_level}
 oidc_issuer_identifier = https://${KONNECT_HOSTNAME}
@@ -1240,6 +1237,7 @@ signing_method = ${KONNECT_JWT_METHOD}
 signing_private_key = ${KONNECT_SIGNING_KEY_FILE}
 validation_keys_path = ${KONNECT_VALIDATION_KEYS_PATH}
 web_resources_path = ${KONNECT_WEBROOT}
+${konnect_backend_ldap}
 ${konnect_allowed_scopes}
 ${konnect_registration_identifier_conf}
 ${konnect_signing_kid}
@@ -1483,7 +1481,7 @@ EOF
 }
 
 configure_search() {
-    if var_true "$ENABLE_GATEWAY" ; then
+    if var_true "$ENABLE_SEARCH" ; then
         certificates "${SEARCH_SSL_CERT_FILE}"
         certificates "${SEARCH_SSL_LISTEN_CERT_FILE}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then

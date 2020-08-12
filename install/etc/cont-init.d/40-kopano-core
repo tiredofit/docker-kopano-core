@@ -13,6 +13,7 @@ configure_logging
 if var_true "${ENABLE_SERVER}" ; then
 	print_debug "Configuring Kopano Server"
     source /assets/defaults/kopano-server
+	source /assets/defaults/kopano-search
 	sanity_db
 	db_ready mariadb
 	create_user_scripts
@@ -93,6 +94,7 @@ fi
 ### SPAMD Config
 if var_true "${ENABLE_SPAMD}" ; then
 	print_debug "Configuring Spamd"
+	source /assets/defaults/kopano-dagent
 	source /assets/defaults/kopano-spamd
 	configure_spamd
 	print_debug "Finished Configuring Spamd"
