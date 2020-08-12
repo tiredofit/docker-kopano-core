@@ -6,7 +6,6 @@ DAGENT_ENABLE_PLUGIN=${DAGENT_ENABLE_PLUGIN:-"FALSE"}
 DAGENT_FORWARD_WHITELIST_DOMAINS=${DAGENT_FORWARD_WHITELIST_DOMAINS:-"*"}
 DAGENT_FORWARD_WHITELIST_DOMAINS_MESSAGE=${DAGENT_FORWARD_WHITELIST_DOMAINS_MESSAGE:-"The Kopano mail system has rejected your request to forward your e-mail with subject %subject (via mail filters) to %sender: the operation is not permitted.\n\nRemove the rule or contact your administrator about the forward_whitelist_domains setting."}
 DAGENT_FORWARD_WHITELIST_DOMAINS_SUBJECT=${DAGENT_FORWARD_WHITELIST_DOMAINS_SUBJECT:-"REJECT: %subject not forwarded (administratively blocked)"}
-DAGENT_HTML_SAFETY_FILTER=${DAGENT_HTML_SAFETY_FILTER:-"FALSE"}
 DAGENT_INSECURE_HTML_JOIN=${DAGENT_INSECURE_HTML_JOIN:-"FALSE"}
 DAGENT_LISTEN_HOST=${DAGENT_LISTEN_HOST:-"*"}
 DAGENT_LISTEN_PORT=${DAGENT_LISTEN_PORT:-2003}
