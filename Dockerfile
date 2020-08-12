@@ -34,10 +34,10 @@ RUN set -x && \
                        sqlite3 \
                        && \
     \
-    ## Python Deps for Spamd
+    ## Python Deps for Spamd in specific order
+    pip3 install wheel && \
     pip3 install setuptools && \
     pip3 install inotify && \
-    pip3 install wheel && \
     \
 #### Fetch Packages and Create Repositories
 ### Kopano Dependencies
