@@ -3,6 +3,12 @@
 source /assets/functions/00-container
 source /assets/functions/kopano
 source /assets/defaults/kopano-global
+check_service_initialized init 40-kopano-core
+
+PROCESS_NAME="kopano-meet"
+
+mkdir -p "${CONFIG_PATH}"
+configure_logging
 
 if [ -z $SERVER_OIDC_IDENTIFIER ]; then
     print_notice "No \$SERVER_OIDC_IDENTIFIER variable found. Disabling Kopano Meet functionality"

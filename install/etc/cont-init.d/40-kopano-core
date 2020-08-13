@@ -3,7 +3,7 @@
 source /assets/functions/00-container
 source /assets/defaults/kopano-global
 source /assets/functions/kopano
-
+check_service_initialized init 30-kopano-konnect
 PROCESS_NAME="kopano-core"
 
 mkdir -p "${CONFIG_PATH}"

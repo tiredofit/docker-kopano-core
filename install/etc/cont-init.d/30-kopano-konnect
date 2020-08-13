@@ -7,6 +7,9 @@ source /assets/defaults/kopano-konnect
 
 PROCESS_NAME="kopano-konnect"
 
+mkdir -p "${CONFIG_PATH}"
+configure_logging
+
 if var_true "${ENABLE_KONNECT}" ; then
     print_debug "Configuring Konnect"
     source /assets/defaults/kopano-konnect
