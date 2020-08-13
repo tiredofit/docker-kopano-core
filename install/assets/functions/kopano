@@ -2181,7 +2181,7 @@ EOF
             intranet_url=WEBAPP_PLUGIN_INTRANET${i}_URL
             intranet_autostart=WEBAPP_PLUGIN_INTRANET${i}_AUTOSTART
             intranet_icon=WEBAPP_PLUGIN_INTRANET${i}_ICON
-            print_notice "Webapp Plugin: Intranet - Adding Tab #$NUM - ${!intranet_title} - ${!intranet_url}"
+            print_notice "Webapp Plugin: Intranet - Adding Tab #${i} - ${!intranet_title} - ${!intranet_url}"
             if [ "${!intranet_title}" != "" ] ; then
                 if [ "${i}" != "1" ] ; then
                     suffix="_$(expr "${i}" - 1)"
