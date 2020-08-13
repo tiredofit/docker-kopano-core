@@ -2752,9 +2752,9 @@ EOF
 
 create_store() {
     check_store=$(kopano-storeadm -M |grep -c '"display_name" : "Public Folders",')
-    if [ "$check_store" -ge "1" ] ; then
+    if [ "$check_store" -lt "1" ] ; then
         print_notice "Server: Creating Public Store"
-        silent kopano-admin -s
+        silent kopano-storeadm -h default: -P
     fi
 }
 
