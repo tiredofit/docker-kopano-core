@@ -2237,10 +2237,9 @@ EOF
     fi
 }
 
-
-
 configure_webapp_plugin_mdm() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MDM}" ; then
+        source /assets/defaults/z-push
         cp -R /assets/kopano/webapp-plugins/mdm /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: MDM - Auto Configuring"
