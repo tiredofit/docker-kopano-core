@@ -5,9 +5,12 @@ source /assets/defaults/kopano-server
 prepare_service functions kopano
 PROCESS_NAME="post-startup-routines"
 check_container_initialized
+check_service_initialized 41-kopano-server
 liftoff
 
 wait_for_server
+sleep 3
+
 create_store
 
 if [ "$SERVER_USER_PLUGIN" = "LDAP" ] || [ "$SERVER_USER_PLUGIN" = "ldap" ] ; then

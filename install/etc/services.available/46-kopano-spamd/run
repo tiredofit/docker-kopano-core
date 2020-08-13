@@ -10,6 +10,7 @@ liftoff
 rm -rf /var/run/kopano/spamd.pid
 
 wait_for_server
+sleep 3
 
-print_info "Starting Kopano SpamD Service"
+print_info "Starting Kopano Spamd Service"
 kopano-spamd "${SPAMD_ADDITIONAL_ARGS}"

@@ -9,6 +9,7 @@ liftoff
 rm -rf /var/run/kopano/monitor.pid
 
 wait_for_server
+sleep 3
 
 print_info "Starting Kopano Monitoring Service"
 kopano-monitor "${MONITOR_ADDITIONAL_ARGS}"

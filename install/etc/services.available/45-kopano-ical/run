@@ -5,10 +5,10 @@ prepare_service functions kopano
 
 PROCESS_NAME="kopano-ical"
 check_container_initialized
-#check_service_initialized 33-kopano-dagent
 liftoff
 
 wait_for_server
+sleep 3
 
 print_info "Starting Kopano ICAL Server"
 kopano-ical "${ICAL_ADDITIONAL_ARGS}"
