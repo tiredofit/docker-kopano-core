@@ -3,10 +3,11 @@
 source /assets/functions/00-container
 source /assets/defaults/kopano-global
 source /assets/functions/kopano
-
 check_service_initialized init 50-kopano-meet
 PROCESS_NAME="kopano-webservices"
 
+mkdir -p "${CONFIG_PATH}"
+configure_logging
 if var_true $ENABLE_CALENDAR || var_true $ENABLE_KDAV || var_true $ENABLE_WEBAPP || var_true $ENABLE_ZPUSH ; then
 	source /assets/defaults/10-nginx
 else
