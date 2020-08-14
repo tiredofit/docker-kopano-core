@@ -1671,12 +1671,12 @@ quota_soft = ${SERVER_QUOTA_SOFT}
 quota_hard = ${SERVER_QUOTA_HARD}
 companyquota_warn = ${SERVER_QUOTA_COMPANY_WARN}
 
-createuser_script = ${SERVER_SCRIPT_CREATEUSER}
-deleteuser_script = ${SERVER_SCRIPT_DELETEUSER}
-creategroup_script = ${SERVER_SCRIPT_CREATEGROUP}
-deletegroup_script = ${SERVER_SCRIPT_DELETEGROUP}
-createcompany_script = ${SERVER_SCRIPT_CREATECOMPANY}
-deletecompany_script = ${SERVER_SCRIPT_DELETECOMPANY}
+createuser_script = ${SERVER_CUSTOM_USERSCRIPT_CREATEUSER}
+deleteuser_script = ${SERVER_CUSTOM_USERSCRIPT_DELETEUSER}
+creategroup_script = ${SERVER_CUSTOM_USERSCRIPT_CREATEGROUP}
+deletegroup_script = ${SERVER_CUSTOM_USERSCRIPT_DELETEGROUP}
+createcompany_script = ${SERVER_CUSTOM_USERSCRIPT_CREATECOMPANY}
+deletecompany_script = ${SERVER_CUSTOM_USERSCRIPT_DELETECOMPANY}
 
 system_email_address = ${SERVER_SYSTEM_EMAIL_ADDRESS}
 user_safe_mode = ${SERVER_USER_SAFE_MODE}
@@ -2760,13 +2760,14 @@ create_quota_templates() {
 }
 
 create_user_scripts() {
-    print_notice "Setting up User Scripts"
-    mkdir -p "${USERSCRIPT_PATH}"
+    mkdir -p "${SERVER_CUSTOM_USERSCRIPT_PATH}"
+    if var_true "${SERVER_ENABLE_CUSTOM_USERSCRIPTS}"
+    print_notice "Setting up Default Custom User Scripts"
     for f in /assets/kopano/userscripts/*
     do
-        if [ ! -f "${USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
+        if [ ! -f "${SERVER_CUSTOM_USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
             print_debug "User Scripts: Copying User Script: $(basename "$f")"
-            cp -R "$f" "${USERSCRIPT_PATH}"
+            cp -R "$f" "${SERVER_CUSTOM_USERSCRIPT_PATH}"
         fi
     done
 }

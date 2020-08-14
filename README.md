@@ -490,67 +490,68 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 
 ##### Server Options (needs work)
 
-| Parameter                               | Description                                                    | Default                                     |
-| --------------------------------------- | -------------------------------------------------------------- | ------------------------------------------- |
-| `ENABLE_SERVER`                         | Enable Service                                                 | `TRUE`                                      |
-| `LOG_FILE_SERVER`                       | Logfile Name                                                   | `server.log`                                |
-| `SERVER_ALLOW_LOCAL_USERS`              |                                                                | `TRUE`                                      |
-| `SERVER_ATTACHMENT_BACKEND_FILES_FSYNC` |                                                                | `TRUE`                                      |
-| `SERVER_ATTACHMENT_BACKEND_FILES_PATH`  |                                                                | `/data/attachments/`                        |
-| `SERVER_ATTACHMENT_BACKEND_S3_PATH`     |                                                                | `attachments`                               |
-| `SERVER_ATTACHMENT_BACKEND`             | Files Backend `FILES` `FILES_V2` `S3`                          | `files_v2`                                  |
-| `SERVER_ATTACHMENT_COMPRESSION`         |                                                                | `6`                                         |
-| `SERVER_ATTACHMENT_S3_PROTOCOL`         |                                                                | `HTTPS`                                     |
-| `SERVER_DISABLED_FEATURES`              |                                                                |                                             |
-| `SERVER_ENABLE_GAB`                     | Enable Global Address Book                                     | `TRUE`                                      |
-| `SERVER_ENABLE_HTTP`                    | Enable HTTP Communications to Server Socket                    | `FALSE`                                     |
-| `SERVER_ENABLE_HTTPS`                   | Enable TLS Communications to Server Socket                     | `FALSE`                                     |
-| `SERVER_ENABLE_MULTI_TENANT`            |                                                                | `FALSE`                                     |
-| `SERVER_ENABLE_OPTIMIZED_SQL`           |                                                                | `TRUE`                                      |
-| `SERVER_ENABLE_SEARCH`                  |                                                                | `TRUE`                                      |
-| `SERVER_ENABLE_SSO`                     | Enable SSO Functionality w/Server                              | `FALSE`                                     |
-| `SERVER_GAB_HIDE_EVERYONE`              | Hide everyone from GAB                                         | `FALSE`                                     |
-| `SERVER_GAB_HIDE_SYSTEM`                | Hide System Account from GAB                                   | `FALSE`                                     |
-| `SERVER_GAB_SYNC_REALTIME`              |                                                                | `TRUE`                                      |
-| `SERVER_HOSTNAME`                       |                                                                | ``                                          |
-| `SERVER_LISTEN_HOST`                    |                                                                | `*%lo`                                      |
-| `SERVER_LISTEN_PORT`                    |                                                                | `236`                                       |
-| `SERVER_LISTEN_PORT_SECURE`             |                                                                | `237`                                       |
-| `SERVER_LOCAL_ADMIN_USERS`              |                                                                | `root kopano`                               |
-| `SERVER_MULTI_TENANT_LOGINNAME_FORMAT`  |                                                                | `%u`                                        |
-| `SERVER_MULTI_TENANT_STORENAME_FORMAT`  |                                                                | `%f_%c`                                     |
-| `SERVER_OIDC_DISABLE_TLS_VALIDATION`    |                                                                | `FALSE`                                     |
-| `SERVER_OIDC_IDENTIFIER`                | URL to OIDC Provider                                           |                                             |
-| `SERVER_OIDC_TIMEOUT_INITIALIZE`        |                                                                | `60`                                        |
-| `SERVER_PIPE_NAME`                      |                                                                | `/var/run/kopano/server.sock`               |
-| `SERVER_PIPE_PRIORITY_NAME`             |                                                                | `/var/run/kopano/prio.sock`                 |
-| `SERVER_PURGE_SOFTDELETE`               |                                                                | `30`                                        |
-| `SERVER_QUOTA_COMPANY_WARN`             |                                                                | `0`                                         |
-| `SERVER_QUOTA_HARD`                     |                                                                | `8192`                                      |
-| `SERVER_QUOTA_SOFT`                     |                                                                | `4096`                                      |
-| `SERVER_QUOTA_WARN`                     |                                                                | `1024`                                      |
-| `SERVER_SCRIPT_CREATECOMPANY`           |                                                                | `/usr/lib/kopano/userscripts/createcompany` |
-| `SERVER_SCRIPT_CREATEGROUP`             |                                                                | `/usr/lib/kopano/userscripts/creategroup`   |
-| `SERVER_SCRIPT_CREATEUSER`              |                                                                | `/usr/lib/kopano/userscripts/createuser`    |
-| `SERVER_SCRIPT_DELETECOMPANY`           |                                                                | `/usr/lib/kopano/userscripts/deletecompany` |
-| `SERVER_SCRIPT_DELETEGROUP`             |                                                                | `/usr/lib/kopano/userscripts/deletegroup`   |
-| `SERVER_SCRIPT_DELETEUSER`              |                                                                | `/usr/lib/kopano/userscripts/deleteuser`    |
-| `SERVER_SERVER_NAME`                    |                                                                | `Kopano`                                    |
-| `SERVER_SSL_CERT_FILE`                  | Server SSL Certificate File                                    | `/certs/core/server.crt`                    |
-| `SERVER_SSL_KEY_FILE`                   | Server SSL Key File                                            | `/certs/core/server.pem`                    |
-| `SERVER_SSL_KEY_PASS`                   | Set password set on SSL Key                                    |                                             |
-| `SERVER_SSL_PUBLIC_PATH`                |                                                                | `/certs/core/core/public/`                  |
-| `SERVER_SYSTEM_EMAIL_ADDRESS`           |                                                                | `postmaster@example.com`                    |
-| `SERVER_THREADS`                        |                                                                | `8`                                         |
-| `SERVER_TIMEOUT_RECIEVE`                |                                                                | `5`                                         |
-| `SERVER_TIMEOUT_SEND`                   |                                                                | `60`                                        |
-| `SERVER_TLS_MIN_PROTOCOL`               |                                                                | `tls1.2`                                    |
-| `SERVER_USER_PLUGIN`                    |                                                                | `ldap`                                      |
-| `SERVER_USER_SAFE_MODE`                 |                                                                | `FALSE`                                     |
-| `SERVER_WATCHDOG_FREQUENCY`             |                                                                | `1`                                         |
-| `SERVER_WATCHDOG_MAX_AGE`               |                                                                | `500`                                       |
-| `SEVER_ADDITIONAL_ARGS`                 | Pass additional arguments to server process                    |                                             |
-| `USERSCRIPT_PATH`                       | Where to find user scripts for performing add/del user actions | `/etc/kopano/userscripts/`                  |
+| Parameter                                | Description                                                    | Default                       |
+| ---------------------------------------- | -------------------------------------------------------------- | ----------------------------- |
+| `ENABLE_SERVER`                          | Enable Service                                                 | `TRUE`                        |
+| `LOG_FILE_SERVER`                        | Logfile Name                                                   | `server.log`                  |
+| `SERVER_ALLOW_LOCAL_USERS`               |                                                                | `TRUE`                        |
+| `SERVER_ATTACHMENT_BACKEND_FILES_FSYNC`  |                                                                | `TRUE`                        |
+| `SERVER_ATTACHMENT_BACKEND_FILES_PATH`   |                                                                | `/data/attachments/`          |
+| `SERVER_ATTACHMENT_BACKEND_S3_PATH`      |                                                                | `attachments`                 |
+| `SERVER_ATTACHMENT_BACKEND`              | Files Backend `FILES` `FILES_V2` `S3`                          | `files_v2`                    |
+| `SERVER_ATTACHMENT_COMPRESSION`          |                                                                | `6`                           |
+| `SERVER_ATTACHMENT_S3_PROTOCOL`          |                                                                | `HTTPS`                       |
+| `SERVER_CUSTOM_USERSCRIPT_CREATECOMPANY` |                                                                | `internal`                    |
+| `SERVER_CUSTOM_USERSCRIPT_CREATEGROUP`   |                                                                | `internal`                    |
+| `SERVER_CUSTOM_USERSCRIPT_CREATEUSER`    |                                                                | `internal`                    |
+| `SERVER_CUSTOM_USERSCRIPT_DELETECOMPANY` |                                                                | `internal`                    |
+| `SERVER_CUSTOM_USERSCRIPT_DELETEGROUP`   |                                                                | `internal`                    |
+| `SERVER_CUSTOM_USERSCRIPT_DELETEUSER`    |                                                                | `internal`                    |
+| `SERVER_CUSTOM_USERSCRIPT_PATH`          | Where to find user scripts for performing add/del user actions | `/etc/kopano/userscripts/`    |
+| `SERVER_DISABLED_FEATURES`               |                                                                |                               |
+| `SERVER_ENABLE_CUSTOM_USERSCRIPTS`       | Enable Custom Userscripts in /config/userscripts               | `TRUE`                        |
+| `SERVER_ENABLE_GAB`                      | Enable Global Address Book                                     | `TRUE`                        |
+| `SERVER_ENABLE_HTTPS`                    | Enable TLS Communications to Server Socket                     | `FALSE`                       |
+| `SERVER_ENABLE_HTTP`                     | Enable HTTP Communications to Server Socket                    | `FALSE`                       |
+| `SERVER_ENABLE_MULTI_TENANT`             |                                                                | `FALSE`                       |
+| `SERVER_ENABLE_OPTIMIZED_SQL`            |                                                                | `TRUE`                        |
+| `SERVER_ENABLE_SEARCH`                   |                                                                | `TRUE`                        |
+| `SERVER_ENABLE_SSO`                      | Enable SSO Functionality w/Server                              | `FALSE`                       |
+| `SERVER_GAB_HIDE_EVERYONE`               | Hide everyone from GAB                                         | `FALSE`                       |
+| `SERVER_GAB_HIDE_SYSTEM`                 | Hide System Account from GAB                                   | `FALSE`                       |
+| `SERVER_GAB_SYNC_REALTIME`               |                                                                | `TRUE`                        |
+| `SERVER_HOSTNAME`                        |                                                                | ``                            |
+| `SERVER_LISTEN_HOST`                     |                                                                | `*%lo`                        |
+| `SERVER_LISTEN_PORT_SECURE`              |                                                                | `237`                         |
+| `SERVER_LISTEN_PORT`                     |                                                                | `236`                         |
+| `SERVER_LOCAL_ADMIN_USERS`               |                                                                | `root kopano`                 |
+| `SERVER_MULTI_TENANT_LOGINNAME_FORMAT`   |                                                                | `%u`                          |
+| `SERVER_MULTI_TENANT_STORENAME_FORMAT`   |                                                                | `%f_%c`                       |
+| `SERVER_OIDC_DISABLE_TLS_VALIDATION`     |                                                                | `FALSE`                       |
+| `SERVER_OIDC_IDENTIFIER`                 | URL to OIDC Provider                                           |                               |
+| `SERVER_OIDC_TIMEOUT_INITIALIZE`         |                                                                | `60`                          |
+| `SERVER_PIPE_NAME`                       |                                                                | `/var/run/kopano/server.sock` |
+| `SERVER_PIPE_PRIORITY_NAME`              |                                                                | `/var/run/kopano/prio.sock`   |
+| `SERVER_PURGE_SOFTDELETE`                |                                                                | `30`                          |
+| `SERVER_QUOTA_COMPANY_WARN`              |                                                                | `0`                           |
+| `SERVER_QUOTA_HARD`                      |                                                                | `8192`                        |
+| `SERVER_QUOTA_SOFT`                      |                                                                | `4096`                        |
+| `SERVER_QUOTA_WARN`                      |                                                                | `1024`                        |
+| `SERVER_SERVER_NAME`                     |                                                                | `Kopano`                      |
+| `SERVER_SSL_CERT_FILE`                   | Server SSL Certificate File                                    | `/certs/core/server.crt`      |
+| `SERVER_SSL_KEY_FILE`                    | Server SSL Key File                                            | `/certs/core/server.pem`      |
+| `SERVER_SSL_KEY_PASS`                    | Set password set on SSL Key                                    |                               |
+| `SERVER_SSL_PUBLIC_PATH`                 |                                                                | `/certs/core/core/public/`    |
+| `SERVER_SYSTEM_EMAIL_ADDRESS`            |                                                                | `postmaster@example.com`      |
+| `SERVER_THREADS`                         |                                                                | `8`                           |
+| `SERVER_TIMEOUT_RECIEVE`                 |                                                                | `5`                           |
+| `SERVER_TIMEOUT_SEND`                    |                                                                | `60`                          |
+| `SERVER_TLS_MIN_PROTOCOL`                |                                                                | `tls1.2`                      |
+| `SERVER_USER_PLUGIN`                     |                                                                | `ldap`                        |
+| `SERVER_USER_SAFE_MODE`                  |                                                                | `FALSE`                       |
+| `SERVER_WATCHDOG_FREQUENCY`              |                                                                | `1`                           |
+| `SERVER_WATCHDOG_MAX_AGE`                |                                                                | `500`                         |
+| `SEVER_ADDITIONAL_ARGS`                  | Pass additional arguments to server process                    |                               |
 
 ##### SpamD Options
 

@@ -290,7 +290,13 @@ RUN set -x && \
     cp -R /etc/kopano/quotamail/* /assets/kopano/templates && \
     rm -rf /etc/kopano/quotamail && \
     mkdir -p /assets/kopano/userscripts && \
-    mkdir -p createcompany.d  creategroup.d	createuser.d  deletecompany.d  deletegroup.d  deleteuser.d && \
+    mkdir -p /assets/kopano/userscripts/createcompany.d \
+             /assets/kopano/userscripts/creategroup.d \
+             /assets/kopano/userscripts/createuser.d \
+             /assets/kopano/userscripts/deletecompany.d \
+             /assets/kopano/userscripts/deletegroup.d \
+             /assets/kopano/userscripts/deleteuser.d && \
+    cp -R /usr/lib/kopano/userscripts /assets/kopano/userscripts && \
     mkdir -p /assets/kdav/config/ && \
     cp -R /usr/share/kdav/config.php /assets/kdav/config/ && \
     mkdir -p /assets/zpush/config && \
@@ -318,6 +324,7 @@ RUN set -x && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
+    rm -rf /etc/apt/sources.list.d/kopano*.list && \
     rm -rf /usr/src/* && \
     rm -rf /var/log/* && \
     cd /etc/fail2ban && \
