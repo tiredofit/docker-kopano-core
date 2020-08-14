@@ -1,6 +1,6 @@
 FROM tiredofit/alpine:3.12 as webapp-builder
 
-ENV KOPANO_WEBAPP_VERSION=v4.2
+ENV KOPANO_WEBAPP_VERSION=v4.1
 ENV KOPANO_WEBAPP_REPO_URL=https://github.com/Kopano-dev/kopano-webapp \
     KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=2.0.3 \
     KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION=2.2.0 \
@@ -177,6 +177,7 @@ RUN set -x && \
                        git \
                        iptables \
                        lynx \
+                       man \
                        php-memcached \
                        php-tokenizer \
                        python3-pip \
