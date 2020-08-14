@@ -1,8 +1,157 @@
+FROM tiredofit/alpine:3.12 as webapp-builder
+
+ENV KOPANO_WEBAPP_VERSION=v4.2
+ENV KOPANO_WEBAPP_REPO_URL=https://github.com/Kopano-dev/kopano-webapp \
+    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=2.0.3 \
+    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION=2.2.0 \
+    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=3.0.0-beta.4 \
+    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=3.0.0 \
+    KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=3.0.0 \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=1.0.0 \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION=master \
+    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=1.0.1 \
+    KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION=1.0.1 \
+    KOPANO_WEBAPP_PLUGIN_MDM_VERSION=3.1 \
+    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION=1.0.2-1 \
+    KOPANO_WEBAPP_PLUGIN_SMIME_VERSION=2.2.2
+
+RUN set -x && \
+    apk update && \
+    apk upgrade && \
+    apk add -t .kopano_webapp-build-deps \
+                apache-ant \
+                build-base \
+                coreutils \
+                git \
+                libxml2-dev \
+                libxml2-utils \
+                nodejs \
+                nodejs-npm \
+                openjdk8 \
+                openssl-dev \
+                php7-dev \
+                ruby-dev \
+                && \
+    \
+    ### Fetch Source
+    git clone -b ${KOPANO_WEBAPP_VERSION} --depth 1 ${KOPANO_WEBAPP_REPO_URL} /usr/src/kopano-webapp && \
+    ### Build
+    cd /usr/src/kopano-webapp && \
+    ant deploy && \
+    ant deploy-plugins && \
+    ### Create RootFS
+    mkdir -p /rootfs && \
+    mkdir -p /rootfs/usr/share/kopano-webapp && \
+    mkdir -p /rootfs/assets/kopano/config/webapp && \
+    mkdir -p /rootfs/assets/kopano/plugins/webapp && \
+    cp -R /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
+    cd /rootfs/usr/share/kopano-webapp/ && \
+    mv *.dist /rootfs/assets/kopano/config/webapp && \
+    ln -sf /etc/kopano/webapp/config.php config.php && \
+    mv plugins/* /rootfs/assets/kopano/plugins/webapp/ && \
+    cp /rootfs/assets/kopano/plugins/webapp/contactfax/config.php /rootfs/assets/kopano/config/webapp/contactfax.php && \
+    ln -sf /etc/kopano/webapp/contactfax.php /rootfs/assets/kopano/plugins/webapp/contactfax/config.php && \
+    cp /rootfs/assets/kopano/plugins/webapp/gmaps/config.php /rootfs/assets/kopano/config/webapp/gmaps.php && \
+    ln -sf /etc/kopano/webapp/gmaps.php /rootfs/assets/kopano/plugins/webapp/gmaps/config.php && \
+    cp /rootfs/assets/kopano/plugins/webapp/pimfolder/config.php /rootfs/assets/kopano/config/webapp/pimfolder.php && \
+    ln -sf /etc/kopano/webapp/pimfolder.php /rootfs/assets/kopano/plugins/webapp/pimfolder/config.php && \
+    \
+    ## Plugins
+    ## Desktop Notifications
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/desktopnotifications && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/desktopnotifications/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/desktopnotifications && \
+    cp /rootfs/assets/kopano/plugins/webapp/desktopnotifications/config.php /rootfs/assets/kopano/config/webapp/desktopnotifications.php && \
+    ln -sf /etc/kopano/webapp/desktopnotifications.php /rootfs/assets/kopano/plugins/webapp/desktopnotifications/config.php && \
+    \
+    ## File Previewer
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/filepreviewer && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/filepreviewer/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION}&format=tar.gz"  | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/filepreviewer && \
+    cp /rootfs/assets/kopano/plugins/webapp/filepreviewer/config.php /rootfs/assets/kopano/config/webapp/filepreviewer.php && \
+    ln -sf /etc/kopano/webapp/filepreviewer.php /rootfs/assets/kopano/plugins/webapp/filepreviewer/config.php && \
+    \
+    ## Files
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/files && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/files/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_FILES_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/files && \
+    cp /rootfs/assets/kopano/plugins/webapp/files/config.php /rootfs/assets/kopano/config/webapp/files.php && \
+    ln -sf /etc/kopano/webapp/files.php /rootfs/assets/kopano/plugins/webapp/files/config.php && \
+    \
+    ## Files Backend: Owncloud
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/filesbackendOwncloud && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/files-owncloud-backend/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/filesbackendOwncloud && \
+    \
+    ## Files Backend: SMB
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/files-smb-backend && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/files-smb-backend/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/files-smb-backend && \
+    \
+    ## Files Backend: Seafile
+    git clone --depth 1 https://github.com/datamate-rethink-it/kopano-seafile-backend /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile && \
+    cd /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile && \
+    make && \
+    cp /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile/config.php /rootfs/assets/kopano/config/webapp/files-seafile-backend.php && \
+    ln -sf /etc/kopano/webapp/files-seafile-backend.php /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile/config.php && \
+    \
+    ## HTML Editor: Minimal
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/htmleditor-minimaltiny && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/htmleditor-minimaltiny/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/htmleditor-minimaltiny && \
+    \
+    ## HTML Editor: Quill
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/htmleditor-quill && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/htmleditor-quill/archive?format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/htmleditor-quill && \
+    \
+    ## Intranet
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/intranet && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/intranet/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/intranet && \
+    cp /rootfs/assets/kopano/plugins/webapp/intranet/config.php /rootfs/assets/kopano/config/webapp/intranet.php && \
+    ln -sf /etc/kopano/webapp/intranet.php /rootfs/assets/kopano/plugins/webapp/intranet/config.php && \
+    \
+    ## Mobile Device Management
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/mdm && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/mobile-device-management/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_MDM_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/mdm && \
+    cp /rootfs/assets/kopano/plugins/webapp/mdm/config.php /rootfs/assets/kopano/config/webapp/mdm.php && \
+    ln -sf /etc/kopano/webapp/mdm.php /rootfs/assets/kopano/plugins/webapp/mdm/config.php && \
+    \
+    ## Mattermost
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/mattermost && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/mattermost/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/mattermost && \
+    cp /rootfs/assets/kopano/plugins/webapp/mattermost/config.php /rootfs/assets/kopano/config/webapp/mattermost.php && \
+    ln -sf /etc/kopano/webapp/mattermost.php /rootfs/assets/kopano/plugins/webapp/mattermost/config.php && \
+    \
+    ## Rocketchat
+    cd /usr/src/ && \
+    curl -o /usr/src/rocketchat.zip "https://cloud.siedl.net/nextcloud/index.php/s/3yKYARgGwfSZe2c/download" && \
+    unzip -d . rocketchat.zip && \
+    cd Rocket.Chat && \
+    ar x kopano-rocketchat-${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION}.deb && \
+    tar xvfJ data.tar.xz && \
+    cp etc/kopano/webapp/config-rchat.php /rootfs/assets/kopano/config/webapp/rocketchat.php && \
+    cp -R usr/share/kopano-webapp/plugins/rchat /rootfs/assets/kopano/plugins/webapp/rchat && \
+    ln -sf /etc/kopano/webapp/rocketchat.php /rootfs/assets/kopano/plugins/webapp/rchat/config.php && \
+    \
+    ## S/MIME
+    mkdir -p /rootfs/assets/kopano/plugins/webapp/smime && \
+    curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/smime/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/smime && \
+    cp /rootfs/assets/kopano/plugins/webapp/smime/config.php /rootfs/assets/kopano/config/webapp/smime.php && \
+    ln -sf /etc/kopano/webapp/smime.php /rootfs/assets/kopano/plugins/webapp/smime/config.php && \
+    \
+    ### Fetch Additional Scripts
+    mkdir -p /rootfs/assets/kopano/scripts && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /assets/kopano/scripts/webapp-tools && \
+    \
+    ### Compress Package
+    cd /rootfs/ && \
+    echo "Kopano Webapp built from ${KOPANO_WEBAPP_REPO_URL} on $(date)" > /rootfs/.webapp-version && \
+    echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/.webapp-version && \
+    env | grep KOPANO | sort >> /rootfs/.webapp-version && \
+    tar cvfz /kopano-webapp.tar.gz .
+
+
 FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
+### Move Previously built Webapp into image
+COPY --from=webapp-builder /kopano-webapp.tar.gz /usr/src/kopano-webapp.tar.gz
+
 ENV KOPANO_CORE_VERSION=10.0.6 \
-    KOPANO_WEBAPP_VERSION=4.2.0 \
     KOPANO_KDAV_VERSION=master \
     Z_PUSH_VERSION=2.5.2 \
     NGINX_LOG_ACCESS_LOCATION=/logs/nginx \
@@ -39,89 +188,54 @@ RUN set -x && \
     pip3 install setuptools && \
     pip3 install inotify && \
     \
-#### Fetch Packages and Create Repositories
-### Kopano Dependencies
-    mkdir -p /usr/src/kopano-dependencies && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/dependencies:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/kopano-dependencies && \
-    cd /usr/src/kopano-dependencies && \
-    apt-ftparchive packages ./ > /usr/src/kopano-dependencies/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/kopano-dependencies/ /" >> /etc/apt/sources.list.d/kopano-dependencies.list && \
-    \
 ### Kopano Core
-    mkdir -p /usr/src/core && \
+    mkdir -p /usr/src/deb-core && \
     kcore_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/core:/ | grep -o core-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
     echo "Kopano Core Version: ${kcore_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/core:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/core && \
-    cd /usr/src/core && \
-    apt-ftparchive packages ./ > /usr/src/core/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/core/ /" >> /etc/apt/sources.list.d/kopano-core.list && \
+    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/core:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-core && \
+    cd /usr/src/deb-core && \
+    apt-ftparchive packages ./ > /usr/src/deb-core/Packages && \
+    echo "deb [trusted=yes] file:/usr/src/deb-core/ /" >> /etc/apt/sources.list.d/kopano-core.list && \
     \
-### Kopano WebApp
-    mkdir -p /usr/src/webapp && \
-    webapp_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/webapp:/ | grep -o webapp-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Webapp Version: ${webapp_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/webapp:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/webapp && \
-    cd /usr/src/webapp && \
-    apt-ftparchive packages ./ > /usr/src/webapp/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/webapp/ /" >> /etc/apt/sources.list.d/kopano-webapp.list && \
-    \
+######## https://stash.kopano.io/users/jvanderwaa/repos/php-kopano-smime/browse
 ### Kopano SMIME
-    mkdir -p /usr/src/smime && \
+    mkdir -p /usr/src/deb-smime && \
     smime_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep -o smime-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
     echo "Kopano S/MIME Version: ${smime_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/smime && \
-    cd /usr/src/smime && \
-    apt-ftparchive packages ./ > /usr/src/smime/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/smime/ /" >> /etc/apt/sources.list.d/kopano-smime.list && \
+    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-smime && \
+    cd /usr/src/deb-smime && \
+    apt-ftparchive packages ./ > /usr/src/deb-smime/Packages && \
+    echo "deb [trusted=yes] file:/usr/src/deb-smime/ /" >> /etc/apt/sources.list.d/kopano-smime.list && \
     \
 ### Kopano Archiver
-    mkdir -p /usr/src/archiver && \
+    mkdir -p /usr/src/deb-archiver && \
     archiver_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/archiver:/ | grep -o archiver-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
     echo "Kopano Archiver Version: ${archiver_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/archiver:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/archiver && \
-    cd /usr/src/archiver && \
-    apt-ftparchive packages ./ > /usr/src/archiver/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/archiver/ /" >> /etc/apt/sources.list.d/kopano-archiver.list && \
+    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/archiver:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-archiver && \
+    cd /usr/src/deb-archiver && \
+    apt-ftparchive packages ./ > /usr/src/deb-archiver/Packages && \
+    echo "deb [trusted=yes] file:/usr/src/deb-archiver/ /" >> /etc/apt/sources.list.d/kopano-archiver.list && \
     \
-### Kopano Apps (Calenar)
-    mkdir -p /usr/src/kapps && \
+### Kopano Apps (Calendar)
+    mkdir -p /usr/src/deb-kapps && \
     kapps_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep -o kapps-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
     echo "Kopano Apps Version: ${kapps_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/kapps && \
-    cd /usr/src/kapps && \
-    apt-ftparchive packages ./ > /usr/src/kapps/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/kapps/ /" >> /etc/apt/sources.list.d/kopano-kapps.list && \
-    \
-### Kopano MDM
-    mkdir -p /usr/src/mdm && \
-    mdm_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/mdm:/ | grep -o mdm-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano MDM Version: ${mdm_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/mdm:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/mdm && \
-    cd /usr/src/mdm && \
-    apt-ftparchive packages ./ > /usr/src/mdm/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/mdm/ /" >> /etc/apt/sources.list.d/kopano-mdm.list && \
-    \
-### Kopano Files
-    mkdir -p /usr/src/files && \
-    files_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/files:/ | grep -o files-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Files Version: ${files_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/files:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/files && \
-    cd /usr/src/files && \
-    apt-ftparchive packages ./ > /usr/src/files/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/files/ /" >> /etc/apt/sources.list.d/kopano-files.list && \
-    \
+    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-kapps && \
+    cd /usr/src/deb-kapps && \
+    apt-ftparchive packages ./ > /usr/src/deb-kapps/Packages && \
+    echo "deb [trusted=yes] file:/usr/src/deb-kapps/ /" >> /etc/apt/sources.list.d/kopano-kapps.list && \
 ### Kopano Meet
-    mkdir -p /usr/src/meet && \
+    mkdir -p /usr/src/deb-meet && \
     meet_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep -o meet-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
     echo "Kopano Meet Version: ${meet_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/meet && \
-    cd /usr/src/meet && \
-    apt-ftparchive packages ./ > /usr/src/meet/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/meet/ /" >> /etc/apt/sources.list.d/kopano-meet.list && \
+    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-meet && \
+    cd /usr/src/deb-meet && \
+    apt-ftparchive packages ./ > /usr/src/deb-meet/Packages && \
+    echo "deb [trusted=yes] file:/usr/src/deb-meet/ /" >> /etc/apt/sources.list.d/kopano-meet.list && \
     \
 ##### Install Packages
-    apt-get update
-RUN apt-get install -y --no-install-recommends \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
                        #kopano-archiver \
                        kopano-bash-completion \
                        kopano-calendar \
@@ -140,24 +254,8 @@ RUN apt-get install -y --no-install-recommends \
                        kopano-server-packages \
                        kopano-spamd \
                        kopano-statsd \
-                       kopano-webapp \
-                       kopano-webapp-plugin-contactfax \
-                       kopano-webapp-plugin-desktopnotifications \
-                       kopano-webapp-plugin-filepreviewer \
-                       kopano-webapp-plugin-files \
-                       kopano-webapp-plugin-filesbackend-owncloud \
-                       kopano-webapp-plugin-filesbackend-smb \
-                       kopano-webapp-plugin-folderwidgets \
-                       kopano-webapp-plugin-htmleditor-quill \
-                       kopano-webapp-plugin-intranet \
-                       kopano-webapp-plugin-mdm \
-                       kopano-webapp-plugin-mattermost \
-                       kopano-webapp-plugin-meet \
-                       kopano-webapp-plugin-pimfolder \
-                       kopano-webapp-plugin-quickitems \
-                       kopano-webapp-plugin-smime \
-                       kopano-webapp-plugin-titlecounter \
-                       kopano-webapp-plugin-webappmanual \
+                       php7-mapi \
+                       php-kopano-smime \
                        python3-grapi.backend.ldap \
                        && \
     \
@@ -172,40 +270,28 @@ RUN apt-get install -y --no-install-recommends \
     cd /usr/share/kdav && \
     phpenmod xmlwriter && \
     phpenmod tokenizer && \
-    phpenmod pdo-sqlite && \
     composer install && \
     \
-### Webapp Rocketchat Plugin
-    curl -o /usr/src/rocketchat.zip "https://cloud.siedl.net/nextcloud/index.php/s/3yKYARgGwfSZe2c/download" && \
-    cd /usr/src/ && \
-    unzip -d . rocketchat.zip && \
-    dpkg -i /usr/src/Rocket.Chat/kopano-rocketchat-1.0.2-1.deb && \
-    chmod -R 777 /usr/share/kopano-webapp/plugins/rchat && \
-    \
-### Webapp Seafile Plugin
-    git clone https://github.com/datamate-rethink-it/kopano-seafile-backend /usr/share/kopano-webapp/plugins/filesbackendSeafile && \
-    \
-### Miscellanious Scripts
+    ### Miscellanious Scripts
     mkdir -p /assets/kopano/scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/Core-tools.git /assets/kopano/scripts/core-tools && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/lab-scripts.git /assets/kopano/scripts/lab-scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/mail-migrations.git /assets/kopano/scripts/mail-migrations && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/support.git /assets/kopano/scripts/support && \
-    git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /assets/kopano/scripts/webapp-tools && \
     \
-##### Configuration
+    ##### Unpack WebApp
+    tar xvfz /usr/src/kopano-webapp.tar.gz -C / && \
+    \
+    ##### Configuration
     mkdir -p /assets/kopano/config && \
     cp -R /etc/kopano/* /assets/kopano/config/ && \
     mkdir -p /assets/kopano/templates && \
     cp -R /etc/kopano/quotamail/* /assets/kopano/templates && \
     rm -rf /etc/kopano/quotamail && \
     mkdir -p /assets/kopano/userscripts && \
-    cp -R /etc/kopano/userscripts/* /assets/kopano/userscripts && \
-    rm -rf /etc/kopano/userscripts && \
+    mkdir -p createcompany.d  creategroup.d	createuser.d  deletecompany.d  deletegroup.d  deleteuser.d && \
     mkdir -p /assets/kdav/config/ && \
     cp -R /usr/share/kdav/config.php /assets/kdav/config/ && \
-    mkdir -p /assets/kopano/webapp-plugins && \
-    mv /usr/share/kopano-webapp/plugins/* /assets/kopano/webapp-plugins && \
     mkdir -p /assets/zpush/config && \
     cp -R /usr/share/zpush/src/config.php /assets/zpush/config/ && \
     cp -R /usr/share/zpush/src/autodiscover/config.php /assets/zpush/config/config-autodiscover.php && \

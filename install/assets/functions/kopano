@@ -2009,25 +2009,21 @@ configure_webapp_plugins() {
         configure_webapp_plugin_files_backend_owncloud
         configure_webapp_plugin_files_backend_seafile
         configure_webapp_plugin_files_backend_smb
-        #configure_webapp_plugin_folderwidgets
         configure_webapp_plugin_htmleditor_quill
         configure_webapp_plugin_intranet
-        #configure_webapp_plugin_manual
         configure_webapp_plugin_mattermost
         configure_webapp_plugin_mdm
         configure_webapp_plugin_meet
         configure_webapp_plugin_pim_folder
-        #configure_webapp_plugin_quick_items
         configure_webapp_plugin_rocketchat
         configure_webapp_plugin_smime
-        #configure_webapp_plugin_title_counter
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_contact_fax() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_CONTACT_FAX}" ; then
-        cp -R /assets/kopano/webapp-plugins/contactfax /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/contactfax /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Contact Fax - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-contactfax.php
@@ -2046,7 +2042,7 @@ EOF
 
 configure_webapp_plugin_desktop_notifications() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_DESKTOP_NOTIFICATIONS}" ; then
-        cp -R /assets/kopano/webapp-plugins/desktopnotifications /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/desktopnotifications /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-desktopnotifications.php
@@ -2064,7 +2060,7 @@ EOF
 
 configure_webapp_plugin_files() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
-        cp -R /assets/kopano/webapp-plugins/files /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/files /usr/share/kopano-webapp/plugins
         mkdir -p "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
 
@@ -2107,7 +2103,7 @@ EOF
 configure_webapp_plugin_files_backend_owncloud() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_OWNCLOUD}" ; then
-            cp -R /assets/kopano/webapp-plugins/filesbackendOwncloud /usr/share/kopano-webapp/plugins
+            cp -R /assets/kopano/plugins/webapp/filesbackendOwncloud /usr/share/kopano-webapp/plugins
         fi
     fi
 }
@@ -2115,7 +2111,7 @@ configure_webapp_plugin_files_backend_owncloud() {
 configure_webapp_plugin_files_backend_seafile() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SEAFILE}" ; then
-            cp -R /assets/kopano/webapp-plugins/filesbackendSeafile /usr/share/kopano-webapp/plugins
+            cp -R /assets/kopano/plugins/webapp/filesbackendSeafile /usr/share/kopano-webapp/plugins
         fi
     fi
 }
@@ -2123,14 +2119,14 @@ configure_webapp_plugin_files_backend_seafile() {
 configure_webapp_plugin_files_backend_smb() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SMB}" ; then
-            cp -R /assets/kopano/webapp-plugins/filesbackendSMB /usr/share/kopano-webapp/plugins
+            cp -R /assets/kopano/plugins/webapp/filesbackendSMB /usr/share/kopano-webapp/plugins
         fi
     fi
 }
 
 configure_webapp_plugin_file_previewer() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILEPREVIEWER}" ; then
-        cp -R /assets/kopano/webapp-plugins/filepreviewer /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/filepreviewer /usr/share/kopano-webapp/plugins
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: File Previewer - Auto Configuring"
@@ -2148,21 +2144,15 @@ EOF
     fi
 }
 
-configure_webapp_plugin_folderwidgets () {
-    if var_true "${WEBAPP_PLUGIN_ENABLE_FOLDER_WIDGETS}" ; then
-        cp -R /assets/kopano/webapp-plugins/folderwidgets /usr/share/kopano-webapp/plugins
-    fi
-}
-
 configure_webapp_plugin_htmleditor_quill () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_HTMLEDITOR_QUILL}" ; then
-        cp -R /assets/kopano/webapp-plugins/htmleditor-quill /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/htmleditor-quill /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_intranet () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_INTRANET}" ; then
-        cp -R /assets/kopano/webapp-plugins/intranet /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/intranet /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Intranet - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-intranet.php
@@ -2201,7 +2191,7 @@ EOF
 
 configure_webapp_plugin_manual() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MANUAL}" ; then
-        cp -R /assets/kopano/webapp-plugins/webappmanual /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/webappmanual /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Manual - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-webappmanual.php
@@ -2220,7 +2210,7 @@ EOF
 
 configure_webapp_plugin_mattermost () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MATTERMOST}" ; then
-        cp -R /assets/kopano/webapp-plugins/mattermost /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/mattermost /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Mattermost - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-mattermost.php
@@ -2240,7 +2230,7 @@ EOF
 configure_webapp_plugin_mdm() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MDM}" ; then
         source /assets/defaults/z-push
-        cp -R /assets/kopano/webapp-plugins/mdm /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/mdm /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: MDM - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-mdm.php
@@ -2260,7 +2250,7 @@ EOF
 
 configure_webapp_plugin_meet() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MEET}" ; then
-        cp -R /assets/kopano/webapp-plugins/meet /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/meet /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Meet - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-meet.php
@@ -2281,7 +2271,7 @@ EOF
 
 configure_webapp_plugin_pim_folder() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_PIM_FOLDER}" ; then
-        cp -R /assets/kopano/webapp-plugins/pimfolder /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/pimfolder /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: PIM Folder - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
@@ -2299,13 +2289,13 @@ EOF
 
 configure_webapp_plugin_quick_items() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_QUICK_ITEMS}" ; then
-        cp -R /assets/kopano/webapp-plugins/quickitems /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/quickitems /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_rocketchat() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_ROCKETCHAT}" ; then
-        cp -R /assets/kopano/webapp-plugins/rchat /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/rchat /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Rocketchat - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-rchat.php
@@ -2323,7 +2313,7 @@ EOF
 
 configure_webapp_plugin_smime() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_SMIME}" ; then
-        cp -R /assets/kopano/webapp-plugins/smime /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/smime /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: S/MIME - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-smime.php
@@ -2345,7 +2335,7 @@ EOF
 
 configure_webapp_plugin_title_counter() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_TITLE_COUNTER}" ; then
-        cp -R /assets/kopano/webapp-plugins/titlecounter /usr/share/kopano-webapp/plugins
+        cp -R /assets/kopano/plugins/webapp/titlecounter /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Title Counter - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-titlecounter.php
