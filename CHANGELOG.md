@@ -1,3 +1,13 @@
+## 0.39.0 2020-08-15 <dave at tiredofit dot ca>
+
+   ### Added
+      - Compile Webapp and plugins from git via multistage
+      - Add manuals for configuration references
+     
+   ### Changed
+      - Changes to support latest KC 10.x commits relating to scripts, store creation
+      - Lots of tweaks
+
 ## 0.25.0 2020-08-10 <dave at tiredofit dot ca>
 
    ### Added
