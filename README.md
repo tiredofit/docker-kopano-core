@@ -459,34 +459,34 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 
 ##### Search Options
 
-| Parameter                           | Description                                                                               | Default                         |
-| ----------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------- |
-| `ENABLE_SEARCH`                     | Enable Search Service                                                                     | `TRUE`                          |
-| `LOG_FILE_SEARCH`                   | Logfile Name                                                                              | `search.log`                    |
-| `SEARCH_CACHE_SIZE_TERM`            | Cache Size                                                                                | `256M`                          |
-| `SEARCH_ENABLE_HTTP`                | Enable HTTP Communications to Search Socket                                               | `FALSE`                         |
-| `SEARCH_ENABLE_HTTPS`               | Enable TLS Communications to Search Socket                                                | `FALSE`                         |
-| `SEARCH_INDEX_ATTACHMENTS`          | Index File Attachments                                                                    | `FALSE`                         |
-| `SEARCH_INDEX_ATTACHMENTS_MAX_SIZE` | Only index files under this value                                                         | `5`                             |
-| `SEARCH_INDEX_DRAFTS`               | Index Drafts Folder                                                                       | `TRUE`                          |
-| `SEARCH_INDEX_JUNK`                 | Index Junk Folder                                                                         | `TRUE`                          |
-| `SEARCH_INDEX_PATH`                 | Data storage for service                                                                  | `/data/search/`                 |
-| `SEARCH_INDEX_PROCESSES`            | How many processes to run concurrently                                                    | `1`                             |
-| `SEARCH_LIMIT_RESULTS`              | Limit Results returned                                                                    | `1000`                          |
-| `SEARCH_LISTEN_HOST`                | Listen address                                                                            | `0.0.0.0`                       |
-| `SEARCH_LISTEN_PORT`                | Listen address                                                                            | `1238`                          |
-| `SEARCH_SOCKET_SERVER`              | What should service use to contact server                                                 | `${SOCKET_SERVER}`              |
-| `SEARCH_SSL_CERT_FILE`              | Search SSL Certificate File                                                               | `/certs/core/search.crt`        |
-| `SEARCH_SSL_KEY_FILE`               | Search SSL Key File                                                                       | `/certs/core/search.pem`        |
-| `SEARCH_SSL_LISTEN_CERT_FILE`       | Search Listen SSL Certificate File                                                        | `/certs/core/search-listen.crt` |
-| `SEARCH_SSL_LISTEN_KEY_FILE`        | Search Listen SSL Key File                                                                | `/certs/core/search-listen.pem` |
-| `SEARCH_SUGGESTIONS`                | Respond with suggestions                                                                  | `FALSE`                         |
-| `SEARCH_TIMEOUT`                    | Timeout in seconds                                                                        | `10`                            |
-| `SOCKET_SEARCH`                     | Search Socket                                                                             |                                 |
-|                                     | Dependent on options above enabling HTTP or HTTPS this will auto populate with a default. |
-- ENABLE_HTTP = `http://search:${SEARCH_LISTEN_PORT}`
-- ENABLE_HTTPS = `https://search:${SEARCH_LISTEN_PORT}`
-- None of above = `file:///var/run/kopano/search.sock` | |
+| Parameter                           | Description                                                                                 | Default                         |
+| ----------------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------- |
+| `ENABLE_SEARCH`                     | Enable Search Service                                                                       | `TRUE`                          |
+| `LOG_FILE_SEARCH`                   | Logfile Name                                                                                | `search.log`                    |
+| `SEARCH_CACHE_SIZE_TERM`            | Cache Size                                                                                  | `256M`                          |
+| `SEARCH_ENABLE_HTTP`                | Enable HTTP Communications to Search Socket                                                 | `FALSE`                         |
+| `SEARCH_ENABLE_HTTPS`               | Enable TLS Communications to Search Socket                                                  | `FALSE`                         |
+| `SEARCH_INDEX_ATTACHMENTS`          | Index File Attachments                                                                      | `FALSE`                         |
+| `SEARCH_INDEX_ATTACHMENTS_MAX_SIZE` | Only index files under this value                                                           | `5`                             |
+| `SEARCH_INDEX_DRAFTS`               | Index Drafts Folder                                                                         | `TRUE`                          |
+| `SEARCH_INDEX_JUNK`                 | Index Junk Folder                                                                           | `TRUE`                          |
+| `SEARCH_INDEX_PATH`                 | Data storage for service                                                                    | `/data/search/`                 |
+| `SEARCH_INDEX_PROCESSES`            | How many processes to run concurrently                                                      | `1`                             |
+| `SEARCH_LIMIT_RESULTS`              | Limit Results returned                                                                      | `1000`                          |
+| `SEARCH_LISTEN_HOST`                | Listen address                                                                              | `0.0.0.0`                       |
+| `SEARCH_LISTEN_PORT`                | Listen address                                                                              | `1238`                          |
+| `SEARCH_SOCKET_SERVER`              | What should service use to contact server                                                   | `${SOCKET_SERVER}`              |
+| `SEARCH_SSL_CERT_FILE`              | Search SSL Certificate File                                                                 | `/certs/core/search.crt`        |
+| `SEARCH_SSL_KEY_FILE`               | Search SSL Key File                                                                         | `/certs/core/search.pem`        |
+| `SEARCH_SSL_LISTEN_CERT_FILE`       | Search Listen SSL Certificate File                                                          | `/certs/core/search-listen.crt` |
+| `SEARCH_SSL_LISTEN_KEY_FILE`        | Search Listen SSL Key File                                                                  | `/certs/core/search-listen.pem` |
+| `SEARCH_SUGGESTIONS`                | Respond with suggestions                                                                    | `FALSE`                         |
+| `SEARCH_TIMEOUT`                    | Timeout in seconds                                                                          | `10`                            |
+| `SOCKET_SEARCH`                     | Search Socket                                                                               |                                 |
+|                                     | _Dependent on options above enabling HTTP or HTTPS this will auto populate with a default._ |                                 |
+|                                     | ENABLE_HTTP = `http://search:${SEARCH_LISTEN_PORT}`                                         |                                 |
+|                                     | ENABLE_HTTPS = `https://search:${SEARCH_LISTEN_PORT}`                                       |                                 |
+|                                     | None of above = `file:///var/run/kopano/search.sock`                                        |                                 |
 
 ##### Server Options (needs work)
 
@@ -553,7 +553,7 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `SERVER_WATCHDOG_MAX_AGE`                |                                                                | `500`                         |
 | `SEVER_ADDITIONAL_ARGS`                  | Pass additional arguments to server process                    |                               |
 
-##### SpamD Options
+##### Spamd Options
 
 | Parameter               | Description                               | Default                 |
 | ----------------------- | ----------------------------------------- | ----------------------- |
