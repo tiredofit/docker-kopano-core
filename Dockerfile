@@ -52,11 +52,14 @@ RUN set -x && \
     gem install compass && \
     \
     ### Fetch Source
-    git clone -b ${KOPANO_WEBAPP_VERSION} --depth 1 ${KOPANO_WEBAPP_REPO_URL} /usr/src/kopano-webapp && \
-    ### Build
+    git clone ${KOPANO_WEBAPP_REPO_URL} /usr/src/kopano-webapp && \
     cd /usr/src/kopano-webapp && \
+    git checkout ${KOPANO_WEBAPP_VERSION} && \
+
+    ### Build
     ant deploy && \
     ant deploy-plugins && \
+    make all && \
     \
     ### Setup RootFS
     mkdir -p /rootfs && \
@@ -337,6 +340,8 @@ RUN set -x && \
     \
     ##### Unpack WebApp
     tar xvfz /usr/src/kopano-webapp.tar.gz -C / && \
+    chown -R nginx:www-data /assets/kopano/plugins/webapp && \
+    chown -R nginx:www-data /usr/share/kopano-webapp && \
     \
     ##### Configuration
     mkdir -p /assets/kopano/config && \
