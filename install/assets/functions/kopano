@@ -2051,7 +2051,7 @@ configure_webapp_plugin_desktop_notifications() {
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${PLUGIN_WEBAPP_DESKTOP_NOTIFICATIONS_DEFAULT_USER});
+define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER});
 ?>
 EOF
         fi
@@ -2112,6 +2112,18 @@ configure_webapp_plugin_files_backend_seafile() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SEAFILE}" ; then
             cp -R /assets/kopano/plugins/webapp/filesbackendSeafile /usr/share/kopano-webapp/plugins
+            if [ "$SETUP_TYPE" = "AUTO" ]; then
+                print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
+                cat <<EOF > "${CONFIG_PATH}"webapp/config-files-seafile-backend.php
+<?php
+// Custom Generated Kopano Webapp Files SeaFile Backend Notification Configuration! Do not edit, instead set ENV Vars
+// If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
+// Last Generated on $(date)
+
+define('PLUGIN_FILESBACKENDSEAFILE_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILES_BACKEND_SEAFILE_DEFAULT_USER});
+?>
+EOF
+            fi
         fi
     fi
 }
@@ -2761,15 +2773,16 @@ create_quota_templates() {
 
 create_user_scripts() {
     mkdir -p "${SERVER_CUSTOM_USERSCRIPT_PATH}"
-    if var_true "${SERVER_ENABLE_CUSTOM_USERSCRIPTS}"
-    print_notice "Setting up Default Custom User Scripts"
-    for f in /assets/kopano/userscripts/*
-    do
-        if [ ! -f "${SERVER_CUSTOM_USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
-            print_debug "User Scripts: Copying User Script: $(basename "$f")"
-            cp -R "$f" "${SERVER_CUSTOM_USERSCRIPT_PATH}"
-        fi
-    done
+    if var_true "${SERVER_ENABLE_CUSTOM_USERSCRIPTS}" ; then
+        print_notice "Setting up Default Custom User Scripts"
+        for f in /assets/kopano/userscripts/*
+        do
+            if [ ! -f "${SERVER_CUSTOM_USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
+                print_debug "User Scripts: Copying User Script: $(basename "$f")"
+                cp -R "$f" "${SERVER_CUSTOM_USERSCRIPT_PATH}"
+            fi
+        done
+    fi
 }
 
 create_zpush_templates() {

@@ -1,7 +1,7 @@
 FROM tiredofit/alpine:3.12 as webapp-builder
 
-ENV KOPANO_WEBAPP_VERSION=v4.2 \
-    KOPANO_WEBAPP_REPO_URL=https://github.com/Kopano-dev/kopano-webapp \
+ENV KOPANO_WEBAPP_VERSION=v4.1
+ENV KOPANO_WEBAPP_REPO_URL=https://github.com/Kopano-dev/kopano-webapp \
     KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=2.0.3 \
     KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION=2.2.0 \
     KOPANO_WEBAPP_PLUGIN_FILES_VERSION=3.0.0-beta.4 \
@@ -35,7 +35,7 @@ RUN set -x && \
                 && \
     \
     gem install compass && \
-    \
+
     ### Fetch Source
     git clone -b ${KOPANO_WEBAPP_VERSION} --depth 1 ${KOPANO_WEBAPP_REPO_URL} /usr/src/kopano-webapp && \
     ### Build
@@ -53,30 +53,30 @@ RUN set -x && \
     ln -sf /etc/kopano/webapp/config.php config.php && \
     mv plugins/* /rootfs/assets/kopano/plugins/webapp/ && \
     cp /rootfs/assets/kopano/plugins/webapp/contactfax/config.php /rootfs/assets/kopano/config/webapp/contactfax.php && \
-    ln -sf /etc/kopano/webapp/config-contactfax.php /rootfs/assets/kopano/plugins/webapp/contactfax/config.php && \
+    ln -sf /etc/kopano/webapp/contactfax.php /rootfs/assets/kopano/plugins/webapp/contactfax/config.php && \
     cp /rootfs/assets/kopano/plugins/webapp/gmaps/config.php /rootfs/assets/kopano/config/webapp/gmaps.php && \
-    ln -sf /etc/kopano/webapp/config-gmaps.php /rootfs/assets/kopano/plugins/webapp/gmaps/config.php && \
+    ln -sf /etc/kopano/webapp/gmaps.php /rootfs/assets/kopano/plugins/webapp/gmaps/config.php && \
     cp /rootfs/assets/kopano/plugins/webapp/pimfolder/config.php /rootfs/assets/kopano/config/webapp/pimfolder.php && \
-    ln -sf /etc/kopano/webapp/config-pimfolder.php /rootfs/assets/kopano/plugins/webapp/pimfolder/config.php && \
+    ln -sf /etc/kopano/webapp/pimfolder.php /rootfs/assets/kopano/plugins/webapp/pimfolder/config.php && \
     \
     ## Plugins
     ## Desktop Notifications
     mkdir -p /rootfs/assets/kopano/plugins/webapp/desktopnotifications && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/desktopnotifications/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/desktopnotifications && \
     cp /rootfs/assets/kopano/plugins/webapp/desktopnotifications/config.php /rootfs/assets/kopano/config/webapp/desktopnotifications.php && \
-    ln -sf /etc/kopano/webapp/config-desktopnotifications.php /rootfs/assets/kopano/plugins/webapp/desktopnotifications/config.php && \
+    ln -sf /etc/kopano/webapp/desktopnotifications.php /rootfs/assets/kopano/plugins/webapp/desktopnotifications/config.php && \
     \
     ## File Previewer
     mkdir -p /rootfs/assets/kopano/plugins/webapp/filepreviewer && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/filepreviewer/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION}&format=tar.gz"  | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/filepreviewer && \
     cp /rootfs/assets/kopano/plugins/webapp/filepreviewer/config.php /rootfs/assets/kopano/config/webapp/filepreviewer.php && \
-    ln -sf /etc/kopano/webapp/config-filepreviewer.php /rootfs/assets/kopano/plugins/webapp/filepreviewer/config.php && \
+    ln -sf /etc/kopano/webapp/filepreviewer.php /rootfs/assets/kopano/plugins/webapp/filepreviewer/config.php && \
     \
     ## Files
     mkdir -p /rootfs/assets/kopano/plugins/webapp/files && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/files/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_FILES_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/files && \
     cp /rootfs/assets/kopano/plugins/webapp/files/config.php /rootfs/assets/kopano/config/webapp/files.php && \
-    ln -sf /etc/kopano/webapp/config-files.php /rootfs/assets/kopano/plugins/webapp/files/config.php && \
+    ln -sf /etc/kopano/webapp/files.php /rootfs/assets/kopano/plugins/webapp/files/config.php && \
     \
     ## Files Backend: Owncloud
     mkdir -p /rootfs/assets/kopano/plugins/webapp/filesbackendOwncloud && \
@@ -91,7 +91,7 @@ RUN set -x && \
     cd /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile && \
     make && \
     cp /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile/config.php /rootfs/assets/kopano/config/webapp/files-seafile-backend.php && \
-    ln -sf /etc/kopano/webapp/config-files-seafile-backend.php /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile/config.php && \
+    ln -sf /etc/kopano/webapp/files-seafile-backend.php /rootfs/assets/kopano/plugins/webapp/filesbackendSeafile/config.php && \
     \
     ## HTML Editor: Minimal
     mkdir -p /rootfs/assets/kopano/plugins/webapp/htmleditor-minimaltiny && \
@@ -105,19 +105,19 @@ RUN set -x && \
     mkdir -p /rootfs/assets/kopano/plugins/webapp/intranet && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/intranet/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/intranet && \
     cp /rootfs/assets/kopano/plugins/webapp/intranet/config.php /rootfs/assets/kopano/config/webapp/intranet.php && \
-    ln -sf /etc/kopano/webapp/config-intranet.php /rootfs/assets/kopano/plugins/webapp/intranet/config.php && \
+    ln -sf /etc/kopano/webapp/intranet.php /rootfs/assets/kopano/plugins/webapp/intranet/config.php && \
     \
     ## Mobile Device Management
     mkdir -p /rootfs/assets/kopano/plugins/webapp/mdm && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/mobile-device-management/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_MDM_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/mdm && \
     cp /rootfs/assets/kopano/plugins/webapp/mdm/config.php /rootfs/assets/kopano/config/webapp/mdm.php && \
-    ln -sf /etc/kopano/webapp/config-mdm.php /rootfs/assets/kopano/plugins/webapp/mdm/config.php && \
+    ln -sf /etc/kopano/webapp/mdm.php /rootfs/assets/kopano/plugins/webapp/mdm/config.php && \
     \
     ## Mattermost
     mkdir -p /rootfs/assets/kopano/plugins/webapp/mattermost && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/mattermost/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/mattermost && \
     cp /rootfs/assets/kopano/plugins/webapp/mattermost/config.php /rootfs/assets/kopano/config/webapp/mattermost.php && \
-    ln -sf /etc/kopano/webapp/config-mattermost.php /rootfs/assets/kopano/plugins/webapp/mattermost/config.php && \
+    ln -sf /etc/kopano/webapp/mattermost.php /rootfs/assets/kopano/plugins/webapp/mattermost/config.php && \
     \
     ## Rocketchat
     cd /usr/src/ && \
@@ -128,13 +128,13 @@ RUN set -x && \
     tar xvfJ data.tar.xz && \
     cp etc/kopano/webapp/config-rchat.php /rootfs/assets/kopano/config/webapp/rocketchat.php && \
     cp -R usr/share/kopano-webapp/plugins/rchat /rootfs/assets/kopano/plugins/webapp/rchat && \
-    ln -sf /etc/kopano/webapp/config-rchat.php /rootfs/assets/kopano/plugins/webapp/rchat/config.php && \
+    ln -sf /etc/kopano/webapp/rocketchat.php /rootfs/assets/kopano/plugins/webapp/rchat/config.php && \
     \
     ## S/MIME
     mkdir -p /rootfs/assets/kopano/plugins/webapp/smime && \
     curl -sSL "https://stash.kopano.io/rest/api/latest/projects/KWA/repos/smime/archive?at=refs%2Ftags%2Fv${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION}&format=tar.gz" | tar xvfz - -C /rootfs/assets/kopano/plugins/webapp/smime && \
     cp /rootfs/assets/kopano/plugins/webapp/smime/config.php /rootfs/assets/kopano/config/webapp/smime.php && \
-    ln -sf /etc/kopano/webapp/config-smime.php /rootfs/assets/kopano/plugins/webapp/smime/config.php && \
+    ln -sf /etc/kopano/webapp/smime.php /rootfs/assets/kopano/plugins/webapp/smime/config.php && \
     \
     ### Fetch Additional Scripts
     mkdir -p /rootfs/assets/kopano/scripts && \
@@ -146,6 +146,7 @@ RUN set -x && \
     echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/.webapp-version && \
     env | grep KOPANO | sort >> /rootfs/.webapp-version && \
     tar cvfz /kopano-webapp.tar.gz .
+
 
 FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
@@ -227,8 +228,7 @@ RUN set -x && \
     cd /usr/src/deb-kapps && \
     apt-ftparchive packages ./ > /usr/src/deb-kapps/Packages && \
     echo "deb [trusted=yes] file:/usr/src/deb-kapps/ /" >> /etc/apt/sources.list.d/kopano-kapps.list && \
-    \
-    ### Kopano Meet
+### Kopano Meet
     mkdir -p /usr/src/deb-meet && \
     meet_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep -o meet-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
     echo "Kopano Meet Version: ${meet_version} on $(date)" >> /.kopano-versions && \
@@ -237,16 +237,7 @@ RUN set -x && \
     apt-ftparchive packages ./ > /usr/src/deb-meet/Packages && \
     echo "deb [trusted=yes] file:/usr/src/deb-meet/ /" >> /etc/apt/sources.list.d/kopano-meet.list && \
     \
-    ### Kopano Webapp
-    mkdir -p /usr/src/deb-webapp && \
-    meet_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/webapp:/ | grep -o meet-.*-Debian_10-all.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Webapp Version: ${meet_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/webapp:/ | grep Debian_10-all.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-webapp && \
-    cd /usr/src/deb-webapp && \
-    apt-ftparchive packages ./ > /usr/src/deb-webapp/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/deb-webapp/ /" >> /etc/apt/sources.list.d/kopano-webapp.list && \
-    \
-    ##### Install Packages
+##### Install Packages
     apt-get update && \
     apt-get install -y --no-install-recommends \
                        #kopano-archiver \
@@ -267,7 +258,6 @@ RUN set -x && \
                        kopano-server-packages \
                        kopano-spamd \
                        kopano-statsd \
-                       #kopano-webapp \
                        php7-mapi \
                        php-kopano-smime \
                        python3-grapi.backend.ldap \
