@@ -678,34 +678,6 @@ RUN set -x && \
     apt-ftparchive packages . | gzip -c9 > Packages.gz && \
     echo "deb [trusted=yes] file:/usr/src/deb-kopano-dependencies ./" > /etc/apt/sources.list.d/kopano-dependencies.list && \
     \
-######## https://stash.kopano.io/users/jvanderwaa/repos/php-kopano-smime/browse
-### Kopano SMIME
-#    mkdir -p /usr/src/deb-smime && \
-#    smime_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep -o smime-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-#    echo "Kopano S/MIME Version: ${smime_version} on $(date)" >> /.kopano-versions && \
-#    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-smime && \
-#    cd /usr/src/deb-smime && \
-#    apt-ftparchive packages ./ > /usr/src/deb-smime/Packages && \
-#    echo "deb [trusted=yes] file:/usr/src/deb-smime/ /" >> /etc/apt/sources.list.d/kopano-smime.list && \
-    \
-### Kopano Apps (Calendar)
-#    mkdir -p /usr/src/deb-kapps && \
-#    kapps_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep -o kapps-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
-#    echo "Kopano Apps Version: ${kapps_version} on $(date)" >> /.kopano-versions && \
-#    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-kapps && \
-#    cd /usr/src/deb-kapps && \
-#    apt-ftparchive packages ./ > /usr/src/deb-kapps/Packages && \
-#    echo "deb [trusted=yes] file:/usr/src/deb-kapps/ /" >> /etc/apt/sources.list.d/kopano-kapps.list && \
-    \
-    ### Kopano Meet
-    mkdir -p /usr/src/deb-meet && \
-    meet_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep -o meet-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Meet Version: ${meet_version} on $(date)" >> /tiredofit/kopano-repo.version && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-meet && \
-    cd /usr/src/deb-meet && \
-    apt-ftparchive packages ./ > /usr/src/deb-meet/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/deb-meet/ /" >> /etc/apt/sources.list.d/kopano-meet.list && \
-    \
     ##### Install Packages
     apt-get update && \
     BUILD_DEPS=' \
@@ -816,7 +788,7 @@ RUN set -x && \
     tar xvfz /usr/src/webapp/kopano-webapp.tar.gz -C / && \
     chown -R nginx:www-data /assets/kopano/plugins/webapp && \
     chown -R nginx:www-data /usr/share/kopano-webapp && \
-    echo "mapi.so" > /etc/php/$(php-fpm -v | head -n 1 | awk '{print $2}' | cut -c 1-3)/fpm/conf.d/20-mapi.ini && \
+    echo "extension=mapi.so" > /etc/php/$(php-fpm -v | head -n 1 | awk '{print $2}' | cut -c 1-3)/fpm/conf.d/20-mapi.ini && \
     \
     ##### Configuration
     mkdir -p /assets/kopano/config && \
