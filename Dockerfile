@@ -1,11 +1,18 @@
 FROM tiredofit/debian:buster as core-builder
 
+#### Kopano Core
+ARG KOPANO_CORE_VERSION
+ARG KOPANO_CORE_REPO_URL
+ARG KOPANO_DEPENDENCY_HASH
+ARG KOPANO_KCOIDC_REPO_URL
+ARG KOPANO_KCOIDC_VERSION
+
 ENV GO_VERSION=1.15 \
-    KOPANO_CORE_VERSION=master \
-    KOPANO_CORE_REPO_URL=https://github.com/Kopano-dev/kopano-core.git \
-    KOPANO_DEPENDENCY_HASH=51c3a68 \
-    KOPANO_KCOIDC_REPO_URL=https://github.com/Kopano-dev/libkcoidc.git \
-    KOPANO_KCOIDC_VERSION=v0.9.2
+    KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"master"} \
+    KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
+    KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"51c3a68"} \
+    KOPANO_KCOIDC_REPO_URL=${KOPANO_KCOIDC_REPO_URL:-"https://github.com/Kopano-dev/libkcoidc.git"} \
+    KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"v0.9.2"}
 
 RUN set -x && \
     apt-get update && \
@@ -166,23 +173,35 @@ RUN set -x && \
     rm -rf /rootfs/* && \
     rm -rf /usr/src/*
 
-
-
+#### Kopano Meet
 FROM tiredofit/debian:buster as meet-builder
 
+ARG GRAPI_REPO_URL
+ARG GRAPI_VERSION
+ARG KAPI_REPO_URL
+ARG KAPI_VERSION
+ARG KONNECT_REPO_URL
+ARG KONNECT_VERSION
+ARG KWMBRIDGE_REPO_URL
+ARG KWMBRIDGE_VERSION
+ARG KWMSERVER_REPO_URL
+ARG KWMSERVER_VERSION
+ARG MEET_REPO_URL
+ARG MEET_VERSION
+
 ENV GO_VERSION=1.15 \
-    GRAPI_REPO_URL=https://github.com/Kopano-dev/grapi \
-    GRAPI_VERSION=v10.5.0 \
-    KAPI_REPO_URL=https://github.com/Kopano-dev/kapi \
-    KAPI_VERSION=v0.15.0 \
-    KONNECT_REPO_URL=https://github.com/Kopano-dev/konnect \
-    KONNECT_VERSION=v0.33.5 \
-    KWMBRIDGE_REPO_URL=https://github.com/Kopano-dev/kwmbridge \
-    KWMBRIDGE_VERSION=v0.1.0 \
-    KWMSERVER_REPO_URL=https://github.com/Kopano-dev/kwmserver \
-    KWMSERVER_VERSION=v1.2.0 \
-    MEET_REPO_URL=https://github.com/Kopano-dev/meet \
-    MEET_VERSION=v2.2.3
+    GRAPI_REPO_URL=${GRAPI_REPO_URL:-"https://github.com/Kopano-dev/grapi"} \
+    GRAPI_VERSION=${GRAPI_VERSION:-"v10.5.0"} \
+    KAPI_REPO_URL=${KAPI_REPO_URL:-"https://github.com/Kopano-dev/kapi"} \
+    KAPI_VERSION=${KAPI_VERSION:-"v0.15.0"} \
+    KONNECT_REPO_URL=${KONNECT_REPO_URL:-"https://github.com/Kopano-dev/konnect"} \
+    KONNECT_VERSION=${KONNECT_VERSION:-"v0.33.5"} \
+    KWMBRIDGE_REPO_URL=${KWMBRIDGE_REPO_URL:-"https://github.com/Kopano-dev/kwmbridge"} \
+    KWMBRIDGE_VERSION=${KWMBRIDGE_VERSION:-"v0.1.0"} \
+    KWMSERVER_REPO_URL=${KWMSERVER_REPO_URL:-"https://github.com/Kopano-dev/kwmserver"} \
+    KWMSERVER_VERSION=${KWMSERVER_VERSION:-"v1.2.0"} \
+    MEET_REPO_URL=${MEET_REPO_URL:-"https://github.com/Kopano-dev/meet"} \
+    MEET_VERSION=${MEET_VERSION:-"v2.2.3"}
 
 RUN set -x && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
@@ -207,7 +226,7 @@ RUN set -x && \
 		            python-scour \
                     yarn \
     ' && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
                      ${KONNECT_BUILD_DEPS} \
                      && \
     \
@@ -277,61 +296,62 @@ RUN set -x && \
     rm -rf /rootfs && \
     \
     ### Build GRAPI
-#    GRAPI_BUILD_DEPS=' \
-#                flake8 \
-#                isort \
-#                libcap-dev \
-#                libdb-dev \
-#                libev-dev \
-#                libldap2-dev \
-#                libpcap-dev \
-#                libsasl2-dev \
-#                python3-dev \
-#                python3-pip \
-#                python3-pytest \
-#                python3-pytest-cov \
-#                python3-wheel \
-#                # \
-#                python3-bsddb3 \
-#                python3-caldav \
-#                python3-jsonschema \
-#                python3-kopano \
-#                python3-mapi \
-#                python3-pillow \
-#                python3-prometheus-client \
-#                python3-prctl \
-#                python3-dateutil \
-#                python3-ldap \
-#                python3-tz \
-#                python3-requests \
-#                python3-setproctitle \
-#                python3-tzlocal \
-#                python3-ujson \
-#                python3-vobject \
-#' && \
-#    \
-#    apt-get install -y \
-#                ${GRAPI_BUILD_DEPS} \
-#                && \
-#    \
-#    pip3 install \
-#                 bjoern \
-#                 falcon \
-#                 prometheus_client \
-#                 validators \
-#                 && \
-#    \
-#    git clone ${GRAPI_REPO_URL} /usr/src/grapi && \
-#    cd /usr/src/grapi && \
-#    git checkout ${GRAPI_VERSION} && \
-#    make && \
-#    mkdir -p /rootfs/tiredofit/ && \
-#    echo "GRAPI ${GRAPI_VERSION} built from ${GRAPI_REPO_URL} on $(date)" > /rootfs/tiredofit/grapi.version && \
-#    echo "Commit: $(cd /usr/src/grapi ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/grapi.version && \
-#    cd /rootfs && \
-#    tar cvfz /grapi.tar.gz . && \
-#    cd /usr/src && \
-#    rm -rf /rootfs
+    GRAPI_BUILD_DEPS=' \
+                flake8 \
+                isort \
+                libcap-dev \
+                libdb-dev \
+                libev-dev \
+                libldap2-dev \
+                libpcap-dev \
+                libsasl2-dev \
+                python3-dev \
+                python3-pip \
+                python3-pytest \
+                python3-pytest-cov \
+                python3-wheel \
+                python3-bsddb3 \
+                python3-caldav \
+                python3-jsonschema \
+                python3-pillow \
+                python3-prometheus-client \
+                python3-prctl \
+                python3-dateutil \
+                python3-ldap \
+                python3-tz \
+                python3-requests \
+                python3-setproctitle \
+                python3-tzlocal \
+                python3-ujson \
+                python3-vobject \
+' && \
+    \
+    apt-get install -y --no-install-recommends \
+                ${GRAPI_BUILD_DEPS} \
+                && \
+    \
+    pip3 install \
+                 bjoern \
+                 falcon \
+                 prometheus_client \
+                 validators \
+                 && \
+    \
+    git clone ${GRAPI_REPO_URL} /usr/src/grapi && \
+    cd /usr/src/grapi && \
+    git checkout ${GRAPI_VERSION} && \
+    sed -i "/MAPI/d" requirements.txt && \
+    sed -i "/kopano/d" requirements.txt && \
+    python3 setup.py install && \
+    mkdir -p /rootfs/usr/src/meet/grapi && \
+    cp -R dist/* /rootfs/usr/src/meet/grapi && \
+    mkdir -p /rootfs/tiredofit/ && \
+    echo "GRAPI ${GRAPI_VERSION} built from ${GRAPI_REPO_URL} on $(date)" > /rootfs/tiredofit/grapi.version && \
+    echo "Commit: $(cd /usr/src/grapi ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/grapi.version && \
+    cd /rootfs && \
+    tar cvfz /kopano-grapi.tar.gz . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
     \
     ### Build Meet Webapp
     MEET_BUILD_DEPS=' \
@@ -339,7 +359,7 @@ RUN set -x && \
                 python3 \
                 sox \
     ' && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
                 ${MEET_BUILD_DEPS} \
                 && \
     \
@@ -372,36 +392,66 @@ RUN set -x && \
     rm -rf /rootfs/* && \
     rm -rf /usr/src/*
 
+#### Kopano Webapp
 FROM tiredofit/alpine:3.12 as webapp-builder
 
-ENV KOPANO_WEBAPP_VERSION=v4.2 \
-    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL=https://stash.kopano.io/scm/kwa/desktopnotifications.git \
-    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=tags/v2.0.3 \
-    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL=https://stash.kopano.io/scm/kwa/filepreviewer.git \
-    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION=tags/v2.2.0 \
-    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL=https://stash.kopano.io/scm/kwa/files-owncloud-backend.git \
-    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=tags/v3.0.0 \
-    KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL=https://stash.kopano.io/scm/kwa/files.git \
-    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL=https://github.com/datamate-rethink-it/kopano-seafile-backend.git \
-    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=master \
-    KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL=https://stash.kopano.io/scm/kwa/files-smb-backend.git \
-    KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=tags/v3.0.0 \
-    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=tags/v3.0.0-beta.4 \
-    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL=https://stash.kopano.io/scm/kwa/htmleditor-minimaltiny.git \
-    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=tags/1.0.0 \
-    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL=https://stash.kopano.io/scm/kwa/htmleditor-quill.git \
-    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION=master \
-    KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL=https://stash.kopano.io/scm/kwa/intranet.git \
-    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=tags/v1.0.1 \
-    KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL=https://stash.kopano.io/scm/kwa/mattermost.git \
-    KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION=tags/v1.0.1 \
-    KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL=https://stash.kopano.io/scm/kwa/mobile-device-management.git \
-    KOPANO_WEBAPP_PLUGIN_MDM_VERSION=tags/v3.1 \
-    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL=https://cloud.siedl.net/nextcloud/index.php/s/3yKYARgGwfSZe2c/download \
-    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION=1.0.2-1 \
-    KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL=https://stash.kopano.io/scm/kwa/smime.git \
-    KOPANO_WEBAPP_PLUGIN_SMIME_VERSION=tags/v2.2.2 \
-    KOPANO_WEBAPP_REPO_URL=https://github.com/Kopano-dev/kopano-webapp.git
+ARG KOPANO_WEBAPP_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_FILES_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_MDM_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_SMIME_VERSION
+ARG KOPANO_WEBAPP_REPO_URL
+
+ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"v4.2"} \
+    KOPANO_WEBAPP_REPO_URL=${KOPANO_WEBAPP_REPO_URL:-"https://github.com/Kopano-dev/kopano-webapp.git"} \
+    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL=${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL:-"https://stash.kopano.io/scm/kwa/desktopnotifications.git"} \
+    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION:-"tags/v2.0.3"} \
+    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL:-"https://stash.kopano.io/scm/kwa/filepreviewer.git"} \
+    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION=${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION:-"tags/v2.2.0"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-owncloud-backend.git"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION:-"tags/v3.0.0"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL:-"https://stash.kopano.io/scm/kwa/files.git"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL:-"https://github.com/datamate-rethink-it/kopano-seafile-backend.git"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-smb-backend.git"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION:-"tags/v3.0.0"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v3.0.0-beta.4"} \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-minimaltiny.git"} \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION:-"tags/1.0.0"} \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-quill.git"} \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION:-"master"} \
+    KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL=${KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL:-"https://stash.kopano.io/scm/kwa/intranet.git"} \
+    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION:-"tags/v1.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL=${KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL:-"https://stash.kopano.io/scm/kwa/mattermost.git"} \
+    KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION=${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION:-"tags/v1.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL=${KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL:-"https://stash.kopano.io/scm/kwa/mobile-device-management.git"} \
+    KOPANO_WEBAPP_PLUGIN_MDM_VERSION=${KOPANO_WEBAPP_PLUGIN_MDM_VERSION:-"tags/v3.1"} \
+    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL=${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL:-"https://cloud.siedl.net/nextcloud/index.php/s/3yKYARgGwfSZe2c/download"} \
+    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION=${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION:-"1.0.2-1"} \
+    KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL=${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL:-"https://stash.kopano.io/scm/kwa/smime.git"} \
+    KOPANO_WEBAPP_PLUGIN_SMIME_VERSION=${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION:-"tags/v2.2.2"}
 
 RUN set -x && \
     apk update && \
@@ -566,6 +616,7 @@ RUN set -x && \
     env | grep KOPANO | sort >> /rootfs/tiredofit/kopano-webapp.version && \
     tar cvfz /kopano-webapp.tar.gz .
 
+#### Runtime Image
 FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
@@ -578,9 +629,13 @@ COPY --from=meet-builder /*.tar.gz /usr/src/meet/
 ### Move Previously built files from Webapp image
 COPY --from=webapp-builder /*.tar.gz /usr/src/webapp/
 
-ENV KOPANO_DEPENDENCY_HASH=51c3a68 \
-    KOPANO_KDAV_VERSION=master \
-    Z_PUSH_VERSION=2.5.2 \
+ARG KOPANO_DEPENDENCY_HASH
+ARG KOPANO_KDAV_VERSION
+ARG Z_PUSH_VERSION
+
+ENV KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"51c3a68"} \
+    KOPANO_KDAV_VERSION=${KOPANO_KDAV_VERSION:-"master"} \
+    Z_PUSH_VERSION=${Z_PUSH_VERSION:-"2.5.2"} \
     NGINX_LOG_ACCESS_LOCATION=/logs/nginx \
     NGINX_LOG_ERROR_LOCATION=/logs/nginx \
     NGINX_WEBROOT=/usr/share/kopano-webapp \
@@ -653,12 +708,16 @@ RUN set -x && \
     \
     ##### Install Packages
     apt-get update && \
+    BUILD_DEPS=' \
+                unzip \
+                \
+    ' && \
     apt-get install -y --no-install-recommends \
-                       ## From Kopano Repo
+                       ${BUILD_DEPS} \
                        #kopano-calendar \
                        #kopano-calendar-webapp \
-                       kopano-grapi \
-                       kopano-grapi-bin \
+                       #kopano-grapi \
+                       #kopano-grapi-bin \
                        #kopano-indexer \
                        #kopano-kapid \
                        #kopano-konnectd \
@@ -666,8 +725,8 @@ RUN set -x && \
                        #kopano-meet \
                        #php7-mapi \
                        #php-kopano-smime \
-                       python3-grapi.backend.ldap \
-                       python3-grapi.backend.kopano \
+                       #python3-grapi.backend.ldap \
+                       #python3-grapi.backend.kopano \
                        \
                        ## Should be all from Debian Repos \
                        bc \
@@ -700,7 +759,9 @@ RUN set -x && \
                        python3-wheel \
                        python3-xapian \
                        sqlite3 \
-                       && \
+                       #### GRAPI \
+                       python3-idna python3-jsonschema python3-olefile python3-pil python3-prctl python3-requests python3-setproctitle python3-ujson python3-urllib3 python3-certifi python3-chardet libev4 libimagequant0 libvmime1 libwebpdemux2  libwebpmux3 \
+    && \
     \
     ## Python Deps for Spamd
     pip3 install inotify && \
@@ -730,6 +791,9 @@ RUN set -x && \
     \
     ##### Unpack Core
     tar xvfz /usr/src/core/kopano-core.tar.gz -C / && \
+    \
+    ##### Unpack GRAPI
+    tar xvfz /usr/src/meet/kopano-grapi.tar.gz -C / && \
     \
     ##### Unpack Konnect
     tar xvfz /usr/src/meet/kopano-konnect.tar.gz -C / && \
@@ -787,6 +851,7 @@ RUN set -x && \
     \
     ##### Cleanup
     #apt-get purge -y \
+                    #${BUILD_DEPS} \
                     #apt-utils \
                     #git \
                     #lynx \
