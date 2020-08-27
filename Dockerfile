@@ -1,7 +1,7 @@
 FROM tiredofit/debian:buster as core-builder
 
 ENV GO_VERSION=1.15 \
-    KOPANO_CORE_VERSION=master \
+    KOPANO_CORE_VERSION=kopanocore-10.0.6 \
     KOPANO_CORE_REPO_URL=https://github.com/Kopano-dev/kopano-core.git \
     KOPANO_DEPENDENCY_HASH=51c3a68 \
     KOPANO_KCOIDC_REPO_URL=https://github.com/Kopano-dev/libkcoidc.git \
@@ -26,7 +26,7 @@ RUN set -x && \
     echo "deb [trusted=yes] file:/usr/src/deb-kopano-dependencies ./" > /etc/apt/sources.list.d/kopano-dependencies.list && \
     \
     apt-get update -y && \
-    apt-get install -y --no-install-recommends \
+    BUILD_DEPS=' \
                         autoconf \
                         automake \
                         autotools-dev \
@@ -76,10 +76,14 @@ RUN set -x && \
                         tidy-html5-dev \
                         uuid-dev \
                         unzip \
-                        zlib1g-dev
-
+                        zlib1g-dev \
+    ' \
+    && \
+    apt-get install -y --no-install-recommends \
+                        ${BUILD_DEPS} \
+                        && \
+    \
     ### Build libkcoidc
-RUN set -x && \
     git clone ${KOPANO_KCOIDC_REPO_URL} /usr/src/libkcoidc && \
     cd /usr/src/libkcoidc && \
     git checkout ${KOPANO_KCOIDC_VERSION} && \
@@ -94,21 +98,21 @@ RUN set -x && \
                 && \
     make -j $(nproc) && \
     make install && \
-    mkdir -p /rootfs && \
+    mkdir -p /rootfs/tiredofit && \
     make DESTDIR=/rootfs install && \
     PYTHON="$(which python3)" make DESTDIR=/rootfs python && \
-    echo "Kopano kcOIDC built from ${KOPANO_KCOIDC_REPO_URL} on $(date)" > /rootfs/.kopano-kcoidc-version && \
-    echo "Commit: $(cd /usr/src/libkcoidc ; echo $(git rev-parse HEAD))" >> /rootfs/.kopano-kcoidc-version && \
+    echo "Kopano kcOIDC ${KOPANO_KCOIDC_VERSION} built from ${KOPANO_KCOIDC_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-kcoidc.version && \
+    echo "Commit: $(cd /usr/src/libkcoidc ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-kcoidc.version && \
     cd /rootfs && \
     tar cvfz /kopano-kcoidc.tar.gz . && \
     cd /usr/src && \
-    rm -rf /rootfs
-
-RUN set -x && \
+    rm -rf /rootfs && \
+    \
+    ### Build Kopano Core
     git clone ${KOPANO_CORE_REPO_URL} /usr/src/kopano-core && \
     cd /usr/src/kopano-core && \
     git checkout ${KOPANO_CORE_VERSION} && \
-    mkdir -p /rootfs && \
+    mkdir -p /rootfs/tiredofit && \
     cd /usr/src/kopano-core && \
     autoreconf -fiv && \
     ./configure \
@@ -134,19 +138,234 @@ RUN set -x && \
     make -j$(nproc) && \
     make \
         DESTDIR=/rootfs \
-        PYTHONPATH=/rootfs/usr/lib/python3.7/dist-packages \
+        PYTHONPATH=/rootfs/usr/lib/python$(python3 --version | awk '{print $2}' | cut -c 1-3)/dist-packages \
         install \
         && \
     \
+    ### Hack until I figure out how to send it properly to dist-packages
     cd /rootfs && \
-    ### Hack until figure out how to send it properly to dist-packages
     mv usr/lib/python$(python3 --version | awk '{print $2}' | cut -c 1-3)/site-packages usr/lib/python$(python3 --version | awk '{print $2}' | cut -c 1-3)/dist-packages && \
     ###
-    echo "Kopano Core built from ${KOPANO_CORE_REPO_URL} on $(date)" > /rootfs/.kopano-core-version && \
-    echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/.kopano-core-version && \
-    env | grep KOPANO | sort >> /rootfs/.kopano-core-version && \
-    echo "Dependency Hash '${KOPANO_DEPENDENCY_HASH} from: 'https://download.kopano.io/community/dependencies:'" >> /rootfs/.kopano-core-version && \
-    tar cvfz /kopano-core.tar.gz .
+    echo "Kopano Core ${KOPANO_CORE_VERSION} built from ${KOPANO_CORE_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-core.version && \
+    echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-core.version && \
+    env | grep KOPANO | sed "/KOPANO_KCOIDC/d" | sort >> /rootfs/tiredofit/kopano-core.version && \
+    echo "Dependency Hash '${KOPANO_DEPENDENCY_HASH} from: 'https://download.kopano.io/community/dependencies:'" >> /rootfs/tiredofit/kopano-core.version && \
+    tar cvfz /kopano-core.tar.gz . &&\
+    \
+    ### Cleanup
+    apt-get purge -y \
+                ${BUILD_DEPS} \
+                && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /rootfs/* && \
+    rm -rf /usr/src/*
+
+
+
+FROM tiredofit/debian:buster as meet-builder
+
+ENV GO_VERSION=1.15 \
+    GRAPI_REPO_URL=https://github.com/Kopano-dev/grapi \
+    GRAPI_VERSION=v10.5.0 \
+    KAPI_REPO_URL=https://github.com/Kopano-dev/kapi \
+    KAPI_VERSION=v0.15.0 \
+    KONNECT_REPO_URL=https://github.com/Kopano-dev/konnect \
+    KONNECT_VERSION=v0.33.5 \
+    KWMBRIDGE_REPO_URL=https://github.com/Kopano-dev/kwmbridge \
+    KWMBRIDGE_VERSION=v0.1.0 \
+    KWMSERVER_REPO_URL=https://github.com/Kopano-dev/kwmserver \
+    KWMSERVER_VERSION=v1.2.0 \
+    MEET_REPO_URL=https://github.com/Kopano-dev/meet \
+    MEET_VERSION=v2.2.3
+
+RUN set -x && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y \
+		            apt-utils \
+                    && \
+    \
+    # Fetch Go
+    mkdir -p /usr/local/go && \
+    curl -sSL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar xvfz - --strip 1 -C /usr/local/go && \
+    \
+    ### Build Konnect
+    KONNECT_BUILD_DEPS=' \
+                    build-essential \
+                    gettext-base \
+                    git \
+                    imagemagick \
+		            nodejs \
+		            python-scour \
+                    yarn \
+    ' && \
+    apt-get install -y \
+                     ${KONNECT_BUILD_DEPS} \
+                     && \
+    \
+    git clone ${KONNECT_REPO_URL} /usr/src/konnect && \
+    cd /usr/src/konnect && \
+    git checkout ${KONNECT_VERSION} && \
+    GOROOT=/usr/local/go \
+    PATH=/usr/local/go/bin:$PATH \
+    make && \
+    mkdir -p /rootfs/usr/libexec/kopano/ && \
+    cp -R ./bin/* /rootfs/usr/libexec/kopano/ && \
+    mkdir -p /rootfs/tiredofit && \
+    echo "Konnnect ${KONNECT_VERSION} built from ${KONNECT_REPO_URL} on $(date)" > /rootfs/tiredofit/konnect.version && \
+    echo "Commit: $(cd /usr/src/konnect ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/konnect.version && \
+    cd /rootfs && \
+    tar cvfz /kopano-konnect.tar.gz . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
+    \
+    ### Build KAPI
+    git clone ${KAPI_REPO_URL} /usr/src/kapi && \
+    cd /usr/src/kapi && \
+    git checkout ${KAPI_VERSION} && \
+    GOROOT=/usr/local/go \
+    PATH=/usr/local/go/bin:$PATH \
+    make && \
+    mkdir -p /rootfs/usr/libexec/kopano/ && \
+    cp -R ./bin/* /rootfs/usr/libexec/kopano/ && \
+    mkdir -p /rootfs/tiredofit && \
+    echo "KAPI ${KAPI_VERSION} built from  ${KAPI_REPO_URL} on $(date)" > /rootfs/tiredofit/kapi.version && \
+    echo "Commit: $(cd /usr/src/kapi ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kapi.version && \
+    cd /rootfs && \
+    tar cvfz /kopano-kapi.tar.gz . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
+    \
+    ### Build KWMServer
+    git clone ${KWMSERVER_REPO_URL} /usr/src/kwmserver && \
+    cd /usr/src/kwmserver && \
+    git checkout ${KWMSERVER_VERSION} && \
+    GOROOT=/usr/local/go \
+    PATH=/usr/local/go/bin:$PATH \
+    make && \
+    mkdir -p /rootfs/usr/libexec/kopano/ && \
+    cp -R ./bin/* /rootfs/usr/libexec/kopano/ && \
+    mkdir -p /rootfs/tiredofit && \
+    echo "KWMServer ${KWMSERVER_VERSION} built from ${KWMSERVER_REPO_URL} on $(date)" > /rootfs/tiredofit/kwmserver.version && \
+    echo "Commit: $(cd /usr/src/kwmserver ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kwmserver.version && \
+    cd /rootfs && \
+    tar cvfz /kopano-kwmserver.tar.gz . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
+    \
+    ### Build KWMBridge
+    git clone ${KWMBRIDGE_REPO_URL} /usr/src/kwmbridge && \
+    cd /usr/src/kwmbridge && \
+    git checkout ${KWMBRIDGE_VERSION} && \
+    GOROOT=/usr/local/go \
+    PATH=/usr/local/go/bin:$PATH \
+    make && \
+    mkdir -p /rootfs/tiredofit && \
+    echo "KWMBridge ${KWMBRIDGE_VERSION} built from ${KWMBRIDGE_REPO_URL} on $(date)" > /rootfs/tiredofit/kwmbridge.version && \
+    echo "Commit: $(cd /usr/src/kwmbridge ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kwmbridge.version && \
+    cd /rootfs && \
+    tar cvfz /kopano-kwmbridge.tar.gz . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
+    \
+    ### Build GRAPI
+#    GRAPI_BUILD_DEPS=' \
+#                flake8 \
+#                isort \
+#                libcap-dev \
+#                libdb-dev \
+#                libev-dev \
+#                libldap2-dev \
+#                libpcap-dev \
+#                libsasl2-dev \
+#                python3-dev \
+#                python3-pip \
+#                python3-pytest \
+#                python3-pytest-cov \
+#                python3-wheel \
+#                # \
+#                python3-bsddb3 \
+#                python3-caldav \
+#                python3-jsonschema \
+#                python3-kopano \
+#                python3-mapi \
+#                python3-pillow \
+#                python3-prometheus-client \
+#                python3-prctl \
+#                python3-dateutil \
+#                python3-ldap \
+#                python3-tz \
+#                python3-requests \
+#                python3-setproctitle \
+#                python3-tzlocal \
+#                python3-ujson \
+#                python3-vobject \
+#' && \
+#    \
+#    apt-get install -y \
+#                ${GRAPI_BUILD_DEPS} \
+#                && \
+#    \
+#    pip3 install \
+#                 bjoern \
+#                 falcon \
+#                 prometheus_client \
+#                 validators \
+#                 && \
+#    \
+#    git clone ${GRAPI_REPO_URL} /usr/src/grapi && \
+#    cd /usr/src/grapi && \
+#    git checkout ${GRAPI_VERSION} && \
+#    make && \
+#    mkdir -p /rootfs/tiredofit/ && \
+#    echo "GRAPI ${GRAPI_VERSION} built from ${GRAPI_REPO_URL} on $(date)" > /rootfs/tiredofit/grapi.version && \
+#    echo "Commit: $(cd /usr/src/grapi ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/grapi.version && \
+#    cd /rootfs && \
+#    tar cvfz /grapi.tar.gz . && \
+#    cd /usr/src && \
+#    rm -rf /rootfs
+    \
+    ### Build Meet Webapp
+    MEET_BUILD_DEPS=' \
+                ffmpeg \
+                python3 \
+                sox \
+    ' && \
+    apt-get install -y \
+                ${MEET_BUILD_DEPS} \
+                && \
+    \
+    ### avconv doesn't exist in buster, create symbolic link for ffmpeg
+    ln -s /usr/bin/ffmpeg /usr/bin/avconv && \
+    \
+    git clone ${MEET_REPO_URL} /usr/src/meet && \
+    cd /usr/src/meet && \
+    git checkout ${MEET_VERSION} && \
+    \
+    make && \
+    mkdir -p /rootfs/usr/share/kopano-meet/meet-webapp/ && \
+    cp -R ./build/* /rootfs/usr/share/kopano-meet/meet-webapp/ && \
+    mkdir -p /rootfs/tiredofit && \
+    echo "Kopano Meet ${MEET_VERSION} built from ${MEET_REPO_URL} on $(date)" > /rootfs/tiredofit/meet.version && \
+    echo "Commit: $(cd /usr/src/meet ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/meet.version && \
+    cd /rootfs && \
+    tar cvfz /kopano-meet.tar.gz . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
+    \
+    ### Cleanup
+    apt-get purge -y \
+                ${KONNECT_BUILD_DEPS} \
+                ${GRAPI_BUILD_DEPS} \
+                ${MEET_BUILD_DEPS} \
+    && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /rootfs/* && \
+    rm -rf /usr/src/*
 
 FROM tiredofit/alpine:3.12 as webapp-builder
 
@@ -212,13 +431,14 @@ RUN set -x && \
     make all && \
     \
     ### Setup RootFS
-    mkdir -p /rootfs && \
+    mkdir -p /rootfs/tiredofit && \
     mkdir -p /rootfs/usr/share/kopano-webapp && \
     mkdir -p /rootfs/assets/kopano/config/webapp && \
     mkdir -p /rootfs/assets/kopano/plugins/webapp && \
     \
     ### Build Plugins
     ## Desktop Notifications
+    #### To be Removed in Webapp 4.3
     git clone ${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL} /usr/src/kopano-webapp/plugins/desktopnotifications && \
     cd /usr/src/kopano-webapp/plugins/desktopnotifications && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION} && \
@@ -336,22 +556,22 @@ RUN set -x && \
     \
     ### Compress Package
     cd /rootfs/ && \
-    echo "Kopano Webapp built from ${KOPANO_WEBAPP_REPO_URL} on $(date)" > /rootfs/.kopano-webapp-version && \
-    echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/.kopano-webapp-version && \
-    env | grep KOPANO | sort >> /rootfs/.kopano-webapp-version && \
+    echo "Kopano Webapp ${KOPANO_WEBAPP_VERSION} built from ${KOPANO_WEBAPP_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-webapp.version && \
+    echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-webapp.version && \
+    env | grep KOPANO | sort >> /rootfs/tiredofit/kopano-webapp.version && \
     tar cvfz /kopano-webapp.tar.gz .
 
 FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
-### Move Previously built Kopano KCOIDCCore into image
-COPY --from=core-builder /kopano-kcoidc.tar.gz /usr/src/kopano-kcoidc.tar.gz
+### Move Previously built files from Core image
+COPY --from=core-builder /*.tar.gz /usr/src/core/
 
-### Move Previously built Kopano Core into image
-COPY --from=core-builder /kopano-core.tar.gz /usr/src/kopano-core.tar.gz
+### Move Previously built files from Meet image
+COPY --from=meet-builder /*.tar.gz /usr/src/meet/
 
-### Move Previously built Webapp into image
-COPY --from=webapp-builder /kopano-webapp.tar.gz /usr/src/kopano-webapp.tar.gz
+### Move Previously built files from Webapp image
+COPY --from=webapp-builder /*.tar.gz /usr/src/webapp/
 
 ENV KOPANO_DEPENDENCY_HASH=51c3a68 \
     KOPANO_KDAV_VERSION=master \
@@ -370,6 +590,7 @@ ENV KOPANO_DEPENDENCY_HASH=51c3a68 \
     PHP_LOG_LOCATION=/logs/php-fpm
 
 RUN set -x && \
+    mkdir -p tiredofit && \
     ### Add user and Group
     addgroup --gid 998 kopano && \
     adduser --uid 998 \
@@ -399,27 +620,27 @@ RUN set -x && \
     \
 ######## https://stash.kopano.io/users/jvanderwaa/repos/php-kopano-smime/browse
 ### Kopano SMIME
-    mkdir -p /usr/src/deb-smime && \
-    smime_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep -o smime-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano S/MIME Version: ${smime_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-smime && \
-    cd /usr/src/deb-smime && \
-    apt-ftparchive packages ./ > /usr/src/deb-smime/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/deb-smime/ /" >> /etc/apt/sources.list.d/kopano-smime.list && \
+#    mkdir -p /usr/src/deb-smime && \
+#    smime_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep -o smime-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
+#    echo "Kopano S/MIME Version: ${smime_version} on $(date)" >> /.kopano-versions && \
+#    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/smime:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-smime && \
+#    cd /usr/src/deb-smime && \
+#    apt-ftparchive packages ./ > /usr/src/deb-smime/Packages && \
+#    echo "deb [trusted=yes] file:/usr/src/deb-smime/ /" >> /etc/apt/sources.list.d/kopano-smime.list && \
     \
 ### Kopano Apps (Calendar)
-    mkdir -p /usr/src/deb-kapps && \
-    kapps_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep -o kapps-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Apps Version: ${kapps_version} on $(date)" >> /.kopano-versions && \
-    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-kapps && \
-    cd /usr/src/deb-kapps && \
-    apt-ftparchive packages ./ > /usr/src/deb-kapps/Packages && \
-    echo "deb [trusted=yes] file:/usr/src/deb-kapps/ /" >> /etc/apt/sources.list.d/kopano-kapps.list && \
+#    mkdir -p /usr/src/deb-kapps && \
+#    kapps_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep -o kapps-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g" | sed "s/-Debian_10.*//g"` && \
+#    echo "Kopano Apps Version: ${kapps_version} on $(date)" >> /.kopano-versions && \
+#    curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/kapps:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-kapps && \
+#    cd /usr/src/deb-kapps && \
+#    apt-ftparchive packages ./ > /usr/src/deb-kapps/Packages && \
+#    echo "deb [trusted=yes] file:/usr/src/deb-kapps/ /" >> /etc/apt/sources.list.d/kopano-kapps.list && \
     \
     ### Kopano Meet
     mkdir -p /usr/src/deb-meet && \
     meet_version=`lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep -o meet-.*-Debian_10-amd64.tar.gz | sed "s/%2B/+/g " | sed "s/-Debian_10.*//g"` && \
-    echo "Kopano Meet Version: ${meet_version} on $(date)" >> /.kopano-versions && \
+    echo "Kopano Meet Version: ${meet_version} on $(date)" >> /tiredofit/kopano-repo.version && \
     curl -L `lynx -listonly -nonumbers -dump https://download.kopano.io/community/meet:/ | grep Debian_10-amd64.tar.gz` | tar xvfz - --strip 1 -C /usr/src/deb-meet && \
     cd /usr/src/deb-meet && \
     apt-ftparchive packages ./ > /usr/src/deb-meet/Packages && \
@@ -428,29 +649,25 @@ RUN set -x && \
     ##### Install Packages
     apt-get update && \
     apt-get install -y --no-install-recommends \
-                       #kopano-archiver \
-                       #kopano-bash-completion \
+                       ## From Kopano Repo
                        #kopano-calendar \
                        #kopano-calendar-webapp \
-                       #kopano-grapi \
-                       #kopano-grapi-bin \
+                       kopano-grapi \
+                       kopano-grapi-bin \
                        #kopano-indexer \
                        #kopano-kapid \
                        #kopano-konnectd \
                        #kopano-kwmserverd \
                        #kopano-meet \
-                       #kopano-migration-imap \
-                       #kopano-migration-pst \
-                       #kopano-python3-extras \
-                       #kopano-python3-kopano10 \
-                       #kopano-server-packages \
-                       #kopano-spamd \
-                       #kopano-statsd \
-                       #kopano-webapp \
                        #php7-mapi \
-                       php-kopano-smime \
-                       #python3-grapi.backend.ldap \
-                       ## Server \
+                       #php-kopano-smime \
+                       python3-grapi.backend.ldap \
+                       python3-grapi.backend.kopano \
+                       \
+                       ## Should be all from Debian Repos \
+                       bc \
+                       fail2ban \
+                       iptables \
                        libdb5.3++ \
                        libgsoap-kopano-2.8.102 \
                        libhx28 \
@@ -459,6 +676,9 @@ RUN set -x && \
                        libpython3.7 \
                        libs3-4 \
                        libvmime-kopano3 \
+                       man \
+                       php-memcached \
+                       php-tokenizer \
                        poppler-utils \
                        python3-bsddb3 \
                        python3-daemon \
@@ -466,21 +686,16 @@ RUN set -x && \
                        python3-lockfile \
                        python3-magic \
                        python3-mapi \
+                       python3-pip \
+                       python3-setuptools \
                        python3-six \
                        python3-tz \
                        python3-tzlocal \
-                       python3-xapian \
-                       bc \
-                       fail2ban \
-                       iptables \
-                       man \
-                       php-memcached \
-                       php-tokenizer \
-                       python3-pip \
                        python3-wheel \
-                       python3-setuptools \
+                       python3-xapian \
                        sqlite3 \
                        && \
+    \
     ## Python Deps for Spamd
     pip3 install inotify && \
     \
@@ -505,13 +720,28 @@ RUN set -x && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/support.git /assets/kopano/scripts/support && \
     \
     ##### Unpack KCOIDC
-    tar xvfz /usr/src/kopano-kcoidc.tar.gz -C / && \
+    tar xvfz /usr/src/core/kopano-kcoidc.tar.gz -C / && \
     \
     ##### Unpack Core
-    tar xvfz /usr/src/kopano-core.tar.gz -C / && \
+    tar xvfz /usr/src/core/kopano-core.tar.gz -C / && \
+    \
+    ##### Unpack Konnect
+    tar xvfz /usr/src/meet/kopano-konnect.tar.gz -C / && \
+    \
+    ##### Unpack KAPI
+    tar xvfz /usr/src/meet/kopano-kapi.tar.gz -C / && \
+    \
+    ##### Unpack KWMBridge
+    tar xvfz /usr/src/meet/kopano-kwmbridge.tar.gz -C / && \
+    \
+    ##### Unpack KWMServer
+    tar xvfz /usr/src/meet/kopano-kwmserver.tar.gz -C / && \
+    \
+    ##### Unpack Meet
+    tar xvfz /usr/src/meet/kopano-meet.tar.gz -C / && \
     \
     ##### Unpack WebApp
-    tar xvfz /usr/src/kopano-webapp.tar.gz -C / && \
+    tar xvfz /usr/src/webapp/kopano-webapp.tar.gz -C / && \
     chown -R nginx:www-data /assets/kopano/plugins/webapp && \
     chown -R nginx:www-data /usr/share/kopano-webapp && \
     echo "mapi.so" > /etc/php/$(php-fpm -v | head -n 1 | awk '{print $2}' | cut -c 1-3)/fpm/conf.d/20-mapi.ini && \
@@ -547,132 +777,23 @@ RUN set -x && \
     rm -rf /etc/kopano && \
     ln -sf /config /etc/kopano && \
     mkdir -p /var/run/kopano && \
-    chown -R kopano /var/run/kopano && \
+    chown -R kopano /var/run/kopano
     \
     ##### Cleanup
-    apt-get purge -y \
-                    apt-utils \
-                    git \
-                    lynx \
-                    && \
-    \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* && \
-    rm -rf /etc/apt/sources.list.d/kopano*.list && \
-    rm -rf /usr/src/* && \
-    rm -rf /var/log/* && \
-    cd /etc/fail2ban && \
-    rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
+    #apt-get purge -y \
+                    #apt-utils \
+                    #git \
+                    #lynx \
+                    #&& \
+    #\
+    #apt-get autoremove -y && \
+    #apt-get clean && \
+    #rm -rf /var/lib/apt/lists/* && \
+    #rm -rf /etc/apt/sources.list.d/kopano*.list && \
+    #rm -rf /usr/src/* && \
+    #rm -rf /var/log/* && \
+    #cd /etc/fail2ban && \
+    #rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
 
 ### Assets Install
 ADD install /
-
-#FROM tiredofit/debian:buster as meet-builder
-#
-#ENV GO_VERSION=1.15 \
-#    GRAPI_REPO_URL=https://github.com/Kopano-dev/grapi \
-#    GRAPI_VERSION=v10.5.0
-#    KAPI_REPO_URL=https://github.com/Kopano-dev/kapi \
-#    KAPI_VERSION=v0.15.0
-#    KONNECT_REPO_URL=https://github.com/Kopano-dev/konnect \
-#    KONNECT_VERSION=v0.33.5 \
-#    KWMBRIDGE_REPO_URL=https://github.com/Kopano-dev/kwmbridge \
-#    KWMBRIDGE_VERSION=v0.10.0
-#    KWMSERVER_REPO_URL=https://github.com/Kopano-dev/kwmserver \
-#    KWMSERVER_VERSION=v1.20.0
-#
-#RUN set -x && \
-#    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
-#    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
-#    apt-get update && \
-#    apt-get upgrade -y && \
-#    apt-get install -y \
-#		            apt-utils \
-#                    build-essential \
-#                    gettext-base \
-#                    git \
-#                    imagemagick \
-#		            nodejs \
-#		            python-scour \
-#                    yarn \
-#                    && \
-#    \
-#    # Fetch Go
-#    mkdir -p /usr/local/go && \
-#    curl -sSL https://golang.org/dl/go${GO_VERSION}.linux-amd64.tar.gz | tar xvfz - --strip 1 -C /usr/local/go && \
-#    \
-#    ### Build Konnect
-#    git clone ${KONNECT_REPO_URL} /usr/src/konnect && \
-#    cd /usr/src/konnect && \
-#    git checkout ${KONNECT_VERSION}
-#RUN    make && \
-#    echo "Konnnect built from  ${KONNECT_REPO_URL} on $(date)" > /rootfs/.konnect-version && \
-#    echo "Commit: $(cd /usr/src/konnect ; echo $(git rev-parse HEAD))" >> /rootfs/.konnect-version && \
-#    cd /rootfs && \
-#    tar cvfz /konnect.tar.gz . && \
-#    cd /usr/src && \
-#    rm -rf /rootfs
-#
-#    ### Build KAPI
-#RUN    git clone ${KAPI_REPO_URL} /usr/src/kapi && \
-#    cd /usr/src/kapi && \
-#    git checkout ${KAPI_VERSION} && \
-#    make && \
-#    echo "KAPI built from  ${KAPI_REPO_URL} on $(date)" > /rootfs/.kapi-version && \
-#    echo "Commit: $(cd /usr/src/kapi ; echo $(git rev-parse HEAD))" >> /rootfs/.kapi-version && \
-#    cd /rootfs && \
-#    tar cvfz /kapi.tar.gz . && \
-#    cd /usr/src && \
-#    rm -rf /rootfs
-#
-#    ### Build KWMServer
-#RUN git clone ${KWMSERVER_REPO_URL} /usr/src/kwmserver && \
-#    cd /usr/src/kwmserver && \
-#    git checkout ${KWMSERVER_VERSION} && \
-#    make && \
-#    echo "KWMServer built from  ${KWMSERVER_REPO_URL} on $(date)" > /rootfs/.kwmserver-version && \
-#    echo "Commit: $(cd /usr/src/kwmserver ; echo $(git rev-parse HEAD))" >> /rootfs/.kwmserver-version && \
-#    cd /rootfs && \
-#    tar cvfz /kwmserver.tar.gz . && \
-#    cd /usr/src && \
-#    rm -rf /rootfs
-#
-#    ### Build KWMBridge
-#RUN git clone ${KWMBRIDGE_REPO_URL} /usr/src/kwmbridge && \
-#    cd /usr/src/kwmbridge && \
-#    git checkout ${KWMBRIDGE_VERSION} && \
-#    make && \
-#    echo "KWMBridge built from  ${KWMBRIDGE_REPO_URL} on $(date)" > /rootfs/.kwmbridge-version && \
-#    echo "Commit: $(cd /usr/src/kwmbridge ; echo $(git rev-parse HEAD))" >> /rootfs/.kwmbridge-version && \
-#    cd /rootfs && \
-#    tar cvfz /kwmbridge.tar.gz . && \
-#    cd /usr/src && \
-#    rm -rf /rootfs
-#
-#    ### Build GRAPI
-#RUN  apt-get install -y \
-#                flake8 \
-#                isort \
-#                libcap-dev \
-#                libdb-dev \
-#                libev-dev \
-#                libldap2-dev \
-#                libpcap-dev \
-#                libsasl2-dev \
-#                python3-dev \
-#                python3-pip \
-#                python3-pytest \
-#                python3-pytest-cov \
-#                python3-wheel
-#RUN git clone ${GRAPI_REPO_URL} /usr/src/grapi && \
-
-#    cd /usr/src/grapi && \
-#    git checkout ${GRAPI_VERSION} && \
-#    make && \
-#    echo "GRAPI built from  ${GRAPI_REPO_URL} on $(date)" > /rootfs/.grapi-version && \
-#    echo "Commit: $(cd /usr/src/grapi ; echo $(git rev-parse HEAD))" >> /rootfs/.grapi-version && \
-#    cd /rootfs && \
-#    tar cvfz /grapi.tar.gz . && \
-#    cd /usr/src && \
-#    rm -rf /rootfs
