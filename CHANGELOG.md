@@ -1,6 +1,12 @@
+## 0.51.0 2020-08-27 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix MAPI Extension not loading
+      - Permissions Issue for Rocketchat Plugin
+      - Fix Fail2ban sourcing of defaults
+
 ## 0.50.0 2020-08-27 <dave at tiredofit dot ca>
 
-   ### Added
       - Compile Kopano Core from git sources
       - Compile Kopano Meet from git sources
 
