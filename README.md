@@ -11,7 +11,7 @@ This will build a container for the [Kopano Groupware](https://kopano.io/) suite
 
 **At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the ins and outs of the software to potentially use for a non-profit educational institution. I am constantly relying on the expertise of the community in the Kopano.io Community forums and the manuals, and still have a long way to go**
 
-* Installs latest nightly builds from community build offering
+* Compiles latest build from Kopano Repositories
 * Automatic configuration of various services
 * Automatic certificate and CA generation
 * Configured for LDAP usage, no other backend
@@ -94,12 +94,11 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 
 #### General Options
 
-| Parameter          | Description                                                                                                          | Default      |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------ |
-| `SETUP_TYPE`       | `MANUAL` or `AUTO` to auto generate cofniguration for services on bootup, otherwise let admin control configuration. | `AUTO`       |
-| `MODE`             | Type of Install - `STANDALONE` for all packages                                                                      | `STANDALONE` |
-| `CONFIG_PATH`      | Where to store configuration files                                                                                   | `/config/`   |
-| `ENABLE_COREDUMPS` | Enable Coredumps for services                                                                                        | `FALSE`      |
+| Parameter          | Description                                                                                                          | Default    |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `SETUP_TYPE`       | `MANUAL` or `AUTO` to auto generate cofniguration for services on bootup, otherwise let admin control configuration. | `AUTO`     |
+| `CONFIG_PATH`      | Where to store configuration files                                                                                   | `/config/` |
+| `ENABLE_COREDUMPS` | Enable Coredumps for services                                                                                        | `FALSE`    |
 
 #### Fail2ban Options
 
@@ -496,11 +495,11 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `LOG_FILE_SERVER`                        | Logfile Name                                                   | `server.log`                  |
 | `SERVER_ALLOW_LOCAL_USERS`               |                                                                | `TRUE`                        |
 | `SERVER_ATTACHMENT_BACKEND_FILES_FSYNC`  |                                                                | `TRUE`                        |
-| `SERVER_ATTACHMENT_BACKEND_FILES_PATH`   |                                                                | `/data/attachments/`          |
-| `SERVER_ATTACHMENT_BACKEND_S3_PATH`      |                                                                | `attachments`                 |
+| `SERVER_ATTACHMENT_BACKEND_FILES_PATH`   | Where to store attachments                                     | `/data/attachments/`          |
+| `SERVER_ATTACHMENT_BACKEND_S3_PATH`      | Path on S3 Bucket to store attachments                         | `attachments`                 |
 | `SERVER_ATTACHMENT_BACKEND`              | Files Backend `FILES` `FILES_V2` `S3`                          | `files_v2`                    |
-| `SERVER_ATTACHMENT_COMPRESSION`          |                                                                | `6`                           |
-| `SERVER_ATTACHMENT_S3_PROTOCOL`          |                                                                | `HTTPS`                       |
+| `SERVER_ATTACHMENT_COMPRESSION`          | Level of Gzip Compression for Attachments                      | `6`                           |
+| `SERVER_ATTACHMENT_S3_PROTOCOL`          | Protocol to use for connecting to S3 service                   | `HTTPS`                       |
 | `SERVER_CUSTOM_USERSCRIPT_CREATECOMPANY` |                                                                | `internal`                    |
 | `SERVER_CUSTOM_USERSCRIPT_CREATEGROUP`   |                                                                | `internal`                    |
 | `SERVER_CUSTOM_USERSCRIPT_CREATEUSER`    |                                                                | `internal`                    |
@@ -513,25 +512,25 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `SERVER_ENABLE_GAB`                      | Enable Global Address Book                                     | `TRUE`                        |
 | `SERVER_ENABLE_HTTPS`                    | Enable TLS Communications to Server Socket                     | `FALSE`                       |
 | `SERVER_ENABLE_HTTP`                     | Enable HTTP Communications to Server Socket                    | `FALSE`                       |
-| `SERVER_ENABLE_MULTI_TENANT`             |                                                                | `FALSE`                       |
-| `SERVER_ENABLE_OPTIMIZED_SQL`            |                                                                | `TRUE`                        |
-| `SERVER_ENABLE_SEARCH`                   |                                                                | `TRUE`                        |
+| `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Tenant Mode                                       | `FALSE`                       |
+| `SERVER_ENABLE_OPTIMIZED_SQL`            | Use Optimized MariaDB statements                               | `TRUE`                        |
+| `SERVER_ENABLE_SEARCH`                   | Enable Search Functionality                                    | `TRUE`                        |
 | `SERVER_ENABLE_SSO`                      | Enable SSO Functionality w/Server                              | `FALSE`                       |
 | `SERVER_GAB_HIDE_EVERYONE`               | Hide everyone from GAB                                         | `FALSE`                       |
 | `SERVER_GAB_HIDE_SYSTEM`                 | Hide System Account from GAB                                   | `FALSE`                       |
 | `SERVER_GAB_SYNC_REALTIME`               |                                                                | `TRUE`                        |
-| `SERVER_HOSTNAME`                        |                                                                | ``                            |
-| `SERVER_LISTEN_HOST`                     |                                                                | `*%lo`                        |
-| `SERVER_LISTEN_PORT_SECURE`              |                                                                | `237`                         |
-| `SERVER_LISTEN_PORT`                     |                                                                | `236`                         |
-| `SERVER_LOCAL_ADMIN_USERS`               |                                                                | `root kopano`                 |
+| `SERVER_HOSTNAME`                        | Server Hostname (multi tenant)                                 | ``                            |
+| `SERVER_LISTEN_HOST`                     | Listen Interface for Server                                    | `*%lo`                        |
+| `SERVER_LISTEN_PORT_SECURE`              | Listen Interface for Secure Server                             | `237`                         |
+| `SERVER_LISTEN_PORT`                     | Listen Port for Server                                         | `236`                         |
+| `SERVER_LOCAL_ADMIN_USERS`               | Admin users on console that do not require authentication      | `root kopano`                 |
 | `SERVER_MULTI_TENANT_LOGINNAME_FORMAT`   |                                                                | `%u`                          |
 | `SERVER_MULTI_TENANT_STORENAME_FORMAT`   |                                                                | `%f_%c`                       |
 | `SERVER_OIDC_DISABLE_TLS_VALIDATION`     |                                                                | `FALSE`                       |
 | `SERVER_OIDC_IDENTIFIER`                 | URL to OIDC Provider                                           |                               |
 | `SERVER_OIDC_TIMEOUT_INITIALIZE`         |                                                                | `60`                          |
-| `SERVER_PIPE_NAME`                       |                                                                | `/var/run/kopano/server.sock` |
-| `SERVER_PIPE_PRIORITY_NAME`              |                                                                | `/var/run/kopano/prio.sock`   |
+| `SERVER_PIPE_NAME`                       | Server Pipe Name                                               | `/var/run/kopano/server.sock` |
+| `SERVER_PIPE_PRIORITY_NAME`              | Prioritized Server Pipe Name                                   | `/var/run/kopano/prio.sock`   |
 | `SERVER_PURGE_SOFTDELETE`                |                                                                | `30`                          |
 | `SERVER_QUOTA_COMPANY_WARN`              |                                                                | `0`                           |
 | `SERVER_QUOTA_HARD`                      |                                                                | `8192`                        |
@@ -541,13 +540,13 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `SERVER_SSL_CERT_FILE`                   | Server SSL Certificate File                                    | `/certs/core/server.crt`      |
 | `SERVER_SSL_KEY_FILE`                    | Server SSL Key File                                            | `/certs/core/server.pem`      |
 | `SERVER_SSL_KEY_PASS`                    | Set password set on SSL Key                                    |                               |
-| `SERVER_SSL_PUBLIC_PATH`                 |                                                                | `/certs/core/core/public/`    |
+| `SERVER_SSL_PUBLIC_PATH`                 | Where to store public keys for SSL                             | `/certs/core/core/public/`    |
 | `SERVER_SYSTEM_EMAIL_ADDRESS`            |                                                                | `postmaster@example.com`      |
-| `SERVER_THREADS`                         |                                                                | `8`                           |
+| `SERVER_THREADS`                         | Amount of Threads Server should use                            | `8`                           |
 | `SERVER_TIMEOUT_RECIEVE`                 |                                                                | `5`                           |
 | `SERVER_TIMEOUT_SEND`                    |                                                                | `60`                          |
-| `SERVER_TLS_MIN_PROTOCOL`                |                                                                | `tls1.2`                      |
-| `SERVER_USER_PLUGIN`                     |                                                                | `ldap`                        |
+| `SERVER_TLS_MIN_PROTOCOL`                | Minimum TLS Protocol accepted                                  | `tls1.2`                      |
+| `SERVER_USER_PLUGIN`                     | User backend selection                                         | `ldap`                        |
 | `SERVER_USER_SAFE_MODE`                  |                                                                | `FALSE`                       |
 | `SERVER_WATCHDOG_FREQUENCY`              |                                                                | `1`                           |
 | `SERVER_WATCHDOG_MAX_AGE`                |                                                                | `500`                         |
@@ -574,10 +573,10 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `LOG_FILE_SPOOLER`               | Logfile Name                                     | `spooler.log`                 |
 | `SPOOLER_ENABLE_DSN`             |                                                  | `TRUE`                        |
 | `SPOOLER_LOG_RAW_MESSAGE_STAGE1` |                                                  | `FALSE`                       |
-| `SPOOLER_MAX_THREADS`            |                                                  | `5`                           |
-| `SPOOLER_PATH_PLUGIN`            |                                                  | `/data/spooler/plugins/`      |
-| `SPOOLER_PATH_RAW_MESSAGES`      |                                                  | `/data/spooler/raw_messages/` |
-| `SPOOLER_PLUGIN_ENABLED`         |                                                  | `FALSE`                       |
+| `SPOOLER_MAX_THREADS`            | Maximum Threads to use for Spooler               | `5`                           |
+| `SPOOLER_PATH_PLUGIN`            | Path for Spooler Plugins                         | `/data/spooler/plugins/`      |
+| `SPOOLER_PATH_RAW_MESSAGES`      | Path for Raw Message logging                     | `/data/spooler/raw_messages/` |
+| `SPOOLER_PLUGIN_ENABLED`         | Enable Spooler Plugin Support                    | `FALSE`                       |
 | `SPOOLER_SMTP_HOST`              | Host that can provide outbound MTA functionality | `localhost`                   |
 | `SPOOLER_SMTP_PORT`              | Port to connect to on `SMTP_HOST`                | 25                            |
 | `SPOOLER_SOCKET_SERVER`          | What should service use to contact server        | `${SOCKET_SERVER}`            |
@@ -590,88 +589,56 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | ---------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | `WEBAPP_BLOCK_SIZE`                                  |                                                               | `1048576`                                                                                                                 |
 | `WEBAPP_CLIENT_TIMEOUT`                              |                                                               | `0`                                                                                                                       |
-| `WEBAPP_CONFIG_CHECK`                                |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_CONFIG_CHECK_COOKIES_HTTP`                   |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_CONFIG_CHECK_COOKIES_SSL`                    |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_COOKIE_NAME`                                 |                                                               | `KOPANO_WEBAPP`                                                                                                           |
-| `WEBAPP_CROSS_DOMAIN_AUTHENTICATION_ALLOWED_DOMAINS` |                                                               |                                                                                                                           |
-| `WEBAPP_DISABLE_FULL_GAB`                            |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_DISABLE_PUBLIC_CONTACT_FOLDERS`              |                                                               | `FALSE`                                                                                                                   |
+| `WEBAPP_CONFIG_CHECK`                                | Perform Configuration Sanity Check                            | `TRUE`                                                                                                                    |
+| `WEBAPP_COOKIE_NAME`                                 | Cookie Name                                                   | `KOPANO_WEBAPP`                                                                                                           |
+| `WEBAPP_CROSS_DOMAIN_AUTHENTICATION_ALLOWED_DOMAINS` | Cross Domain Authentication Domains                           |                                                                                                                           |
+| `WEBAPP_DISABLE_FULL_GAB`                            | Enable/Disable Global Address Book                            | `FALSE`                                                                                                                   |
+| `WEBAPP_DISABLE_PUBLIC_CONTACT_FOLDERS`              | Enable/Disable Public Contact Folders                         | `FALSE`                                                                                                                   |
 | `WEBAPP_DISABLE_REMOTE_USER_LOGIN`                   |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_DISABLE_SHARED_CONTACT_FOLDERS`              |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_DISABLE_WELCOME_SCREEN`                      |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_DISABLE_WHATS_NEW_DIALOG`                    |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_ENABLE_ADVANCED_SETTINGS`                    |                                                               | `FALSE`                                                                                                                   |
+| `WEBAPP_DISABLE_SHARED_CONTACT_FOLDERS`              | Enable/Disable Shared Contacts                                | `TRUE`                                                                                                                    |
+| `WEBAPP_DISABLE_WELCOME_SCREEN`                      | Show Welcome Screen on first login                            | `FALSE`                                                                                                                   |
+| `WEBAPP_DISABLE_WHATS_NEW_DIALOG`                    | Show What's New Dialog on login                               | `FALSE`                                                                                                                   |
+| `WEBAPP_ENABLED_LANGUAGES`                           | Enabled Languages                                             | `cs_CZ;da_DK;de_DE;en_GB;en_US;es_CA;es_ES;fi_FI;fr_FR;hu_HU;it_IT;ja_JP;nb_NO;nl_NL;pl_PL;pt_BR;ru_RU;sl_SI;tr_TR;zh_TW` |
+| `WEBAPP_ENABLE_ADVANCED_SETTINGS`                    | Enable Advanced Settings                                      | `FALSE`                                                                                                                   |
 | `WEBAPP_ENABLE_CONVERSATION_VIEW`                    |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_ENABLE_DEFAULT_SOFT_DELETE`                  |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_ENABLE_DIRECT_BOOKING`                       |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_ENABLE_DOMPURIFY_FILTER`                     |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER`   |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USER`           |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_FILES_DEFAULT_USER`                   |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_INTRANET_DEFAULT_USER`                |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER`                  |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_MDM_DEFAULT_USER`                     |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_MEET_DEFAULT_USER`                    |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_PIM_FOLDER_DEFAULT_USER`              |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_PLUGIN_ROCKETCHAT_DEFAULT_USER`              |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_SMIME_DEFAULT_USER`                   |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER`           |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_ENABLE_PLUGINS`                              |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_ENABLE_PUBLIC_FOLDERS`                       |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_ENABLE_REMOTE_PASSWORD`                      |                                                               | `TRUE`                                                                                                                    |
+| `WEBAPP_ENABLE_PLUGINS`                              | Enable Webapp Plugins                                         | `TRUE`                                                                                                                    |
+| `WEBAPP_ENABLE_PUBLIC_FOLDERS`                       | Enable Display of Public Folders                              | `TRUE`                                                                                                                    |
+| `WEBAPP_ENABLE_REMOTE_PASSWORD`                      | Perform hack to allow $_SERVER_REMOTE_PASS to auto login user | `FALSE`                                                                                                                   |
 | `WEBAPP_ENABLE_RESPONSE_COMPRESSION`                 |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_ENABLE_SHARED_RULES`                         |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_ENABLED_LANGUAGES`                           |                                                               | `cs_CZ;da_DK;de_DE;en_GB;en_US;es_CA;es_ES;fi_FI;fr_FR;hu_HU;it_IT;ja_JP;nb_NO;nl_NL;pl_PL;pt_BR;ru_RU;sl_SI;tr_TR;zh_TW` |
 | `WEBAPP_EXPIRES_TIME`                                |                                                               | `60*60*24*7*13`                                                                                                           |
 | `WEBAPP_FREEBUSY_LOAD_END_OFFSET`                    |                                                               | `90`                                                                                                                      |
 | `WEBAPP_FREEBUSY_LOAD_START_OFFSET`                  |                                                               | `7`                                                                                                                       |
-| `WEBAPP_HOSTNAME`                                    |                                                               | `webapp.example.com`                                                                                                      |
-| `WEBAPP_ICONSET`                                     |                                                               | `breeze`                                                                                                                  |
+| `WEBAPP_HOSTNAME`                                    | Hostname of Webmail service                                   | `webapp.example.com`                                                                                                      |
+| `WEBAPP_ICONSET`                                     | Set Default Icons                                             | `breeze`                                                                                                                  |
 | `WEBAPP_INSECURE_COOKIES`                            |                                                               | `FALSE`                                                                                                                   |
+| `WEBAPP_LOGINNAME_STRIP_DOMAIN`                      | Strip Doman/Prefix from username                              |                                                                                                                           |
 | `WEBAPP_LOG_SUCCESSFUL_LOGINS`                       |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_LOG_USERS`                                   |                                                               |                                                                                                                           |
-| `WEBAPP_LOGINNAME_STRIP_DOMAIN`                      |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_MAX_EML_FILES_IN_ZIP`                        |                                                               | `50`                                                                                                                      |
-| `WEBAPP_MAX_GAB_RESULTS`                             |                                                               | `0`                                                                                                                       |
+| `WEBAPP_MAX_GAB_RESULTS`                             | Maximum results for Global Address Book `0` to disable        | `0`                                                                                                                       |
 | `WEBAPP_OIDC_CLIENT_ID`                              |                                                               |                                                                                                                           |
 | `WEBAPP_OIDC_ISS`                                    |                                                               |                                                                                                                           |
 | `WEBAPP_OIDC_SCOPE`                                  |                                                               | `openid profile email kopano/gc`                                                                                          |
-| `WEBAPP_PLUGIN_FILEPREVIEWER_ZOOM_ODF`               |                                                               | `auto`                                                                                                                    |
-| `WEBAPP_PLUGIN_FILEPREVIEWER_ZOOM_PDF`               |                                                               | `page-width`                                                                                                              |
-| `WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE`              |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_FILES_CACHE_DIR`                      |                                                               | `/data/cache/webapp/plugin_files`                                                                                         |
-| `WEBAPP_PLUGIN_MANUAL_URL`                           |                                                               | `https://documentation.kopano.io/user_manual_webapp/`                                                                     |
-| `WEBAPP_PLUGIN_MDM_SERVER_SSL`                       |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_ROCKETCHAT_AUTOSTART`                 |                                                               | `TRUE`                                                                                                                    |
-| `WEBAPP_PLUGIN_ROCKETCHAT_HOST`                      |                                                               | `rocketchat.example.com`                                                                                                  |
-| `WEBAPP_PLUGIN_ROCKETCHAT_ICON`                      |                                                               | `resources/icons/icon_default.png`                                                                                        |
-| `WEBAPP_PLUGIN_ROCKETCHAT_TITLE`                     |                                                               | `Rocketchat`                                                                                                              |
-| `WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE`    |                                                               | `FALSE`                                                                                                                   |
-| `WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION`               |                                                               | `/etc/ssl/certs`                                                                                                          |
-| `WEBAPP_PLUGIN_SMIME_CIPHER`                         |                                                               | `OPENSSL_CIPHER_AES_128_CBC`                                                                                              |
 | `WEBAPP_PLUGIN_SMIME_ENABLE_OCSP`                    |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_POWERPASTE_ALLOW_LOCAL_IMAGES`               |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_POWERPASTE_HTML_IMPORT`                      |                                                               | `merge`                                                                                                                   |
-| `WEBAPP_TMP_PATH`                                    |                                                               | `/var/lib/kopano-webapp/tmp`                                                                                              |
-| `WEBAPP_UPLOADED_ATTACHMENT_MAX_LIFETIME`            |                                                               | `6*60*60`                                                                                                                 |
 | `WEBAPP_POWERPASTE_WORD_IMPORT`                      |                                                               | `merge`                                                                                                                   |
 | `WEBAPP_PREFETCH_EMAIL_COUNT`                        |                                                               | `10`                                                                                                                      |
 | `WEBAPP_PREFETCH_EMAIL_INTERVAL`                     |                                                               | `30`                                                                                                                      |
 | `WEBAPP_REDIRECT_ALLOWED_DOMAINS`                    |                                                               |                                                                                                                           |
 | `WEBAPP_SHARED_STORE_POLLING_INTERVAL`               |                                                               | `15`                                                                                                                      |
+| `WEBAPP_SOCKET_SERVER`                               | What should service use to contact server                     | `${SOCKET_SERVER}`                                                                                                        |
 | `WEBAPP_STATE_FILE_MAX_LIFETIME`                     |                                                               | `28*60*60`                                                                                                                |
-| `WEBAPP_THEME`                                       |                                                               | ``                                                                                                                        |
-| `WEBAPP_HOSTNAME`                                    | Hostname of Webmail service                                   | `webapp.example.com`                                                                                                      |
 | `WEBAPP_THEME`                                       | Set Default Theme                                             |                                                                                                                           |
 | `WEBAPP_TITLE`                                       | Browser Title of WebApp                                       | `Kopano WebApp`                                                                                                           |
-| `WEBAPP_ENABLE_ADVANCED_SETTINGS`                    | Enable Advanced Settings                                      |                                                                                                                           |
-| `WEBAPP_COOKIE_NAME`                                 | Cookie Name                                                   | `KOPANO_WEBAPP`                                                                                                           |
-| `WEBAPP_ICONSET`                                     | Set Default Icons                                             | `breeze`                                                                                                                  |
-| `WEBAPP_CROSS_DOMAIN_AUTHENTICATION_ALLOWED_DOMAINS` | Cross Domain Authentication Domains                           |                                                                                                                           |
-| `WEBAPP_LOGINNAME_STRIP_DOMAIN`                      | Strip Doman/Prefix from username                              |                                                                                                                           |
-| `WEBAPP_ENABLE_REMOTE_PASSWORD`                      | Perform hack to allow $_SERVER_REMOTE_PASS to auto login user | `FALSE`                                                                                                                   |
-| `WEBAPP_SOCKET_SERVER`                               | What should service use to contact server                     | `${SOCKET_SERVER}`                                                                                                        |
+| `WEBAPP_TMP_PATH`                                    | Temporary Files path                                          | `/var/lib/kopano-webapp/tmp`                                                                                              |
+| `WEBAPP_UPLOADED_ATTACHMENT_MAX_LIFETIME`            |                                                               | `6*60*60`                                                                                                                 |
 
 ##### Webapp Plugins
 
@@ -702,8 +669,8 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `WEBAPP_PLUGIN_FILES_DEFAULT_USER`            | Auto Enable for new users       | `TRUE`                            |
 | `WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE`       | Ask users before deleting files | `TRUE`                            |
 | `WEBAPP_PLUGIN_FILES_CACHE_DIR`               | Files cache directory           | `/data/cache/webapp/plugin_files` |
-| `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV                  | `random`                          |
-| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV                 | `random`                          |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV                  | (random)                          |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV                 | (random)                          |
 
 ###### Webapp Plugin: Filepreviewer Options
 
@@ -800,14 +767,14 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 
 ###### Webapp Plugin: S/MIME Options
 
-| Parameter                                         | Description               | Default                      |
-| ------------------------------------------------- | ------------------------- | ---------------------------- |
-| `WEBAPP_PLUGIN_ENABLE_SMIME`                      | Enable Plugin             | `TRUE`                       |
-| `WEBAPP_PLUGIN_SMIME_DEFAULT_USER`                | Auto Enable for new users | `FALSE`                      |
-| `WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION`            |                           | `/etc/ssl/certs`             |
-| `WEBAPP_PLUGIN_SMIME_CIPHER`                      |                           | `OPENSSL_CIPHER_AES_128_CBC` |
-| `WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE` |                           | `FALSE`                      |
-| `WEBAPP_PLUGIN_SMIME_ENABLE_OCSP`                 |                           | `TRUE`                       |
+| Parameter                                         | Description                          | Default                      |
+| ------------------------------------------------- | ------------------------------------ | ---------------------------- |
+| `WEBAPP_PLUGIN_ENABLE_SMIME`                      | Enable Plugin                        | `TRUE`                       |
+| `WEBAPP_PLUGIN_SMIME_DEFAULT_USER`                | Auto Enable for new users            | `FALSE`                      |
+| `WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION`            | Location of CA Certs                 | `/etc/ssl/certs`             |
+| `WEBAPP_PLUGIN_SMIME_CIPHER`                      | OpenSSL Ciphers to use               | `OPENSSL_CIPHER_AES_128_CBC` |
+| `WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE` | Allow browser to remember Passphrase | `FALSE`                      |
+| `WEBAPP_PLUGIN_SMIME_ENABLE_OCSP`                 | Utilize OCSP Stapling                | `TRUE`                       |
 
 ###### Webapp Plugin: Title Counter Options
 
