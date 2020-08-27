@@ -709,58 +709,59 @@ RUN set -x && \
     ##### Install Packages
     apt-get update && \
     BUILD_DEPS=' \
+                build-essential \
+                libev-dev \
+                python3-dev \
                 unzip \
                 \
     ' && \
     apt-get install -y --no-install-recommends \
                        ${BUILD_DEPS} \
-                       #kopano-calendar \
-                       #kopano-calendar-webapp \
-                       #kopano-grapi \
-                       #kopano-grapi-bin \
-                       #kopano-indexer \
-                       #kopano-kapid \
-                       #kopano-konnectd \
-                       #kopano-kwmserverd \
-                       #kopano-meet \
-                       #php7-mapi \
-                       #php-kopano-smime \
-                       #python3-grapi.backend.ldap \
-                       #python3-grapi.backend.kopano \
-                       \
-                       ## Should be all from Debian Repos \
                        bc \
                        fail2ban \
                        iptables \
                        libdb5.3++ \
+                       libev4 \
                        libgsoap-kopano-2.8.102 \
                        libhx28 \
                        libical3 \
+                       libimagequant0 \
                        libjsoncpp1 \
                        libpython3.7 \
-                       libtidy5 \
                        libs3-4 \
+                       libtidy5 \
                        libvmime-kopano3 \
+                       libvmime1 \
+                       libwebpdemux2 \
+                       libwebpmux3 \
                        man \
                        php-memcached \
                        php-tokenizer \
                        poppler-utils \
                        python3-bsddb3 \
+                       python3-certifi \
+                       python3-chardet \
                        python3-daemon \
                        python3-dateutil \
+                       python3-idna \
+                       python3-jsonschema \
                        python3-lockfile \
                        python3-magic \
-                       #python3-mapi \
+                       python3-olefile \
+                       python3-pil \
                        python3-pip \
+                       python3-prctl \
+                       python3-requests \
+                       python3-setproctitle \
                        python3-setuptools \
                        python3-six \
                        python3-tz \
                        python3-tzlocal \
+                       python3-ujson \
+                       python3-urllib3 \
                        python3-wheel \
                        python3-xapian \
                        sqlite3 \
-                       #### GRAPI \
-                       python3-idna python3-jsonschema python3-olefile python3-pil python3-prctl python3-requests python3-setproctitle python3-ujson python3-urllib3 python3-certifi python3-chardet libev4 libimagequant0 libvmime1 libwebpdemux2  libwebpmux3 \
     && \
     \
     ## Python Deps for Spamd
@@ -794,6 +795,7 @@ RUN set -x && \
     \
     ##### Unpack GRAPI
     tar xvfz /usr/src/meet/kopano-grapi.tar.gz -C / && \
+    python3 -m easy_install /usr/src/meet/grapi/grapi*.egg && \
     \
     ##### Unpack Konnect
     tar xvfz /usr/src/meet/kopano-konnect.tar.gz -C / && \
@@ -847,24 +849,24 @@ RUN set -x && \
     rm -rf /etc/kopano && \
     ln -sf /config /etc/kopano && \
     mkdir -p /var/run/kopano && \
-    chown -R kopano /var/run/kopano
+    chown -R kopano /var/run/kopano && \
     \
     ##### Cleanup
-    #apt-get purge -y \
-                    #${BUILD_DEPS} \
-                    #apt-utils \
-                    #git \
-                    #lynx \
-                    #&& \
-    #\
-    #apt-get autoremove -y && \
-    #apt-get clean && \
-    #rm -rf /var/lib/apt/lists/* && \
-    #rm -rf /etc/apt/sources.list.d/kopano*.list && \
-    #rm -rf /usr/src/* && \
-    #rm -rf /var/log/* && \
-    #cd /etc/fail2ban && \
-    #rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
+    apt-get purge -y \
+                    ${BUILD_DEPS} \
+                    apt-utils \
+                    git \
+                    lynx \
+                    && \
+    \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    rm -rf /etc/apt/sources.list.d/kopano*.list && \
+    rm -rf /usr/src/* && \
+    rm -rf /var/log/* && \
+    cd /etc/fail2ban && \
+    rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
 
 ### Assets Install
 ADD install /

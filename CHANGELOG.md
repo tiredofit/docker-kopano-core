@@ -1,3 +1,12 @@
+## 0.50.0 2020-08-37 <dave at tiredofit dot ca>
+
+   ### Added
+      - Compile Kopano Core from git sources
+      - Compile Kopano Meet from git sources
+
+   ### Changed
+      - Support Build Arguments for all environment variables
+
 ## 0.39.0 2020-08-15 <dave at tiredofit dot ca>
 
    ### Added
