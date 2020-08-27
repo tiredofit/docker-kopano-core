@@ -1,7 +1,7 @@
 FROM tiredofit/debian:buster as core-builder
 
 ENV GO_VERSION=1.15 \
-    KOPANO_CORE_VERSION=kopanocore-10.0.6 \
+    KOPANO_CORE_VERSION=master \
     KOPANO_CORE_REPO_URL=https://github.com/Kopano-dev/kopano-core.git \
     KOPANO_DEPENDENCY_HASH=51c3a68 \
     KOPANO_KCOIDC_REPO_URL=https://github.com/Kopano-dev/libkcoidc.git \
@@ -146,6 +146,11 @@ RUN set -x && \
     cd /rootfs && \
     mv usr/lib/python$(python3 --version | awk '{print $2}' | cut -c 1-3)/site-packages usr/lib/python$(python3 --version | awk '{print $2}' | cut -c 1-3)/dist-packages && \
     ###
+    ### Another Hack
+    mkdir -p usr/lib/x86_64-linux-gnu && \
+    mv usr/lib/lib*.* usr/lib/x86_64-linux-gnu/ && \
+    ###
+    \
     echo "Kopano Core ${KOPANO_CORE_VERSION} built from ${KOPANO_CORE_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-core.version && \
     echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-core.version && \
     env | grep KOPANO | sed "/KOPANO_KCOIDC/d" | sort >> /rootfs/tiredofit/kopano-core.version && \
@@ -674,6 +679,7 @@ RUN set -x && \
                        libical3 \
                        libjsoncpp1 \
                        libpython3.7 \
+                       libtidy5 \
                        libs3-4 \
                        libvmime-kopano3 \
                        man \
@@ -685,7 +691,7 @@ RUN set -x && \
                        python3-dateutil \
                        python3-lockfile \
                        python3-magic \
-                       python3-mapi \
+                       #python3-mapi \
                        python3-pip \
                        python3-setuptools \
                        python3-six \
