@@ -492,15 +492,6 @@ RUN set -x && \
     mkdir -p /rootfs/assets/kopano/plugins/webapp && \
     \
     ### Build Plugins
-    ## Desktop Notifications
-    #### To be Removed in Webapp 4.3
-    git clone ${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL} /usr/src/kopano-webapp/plugins/desktopnotifications && \
-    cd /usr/src/kopano-webapp/plugins/desktopnotifications && \
-    git checkout ${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION} && \
-    ant deploy && \
-    cp /usr/src/kopano-webapp/deploy/plugins/desktopnotifications/config.php /rootfs/assets/kopano/config/webapp/config-desktopnotificatons.php && \
-    ln -sf /etc/kopano/webapp/config-desktopnotifications.php /usr/src/kopano-webapp/deploy/plugins/desktopnotifications/config.php && \
-    \
     ## File Previewer
     git clone ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL} /usr/src/kopano-webapp/plugins/filepreviewer && \
     cd /usr/src/kopano-webapp/plugins/filepreviewer && \

@@ -2013,7 +2013,6 @@ configure_webapp_plugins() {
     if var_true "$WEBAPP_ENABLE_PLUGINS" ; then
         print_debug "Webapp Plugins Enabled"
         configure_webapp_plugin_contact_fax
-        configure_webapp_plugin_desktop_notifications
         configure_webapp_plugin_file_previewer
         configure_webapp_plugin_files
         configure_webapp_plugin_files_backend_owncloud
@@ -2044,24 +2043,6 @@ configure_webapp_plugin_contact_fax() {
 
 define('PLUGIN_CONTACTFAXPLUGIN_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_USER});
 define('PLUGIN_CONTACTFAXPLUGIN_FAX_DOMAIN_NAME', '${WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_NAME}');
-?>
-EOF
-        fi
-    fi
-}
-
-configure_webapp_plugin_desktop_notifications() {
-    if var_true "${WEBAPP_PLUGIN_ENABLE_DESKTOP_NOTIFICATIONS}" ; then
-        cp -R /assets/kopano/plugins/webapp/desktopnotifications /usr/share/kopano-webapp/plugins
-        if [ "$SETUP_TYPE" = "AUTO" ]; then
-            print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
-            cat <<EOF > "${CONFIG_PATH}"webapp/config-desktopnotifications.php
-<?php
-// Custom Generated Kopano Webapp Desktop Notification Configuration! Do not edit, instead set ENV Vars
-// If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
-
-define('PLUGIN_DESKTOPNOTIFICATION_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER});
 ?>
 EOF
         fi
@@ -2309,12 +2290,6 @@ EOF
     fi
 }
 
-configure_webapp_plugin_quick_items() {
-    if var_true "${WEBAPP_PLUGIN_ENABLE_QUICK_ITEMS}" ; then
-        cp -R /assets/kopano/plugins/webapp/quickitems /usr/share/kopano-webapp/plugins
-    fi
-}
-
 configure_webapp_plugin_rocketchat() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_ROCKETCHAT}" ; then
         cp -R /assets/kopano/plugins/webapp/rchat /usr/share/kopano-webapp/plugins
@@ -2350,24 +2325,6 @@ DEFINE('PLUGIN_SMIME_CACERTS', '${WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION}');
 DEFINE('PLUGIN_SMIME_CIPHER', ${WEBAPP_PLUGIN_SMIME_CIPHER});
 DEFINE('PLUGIN_SMIME_PASSPHRASE_REMEMBER_BROWSER', ${WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE});
 DEFINE('PLUGIN_SMIME_ENABLE_OCSP', ${WEBAPP_PLUGIN_SMIME_ENABLE_OCSP});
-?>
-EOF
-        fi
-    fi
-}
-
-configure_webapp_plugin_title_counter() {
-    if var_true "${WEBAPP_PLUGIN_ENABLE_TITLE_COUNTER}" ; then
-        cp -R /assets/kopano/plugins/webapp/titlecounter /usr/share/kopano-webapp/plugins
-        if [ "$SETUP_TYPE" = "AUTO" ]; then
-            print_notice "Webapp Plugin: Title Counter - Auto Configuring"
-            cat <<EOF > "${CONFIG_PATH}"webapp/config-titlecounter.php
-<?php
-// Custom Generated Kopano Webapp Title Counter Configuration! Do not edit, instead set ENV Vars
-// If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
-
-define('PLUGIN_TITLECOUNTER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER});
 ?>
 EOF
         fi
