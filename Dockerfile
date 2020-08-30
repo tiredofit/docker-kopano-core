@@ -14,6 +14,8 @@ ENV GO_VERSION=1.15 \
     KOPANO_KCOIDC_REPO_URL=${KOPANO_KCOIDC_REPO_URL:-"https://github.com/Kopano-dev/libkcoidc.git"} \
     KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"v0.9.2"}
 
+ADD build-assets /build-assets
+
 RUN set -x && \
     apt-get update && \
     apt-get upgrade -y && \
@@ -119,6 +121,10 @@ RUN set -x && \
     git clone ${KOPANO_CORE_REPO_URL} /usr/src/kopano-core && \
     cd /usr/src/kopano-core && \
     git checkout ${KOPANO_CORE_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-core" ] ; then cp -R /build-assets/kopano-core/* /usr/src/kopano-core ; fi; \
+    if [ -f "/build-assets/scripts/kopano-core.sh" ] ; then /build-assets/scripts/kopano-core.sh ; fi; \
+    \
     mkdir -p /rootfs/tiredofit && \
     cd /usr/src/kopano-core && \
     autoreconf -fiv && \
@@ -203,6 +209,8 @@ ENV GO_VERSION=1.15 \
     MEET_REPO_URL=${MEET_REPO_URL:-"https://github.com/Kopano-dev/meet"} \
     MEET_VERSION=${MEET_VERSION:-"v2.2.3"}
 
+ADD build-assets /build-assets
+
 RUN set -x && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
@@ -233,6 +241,10 @@ RUN set -x && \
     git clone ${KONNECT_REPO_URL} /usr/src/konnect && \
     cd /usr/src/konnect && \
     git checkout ${KONNECT_VERSION} && \
+
+    if [ -d "/build-assets/kopano-meet/konnect" ] ; then cp -R /build-assets/kopano-meet/konnect/* /usr/src/konnect ; fi; \
+    if [ -f "/build-assets/scripts/konnect.sh" ] ; then /build-assets/scripts/konnect.sh ; fi; \
+
     GOROOT=/usr/local/go \
     PATH=/usr/local/go/bin:$PATH \
     make && \
@@ -250,6 +262,10 @@ RUN set -x && \
     git clone ${KAPI_REPO_URL} /usr/src/kapi && \
     cd /usr/src/kapi && \
     git checkout ${KAPI_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-meet/kapi" ] ; then cp -R /build-assets/kopano-meet/kapi/* /usr/src/kapi ; fi; \
+    if [ -f "/build-assets/scripts/kapi.sh" ] ; then /build-assets/scripts/kapi.sh ; fi; \
+    \
     GOROOT=/usr/local/go \
     PATH=/usr/local/go/bin:$PATH \
     make && \
@@ -267,6 +283,10 @@ RUN set -x && \
     git clone ${KWMSERVER_REPO_URL} /usr/src/kwmserver && \
     cd /usr/src/kwmserver && \
     git checkout ${KWMSERVER_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-meet/kwmserver" ] ; then cp -R /build-assets/kopano-meet/kwmserver/* /usr/src/kwmserver ; fi; \
+    if [ -f "/build-assets/scripts/kwmserver.sh" ] ; then /build-assets/scripts/kwmserver.sh ; fi; \
+    \
     GOROOT=/usr/local/go \
     PATH=/usr/local/go/bin:$PATH \
     make && \
@@ -284,6 +304,10 @@ RUN set -x && \
     git clone ${KWMBRIDGE_REPO_URL} /usr/src/kwmbridge && \
     cd /usr/src/kwmbridge && \
     git checkout ${KWMBRIDGE_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-meet/kwmbridge" ] ; then cp -R /build-assets/kopano-meet/kwmbridge/* /usr/src/kwmbridge ; fi; \
+    if [ -f "/build-assets/scripts/kwmbridge.sh" ] ; then /build-assets/scripts/kwmbridge.sh ; fi; \
+    \
     GOROOT=/usr/local/go \
     PATH=/usr/local/go/bin:$PATH \
     make && \
@@ -340,6 +364,10 @@ RUN set -x && \
     git clone ${GRAPI_REPO_URL} /usr/src/grapi && \
     cd /usr/src/grapi && \
     git checkout ${GRAPI_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-meet/grapi" ] ; then cp -R /build-assets/kopano-meet/grapi/* /usr/src/grapi ; fi; \
+    if [ -f "/build-assets/scripts/grapi.sh" ] ; then /build-assets/scripts/grapi.sh ; fi; \
+    \
     sed -i "/MAPI/d" requirements.txt && \
     sed -i "/kopano/d" requirements.txt && \
     python3 setup.py install && \
@@ -369,6 +397,9 @@ RUN set -x && \
     git clone ${MEET_REPO_URL} /usr/src/meet && \
     cd /usr/src/meet && \
     git checkout ${MEET_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-meet/app" ] ; then cp -R /build-assets/kopano-meet/app/* /usr/src/meet ; fi; \
+    if [ -f "/build-assets/scripts/meet-webapp.sh" ] ; then /build-assets/scripts/meet-webapp.sh ; fi; \
     \
     make && \
     mkdir -p /rootfs/usr/share/kopano-meet/meet-webapp/ && \
@@ -453,6 +484,8 @@ ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL=${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL:-"https://stash.kopano.io/scm/kwa/smime.git"} \
     KOPANO_WEBAPP_PLUGIN_SMIME_VERSION=${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION:-"tags/v2.2.2"}
 
+ADD build-assets /build-assets
+
 RUN set -x && \
     apk update && \
     apk upgrade && \
@@ -479,6 +512,9 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_REPO_URL} /usr/src/kopano-webapp && \
     cd /usr/src/kopano-webapp && \
     git checkout ${KOPANO_WEBAPP_VERSION} && \
+    \
+    if [ -d "/build-assets/kopano-webapp" ] ; then cp -R /build-assets/kopano-webapp/* /usr/src/kopano-webapp ; fi; \
+    if [ -f "/build-assets/scripts/webapp.sh" ] ; then /build-assets/scripts/webapp.sh ; fi; \
     \
     ### Build
     ant deploy && \
