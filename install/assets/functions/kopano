@@ -2959,6 +2959,10 @@ setup_container_mode() {
                         print_debug "Enabling Container Mode for: SEARCH"
                         echo "ENABLE_SEARCH=TRUE" >> /tmp/state/.mode-env
                     ;;
+                    "SERVER" | "server" )
+                        print_debug "Enabling Container Mode for: SERVER"
+                        echo "ENABLE_SERVER=TRUE" >> /tmp/state/.mode-env
+                    ;;
                     "SPAMD" | "spamd" )
                         print_debug "Enabling Container Mode for: SPAMD"
                         echo "ENABLE_SPAMD=TRUE" >> /tmp/state/.mode-env

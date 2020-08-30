@@ -1,3 +1,9 @@
+## 0.52.1 2020-08-30 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Bugfixes for multi host/container
+      - Fix spelling error in custom user scripts environment variable
+
 ## 0.52.0 2020-08-30 <dave at tiredofit dot ca>
 
    ### Changed
