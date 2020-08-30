@@ -9,7 +9,7 @@ liftoff
 
 rm -rf /var/run/kopano/search.pid
 
-wait_for_server
+wait_for_server search
 sleep 3
 
 print_info "Starting Kopano Search"

@@ -813,25 +813,35 @@ EOF
 }
 
 configure_logging() {
-    print_debug "Logging: Configuring Kopano"
-    if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-        mkdir -p "${LOG_PATH_KOPANO}"
-        chown -R kopano: "${LOG_PATH_KOPANO}"
-        sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
-    else
-        rm -rf /etc/logrotate.d/kopano
+
+    if [ ! -f "/tmp/state/.log.kopano" ] ; then
+        print_debug "Logging: Configuring Kopano"
+        if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+            print_debug "Logging: Kopano set to ${LOG_TYPE}"
+            mkdir -p "${LOG_PATH_KOPANO}"
+            chown -R kopano: "${LOG_PATH_KOPANO}"
+            sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
+        else
+            rm -rf /etc/logrotate.d/kopano
+        fi
+        touch /tmp/state/.log.kopano
     fi
 
-    if var_true "$ENABLE_ZPUSH" ; then
-        if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-            mkdir -p "${LOG_PATH_ZPUSH}"
-            chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${LOG_PATH_ZPUSH}"
-            sed -i -e "s#<ZPUSH_LOG_LOCATION>#${LOG_PATH_ZPUSH}#g" /etc/logrotate.d/zpush
+    if [ ! -f "/tmp/state/.log.zpush" ] ; then
+        if var_true "$ENABLE_ZPUSH" ; then
+            print_debug "Logging: Configuring Z-Push"
+            if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+                print_debug "Logging: Z-Push set to ${LOG_TYPE}"
+                mkdir -p "${LOG_PATH_ZPUSH}"
+                chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${LOG_PATH_ZPUSH}"
+                sed -i -e "s#<ZPUSH_LOG_LOCATION>#${LOG_PATH_ZPUSH}#g" /etc/logrotate.d/zpush
+            else
+                rm -rf /etc/logrotate.d/zpush
+            fi
+            touch /tmp/state/.log.zpush
         else
             rm -rf /etc/logrotate.d/zpush
         fi
-    else
-        rm -rf /etc/logrotate.d/zpush
     fi
 
     ### Translate Logging
@@ -1243,7 +1253,7 @@ ${konnect_trusted_proxies}
 EOF
 
                 if [ ! -f "${CONFIG_PATH}/konnectd-identifier-scopes.yaml" ] ; then
-                    cp -R /assets/kopano/config/konnectd-identifier-scopes.yaml ${CONFIG_PATH}
+                    cp -R /assets/kopano/config/konnectd-identifier-scopes.yaml "${CONFIG_PATH}"
                 fi
 
             else
@@ -2836,16 +2846,193 @@ parse_config() {
     fi
 }
 
+setup_container_mode() {
+    if [ -f "/tmp/state/.mode-env" ]; then
+        print_debug "Importing MODE environment generated variables"
+        source /tmp/state/.mode-env
+    else
+        if [ "${MODE}" = "CORE" ] || [ "${MODE}" = "core" ] ; then
+            print_debug "Container Mode: CORE"
+            print_debug "Creating MODE environment generated variables"
+            echo "ENABLE_AUTORESPOND=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_BACKUP=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_DAGENT=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_GATEWAY=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_ICAL=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_MONITOR=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_SEARCH=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_SPAMD=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_SPOOLER=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_WEBAPP=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_ZPUSH=TRUE" >> /tmp/state/.mode-env
+        elif [ "${MODE}" = "WEB" ] || [ "${MODE}" = "web" ] ; then
+            print_debug "Container Mode: WEB"
+            print_debug "Creating MODE environment generated variables"
+            service_start 10-nginx
+            service_start 20-php-fpm
+            echo "ENABLE_WEBAPP=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_ZPUSH=TRUE" >> /tmp/state/.mode-env
+        elif [ "${MODE}" = "AIO" ] || [ "${MODE}" = "aio" ] || [ "${MODE}" = "ALL" ] || [ "${MODE}" = "all" ] ; then
+            print_debug "Container Mode: AIO"
+            print_debug "Creating MODE environment generated variables"
+            service_start 10-nginx
+            service_start 20-php-fpm
+            echo "ENABLE_AUTORESPOND=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_BACKUP=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_DAGENT=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_GATEWAY=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_GRAPI=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_ICAL=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_KAPI=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_KONNECT=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_MEET=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_KWM=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_MONITOR=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_SEARCH=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_SPAMD=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_SPOOLER=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_WEBAPP=TRUE" >> /tmp/state/.mode-env
+            echo "ENABLE_ZPUSH=TRUE" >> /tmp/state/.mode-env
+        else
+            modes=$(echo "$MODE" | tr "," "\n")
+            for mode in $modes
+            do
+                case "${mode}" in
+                    "AUTORESPOND" | "autorespond" )
+                        print_debug "Enabling Container Mode for: AUTORESPOND"
+                        echo "ENABLE_AUTORESPOND=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "BACKUP" | "backup" )
+                        print_debug "Enabling Container Mode for: BACKUP"
+                        echo "ENABLE_BACKUP=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "CALENDAR" | "calendar")
+                        service_start 10-nginx
+                        service_start 20-php-fpm
+                        print_debug "Enabling Container Mode for: CALENDAR"
+                        echo "ENABLE_CALENDAR=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "DAGENT" | "dagent" )
+                        print_debug "Enabling Container Mode for: DAGENT"
+                        echo "ENABLE_DAGENT=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "GATEWAY" | "gateway" )
+                        print_debug "Enabling Container Mode for: GATEWAY"
+                        echo "ENABLE_GATEWAY=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "GRAPI" | "grapi" )
+                        print_debug "Enabling Container Mode for: GRAPI"
+                        echo "ENABLE_GRAPI=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "ICAL" | "ical" )
+                        print_debug "Enabling Container Mode for: ICAL"
+                        echo "ENABLE_ICAL=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "KAPI" | "kapi" )
+                        print_debug "Enabling Container Mode for: KAPI"
+                        echo "ENABLE_KAPI=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "KDAV" | "kdav" )
+                        print_debug "Enabling Container Mode for: KDAV"
+                        echo "ENABLE_KDAV=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "KONNECT" | "konnnect" )
+                        print_debug "Enabling Container Mode for: KONNECT"
+                        service_start 10-nginx
+                        echo "ENABLE_KONNECT=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "KWM" | "kwm" )
+                        print_debug "Enabling Container Mode for: KWM"
+                        echo "ENABLE_KWM=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "MEET" | "meet" )
+                        print_debug "Enabling Container Mode for: MEET"
+                        service_start 10-nginx
+                        service_start 20-php-fpm
+                        echo "ENABLE_MEET=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "MONITOR" | "monitor" )
+                        print_debug "Enabling Container Mode for: MONITOR"
+                        echo "ENABLE_MONITOR=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "SEARCH" | "search" )
+                        print_debug "Enabling Container Mode for: SEARCH"
+                        echo "ENABLE_SEARCH=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "SPAMD" | "spamd" )
+                        print_debug "Enabling Container Mode for: SPAMD"
+                        echo "ENABLE_SPAMD=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "SPOOLER" | "spooler" )
+                        print_debug "Enabling Container Mode for: SPOOLER"
+                        echo "ENABLE_SPOOLER=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "WEBAPP" | "webapp" )
+                        print_debug "Enabling Container Mode for: WEBAPP"
+                        service_start 10-nginx
+                        service_start 20-php-fpm
+                        echo "ENABLE_WEBAPP=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "ZPUSH" | "zpush" )
+                        print_debug "Enabling Container Mode for: ZPUSH"
+                        service_start 10-nginx
+                        service_start 20-php-fpm
+                        echo "ENABLE_ZPUSH=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    *)
+                        print_error "Unknown 'MODE' environment variable - exitting.."
+                        exit 1
+                    ;;
+                esac
+            done
+        fi
+        source /tmp/state/.mode-env
+    fi
+}
+
 wait_for_server() {
-    case "${SOCKET_SERVER}" in
+
+    case "${1}" in
+            "DAGENT" | "dagent" | "DAGENT_SOCKET_SERVER" )
+                socket_server=${DAGENT_SOCKET_SERVER}
+            ;;
+            "GRAPI" | "grapi" | "GRAPI_SOCKET_SERVER" )
+                socket_server=${GRAPI_SOCKET_SERVER}
+            ;;
+            "ICAL" | "ical" | "ICAL_SOCKET_SERVER" )
+                socket_server=${ICAL_SOCKET_SERVER}
+            ;;
+            "KDAV" | "kdav" | "KDAV_SOCKET_SERVER" )
+                socket_server=${KDAV_SOCKET_SERVER}
+            ;;
+            "KONNECT" | "konnect" | "KONNECT_SOCKET_SERVER" )
+                socket_server=${KONNECT_SOCKET_SERVER}
+            ;;
+            "MONITOR" | "monitor" | "MONITOR_SOCKET_SERVER" )
+                socket_server=${MONITOR_SOCKET_SERVER}
+            ;;
+            "SERVER" | "server" | "SOCKET_SERVER" )
+                socket_server=${SOCKET_SERVER}
+            ;;
+            "SPAMD" | "spamd" | "SPAMD_SOCKET_SERVER" )
+                socket_server=${SPAMD_SOCKET_SERVER}
+            ;;
+            "SPOOLER" | "spooler" | "SPOOLER_SOCKET_SERVER" )
+                socket_server=${SPOOLER_SOCKET_SERVER}
+            ;;
+    esac
+
+    socket_server=${socket_server:-"${SOCKET_SERVER}"}
+
+    case "${socket_server}" in
             "file://"* )
                 print_notice "Checking to see if Kopano Server socket is avaialable"
-                wait_for_socket "${SOCKET_SERVER}"
+                wait_for_socket "${socket_Server}"
             ;;
             "htt"* )
                 print_notice "Checking to see if Kopano Server port is avaialable"
-                kchost=$(echo "${SOCKET_SERVER}" | awk -F / '{print $3}' | awk -F : '{print $1}')
-                kcport=$(echo "${SOCKET_SERVER}" | awk -F / '{print $3}' | awk -F : '{print $2}')
+                kchost=$(echo "${socket_server}" | awk -F / '{print $3}' | awk -F : '{print $1}')
+                kcport=$(echo "${socket_server}" | awk -F / '{print $3}' | awk -F : '{print $2}')
                 wait_for_port "$kchost" "$kcport"
             ;;
     esac

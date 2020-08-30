@@ -9,7 +9,7 @@ liftoff
 
 rm -rf /var/run/kopano/spamd.pid
 
-wait_for_server
+wait_for_server spamd
 sleep 3
 
 print_info "Starting Kopano Spamd Service"

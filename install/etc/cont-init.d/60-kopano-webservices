@@ -4,6 +4,8 @@ source /assets/functions/00-container
 source /assets/defaults/kopano-global
 source /assets/functions/kopano
 check_service_initialized init 50-kopano-meet
+setup_container_mode
+
 PROCESS_NAME="kopano-webservices"
 
 mkdir -p "${CONFIG_PATH}"
@@ -12,7 +14,7 @@ if var_true $ENABLE_CALENDAR || var_true $ENABLE_KDAV || var_true $ENABLE_WEBAPP
 	source /assets/defaults/10-nginx
 else
     service_stop 10-nginx
-    service stop 11-nginx-config-reload
+    service_stop 11-nginx-config-reload
     service_stop 20-php-fpm
 fi
 

@@ -9,7 +9,7 @@ liftoff
 
 rm -rf /var/run/kopano/gateway.pid
 
-wait_for_server
+wait_for_server gateway
 sleep 3
 
 print_info "Starting Kopano Gateway"

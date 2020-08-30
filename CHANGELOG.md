@@ -1,3 +1,8 @@
+## 0.52.0 2020-08-30 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Startup Routines to support multi host/container usage
+
 ## 0.51.0 2020-08-27 <dave at tiredofit dot ca>
 
    ### Changed

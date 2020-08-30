@@ -7,7 +7,7 @@ PROCESS_NAME="kopano-ical"
 check_container_initialized
 liftoff
 
-wait_for_server
+wait_for_server ical
 sleep 3
 
 print_info "Starting Kopano ICAL Server"

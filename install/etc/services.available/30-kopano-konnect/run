@@ -6,7 +6,6 @@ prepare_service functions kopano
 
 PROCESS_NAME="kopano-konnect"
 check_container_initialized
-#check_service_initialized 30-kopano-server
 liftoff
 
 parse_config "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"

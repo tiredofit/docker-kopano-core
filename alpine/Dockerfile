@@ -3,7 +3,6 @@ LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ARG GPERFTOOLS_VERSION=2.8
 ARG VMIME_VERSION=v0.9.2k4
-
 ENV KOPANO_CORE_VERSION=kopanocore-10.0.6 \
     KOPANO_WEBAPP_VERSION=4.2.0 \
     Z_PUSH_VERSION=2.5.2

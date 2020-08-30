@@ -69,7 +69,7 @@ if [ -n "${EXTRA_PYTHONPATH}" ]; then
 	export PYTHONPATH="${EXTRA_PYTHONPATH}:${PYTHONPATH}"
 fi
 
-wait_for_server
+wait_for_server grapi
 
 print_info "Starting Kopano GRAPI Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then

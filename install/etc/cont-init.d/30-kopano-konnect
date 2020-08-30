@@ -4,6 +4,7 @@ source /assets/functions/00-container
 source /assets/functions/kopano
 source /assets/defaults/kopano-global
 source /assets/defaults/kopano-konnect
+setup_container_mode
 
 PROCESS_NAME="kopano-konnect"
 

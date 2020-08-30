@@ -4,6 +4,8 @@ source /assets/functions/00-container
 source /assets/defaults/kopano-global
 source /assets/functions/kopano
 check_service_initialized init 30-kopano-konnect
+setup_container_mode
+
 PROCESS_NAME="kopano-core"
 
 mkdir -p "${CONFIG_PATH}"
@@ -21,7 +23,7 @@ if var_true "${ENABLE_SERVER}" ; then
 	configure_server
 	print_debug "Finished Configuring Kopano Server"
 else
-	service_stop 30-kopano-server
+	service_stop 41-kopano-server
     service_stop 90-post-server-startup-routines
 fi
 

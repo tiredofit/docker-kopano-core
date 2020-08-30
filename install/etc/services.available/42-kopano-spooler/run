@@ -9,7 +9,7 @@ liftoff
 
 rm -rf /var/run/kopano/spooler.pid
 
-wait_for_server
+wait_for_server spooler
 sleep 3
 
 print_info "Starting Kopano Spooler"

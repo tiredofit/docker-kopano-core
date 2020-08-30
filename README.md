@@ -97,6 +97,24 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 | Parameter          | Description                                                                                                          | Default    |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------- | ---------- |
 | `SETUP_TYPE`       | `MANUAL` or `AUTO` to auto generate cofniguration for services on bootup, otherwise let admin control configuration. | `AUTO`     |
+| `MODE`             | Container Mode - Which services to use - Multiple modes can occur by seperating with comma e.g. `DAGENT,SPAMD`       | `CORE`     |
+|                    | Options _(not all will work on their own, you may need multiple modes defined)_:                                     |            |
+|                    | `AIO` All in one - Kopano Core, Webapp, Zpush, Konnect, Meet                                                         |            |
+|                    | `Core` Autorespond, Backup, Dagent, Gateway, ICAL, KDAV, Monitor, Server, Spamd, Spooler, Webapp, Z-Push             |            |
+|                    | `WEB` Webapp, Z-Push                                                                                                 |            |
+|                    | `MEET` GRAPI, KAPI, Konnect, KWMSever, Meet Webapp                                                                   |            |
+|                    | `AUTORESPOND` - Autoresponder                                                                                        |            |
+|                    | `BACKUP` - Backup                                                                                                    |            |
+|                    | `DAGENT` - DAgent                                                                                                    |            |
+|                    | `GATEWAY` - Gateway                                                                                                  |            |
+|                    | `ICAL` - ICAL                                                                                                        |            |
+|                    | `KDAV` - KDAV                                                                                                        |            |
+|                    | `MONITOR` - Monitor                                                                                                  |            |
+|                    | `SERVER` - Server                                                                                                    |            |
+|                    | `SPAMD` - Spamd                                                                                                      |            |
+|                    | `SPOOLER` - Spooler                                                                                                  |            |
+|                    | `WEBAPP` - Webapp                                                                                                    |            |
+|                    | `ZPUSH` - ZPush                                                                                                      |            |
 | `CONFIG_PATH`      | Where to store configuration files                                                                                   | `/config/` |
 | `ENABLE_COREDUMPS` | Enable Coredumps for services                                                                                        | `FALSE`    |
 

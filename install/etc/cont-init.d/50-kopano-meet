@@ -4,6 +4,7 @@ source /assets/functions/00-container
 source /assets/functions/kopano
 source /assets/defaults/kopano-global
 check_service_initialized init 40-kopano-core
+setup_container_mode
 
 PROCESS_NAME="kopano-meet"
 
