@@ -813,18 +813,21 @@ EOF
 }
 
 configure_logging() {
-
-    if [ ! -f "/tmp/state/.log.kopano" ] ; then
-        print_debug "Logging: Configuring Kopano"
-        if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
-            print_debug "Logging: Kopano set to ${LOG_TYPE}"
-            mkdir -p "${LOG_PATH_KOPANO}"
-            chown -R kopano: "${LOG_PATH_KOPANO}"
-            sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
-        else
-            rm -rf /etc/logrotate.d/kopano
+    if var_true "$create_log_kopano" ; then
+        if [ ! -f "/tmp/state/.log.kopano" ] ; then
+            print_debug "Logging: Configuring Kopano"
+            if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
+                print_debug "Logging: Kopano set to ${LOG_TYPE}"
+                mkdir -p "${LOG_PATH_KOPANO}"
+                chown -R kopano: "${LOG_PATH_KOPANO}"
+                sed -i -e "s#<KOPANO_LOG_LOCATION>#${LOG_PATH_KOPANO}#g" /etc/logrotate.d/kopano
+            else
+                rm -rf /etc/logrotate.d/kopano
+            fi
+            touch /tmp/state/.log.kopano
         fi
-        touch /tmp/state/.log.kopano
+    else
+        rm -rf /etc/logrotate.d/kopano
     fi
 
     if [ ! -f "/tmp/state/.log.zpush" ] ; then
@@ -2822,6 +2825,9 @@ setup_container_mode() {
             echo "ENABLE_SPOOLER=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_WEBAPP=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_ZPUSH=TRUE" >> /tmp/state/.mode-env
+            if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+            fi
         elif [ "${MODE}" = "WEB" ] || [ "${MODE}" = "web" ] ; then
             print_debug "Container Mode: WEB"
             print_debug "Creating MODE environment generated variables"
@@ -2850,6 +2856,9 @@ setup_container_mode() {
             echo "ENABLE_SPOOLER=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_WEBAPP=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_ZPUSH=TRUE" >> /tmp/state/.mode-env
+            if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+            fi
         else
             modes=$(echo "$MODE" | tr "," "\n")
             for mode in $modes
@@ -2858,10 +2867,16 @@ setup_container_mode() {
                     "AUTORESPOND" | "autorespond" )
                         print_debug "Enabling Container Mode for: AUTORESPOND"
                         echo "ENABLE_AUTORESPOND=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "BACKUP" | "backup" )
                         print_debug "Enabling Container Mode for: BACKUP"
                         echo "ENABLE_BACKUP=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "CALENDAR" | "calendar")
                         service_start 10-nginx
@@ -2872,35 +2887,59 @@ setup_container_mode() {
                     "DAGENT" | "dagent" )
                         print_debug "Enabling Container Mode for: DAGENT"
                         echo "ENABLE_DAGENT=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "GATEWAY" | "gateway" )
                         print_debug "Enabling Container Mode for: GATEWAY"
                         echo "ENABLE_GATEWAY=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "GRAPI" | "grapi" )
                         print_debug "Enabling Container Mode for: GRAPI"
                         echo "ENABLE_GRAPI=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "ICAL" | "ical" )
                         print_debug "Enabling Container Mode for: ICAL"
                         echo "ENABLE_ICAL=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "KAPI" | "kapi" )
                         print_debug "Enabling Container Mode for: KAPI"
                         echo "ENABLE_KAPI=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "KDAV" | "kdav" )
                         print_debug "Enabling Container Mode for: KDAV"
                         echo "ENABLE_KDAV=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "KONNECT" | "konnnect" )
                         print_debug "Enabling Container Mode for: KONNECT"
                         service_start 10-nginx
                         echo "ENABLE_KONNECT=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "KWM" | "kwm" )
                         print_debug "Enabling Container Mode for: KWM"
                         echo "ENABLE_KWM=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "MEET" | "meet" )
                         print_debug "Enabling Container Mode for: MEET"
@@ -2911,22 +2950,37 @@ setup_container_mode() {
                     "MONITOR" | "monitor" )
                         print_debug "Enabling Container Mode for: MONITOR"
                         echo "ENABLE_MONITOR=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "SEARCH" | "search" )
                         print_debug "Enabling Container Mode for: SEARCH"
                         echo "ENABLE_SEARCH=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "SERVER" | "server" )
                         print_debug "Enabling Container Mode for: SERVER"
                         echo "ENABLE_SERVER=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "SPAMD" | "spamd" )
                         print_debug "Enabling Container Mode for: SPAMD"
                         echo "ENABLE_SPAMD=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "SPOOLER" | "spooler" )
                         print_debug "Enabling Container Mode for: SPOOLER"
                         echo "ENABLE_SPOOLER=TRUE" >> /tmp/state/.mode-env
+                        if [ "$(grep -cq 'create_log_kopano=TRUE')" -eq 0 ] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "WEBAPP" | "webapp" )
                         print_debug "Enabling Container Mode for: WEBAPP"
