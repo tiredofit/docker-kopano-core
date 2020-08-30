@@ -1,3 +1,9 @@
+## 0.52.2 2020-08-30 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Move Fail2ban Init/Start Order
+      - Add routines to check mode for Fail2ban to avoid errors
+
 ## 0.52.1 2020-08-30 <dave at tiredofit dot ca>
 
    ### Changed

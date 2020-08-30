@@ -39,12 +39,12 @@ fail2ban_create_config_jail() {
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}jail.conf
 ## Custom Generated Fail2ban jail.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 
 [DEFAULT]
 ignorself = ${FAIL2BAN_IGNORE_SELF}
 ignoreip = ${FAIL2BAN_IGNORE_IP}
-ignorecommand = 
+ignorecommand =
 bantime  = ${FAIL2BAN_TIME_BAN}
 findtime  = ${FAIL2BAN_TIME_FIND}
 maxretry = ${FAIL2BAN_MAX_RETRY}
@@ -101,17 +101,17 @@ fail2ban_create_config_main(){
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}fail2ban.conf
 ## Custom Generated fail2ban.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
-		
+## Last Generated on `date`
+
 [Definition]
 loglevel = ${FAIL2BAN_LOG_LEVEL}
 # Values: [ STDOUT | STDERR | SYSLOG | SYSOUT | FILE ]  Default: STDERR
-logtarget = ${FAIL2BAN_LOG_FILE} 
+logtarget = ${FAIL2BAN_LOG_FILE}
 syslogsocket = auto
 socket = /var/run/fail2ban/fail2ban.sock
 pidfile = /var/run/fail2ban/fail2ban.pid
 # Values: [ None :memory: FILE ] Default: /var/lib/fail2ban/fail2ban.sqlite3
-dbfile = ${FAIL2BAN_DB_PATH}${FAIL2BAN_DB_FILE} 
+dbfile = ${FAIL2BAN_DB_PATH}${FAIL2BAN_DB_FILE}
 dbpurgeage = ${FAIL2BAN_DB_PURGE_AGE}
 EOF
 	fi
@@ -120,13 +120,13 @@ EOF
 fail2ban_create_filters() {
 	if [ "$SETUP_TYPE" = "AUTO" ]; then
 		print_debug "Fail2ban: Creating Filters"
-	
+
 		# Kopano Gateway
 		print_debug "Fail2ban: Filters - Kopano Gateway"
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}filter.d/kopano-gateway-auth.conf
 ## Custom Generated filter.d/kopano-gateway-auth.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 
 [Definition]
 failregex = Failed to login from .*logon failed (80040111)
@@ -138,7 +138,7 @@ EOF
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}filter.d/kopano-ical-auth.conf
 ## Custom Generated filter.d/kopano-ical-auth.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 
 [Definition]
 failregex = Login failed: logon failed (80040111).*
@@ -150,7 +150,7 @@ EOF
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}filter.d/kopano-kdav-auth.conf
 ## Custom Generated filter.d/kopano-kdav-auth.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 
 [Definition]
 failregex = Login failed: logon failed (80040111).*
@@ -162,7 +162,7 @@ EOF
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}filter.d/kopano-webapp-auth.conf
 ## Custom Generated filter.d/kopano-webapp-auth.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 
 [Definition]
 failregex = Kopano WebApp user:.* authentication failure at MAPI
@@ -174,7 +174,7 @@ EOF
 		cat <<EOF > ${FAIL2BAN_CONFIG_PATH}filter.d/z-push.conf
 ## Custom Generated filter.d/z-push.conf Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 
 [INCLUDES]
 before = common.conf
@@ -188,11 +188,11 @@ EOF
 
 fail2ban_jail_purge() {
 	if [ "$SETUP_TYPE" = "AUTO" ]; then
-	    print_debug "Fail2Ban: Purging Jails from Previous Run"	
-	    cat <<EOF > ${FAIL2BAN_CONFIG_PATH}jail.local	    
+	    print_debug "Fail2Ban: Purging Jails from Previous Run"
+	    cat <<EOF > ${FAIL2BAN_CONFIG_PATH}jail.local
 ## Custom Generated Fail2ban jail.local Configuration! Do not edit, instead set ENV Vars
 ## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-## Last Generated on `date`	
+## Last Generated on `date`
 EOF
 	fi
 }
@@ -200,8 +200,9 @@ EOF
 
 fail2ban_jail_create() {
 	if [ "$SETUP_TYPE" = "AUTO" ]; then
-		print_debug "Fail2Ban: Adding Jail - Kopano Gateway"
-		cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
+		if var_true = "${ENABLE_GATEWAY}" ; then
+			print_debug "Fail2Ban: Adding Jail - Kopano Gateway"
+			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-gateway]
 enabled = ${GATEWAY_ENABLE_FAIL2BAN}
 port    = imap,imaps,pop3,pop3s
@@ -209,9 +210,11 @@ filter  = kopano-gateway-auth
 logpath = ${LOG_PATH_KOPANO}${LOG_FILE_GATEWAY}
 
 EOF
+		fi
 
-		print_debug "Fail2Ban: Adding Jail - Kopano ICAL"
-		cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
+		if var_true = "${ENABLE_ICAL}" ; then
+			print_debug "Fail2Ban: Adding Jail - Kopano ICAL"
+			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-ical]
 enabled = ${ICAL_ENABLE_FAIL2BAN}
 port    = http, https
@@ -219,9 +222,11 @@ filter  = kopano-ical-auth
 logpath = ${LOG_PATH_KOPANO}${LOG_FILE_ICAL}
 
 EOF
+		fi
 
-		print_debug "Fail2Ban: Adding Jail - Kopano DAV"
-		cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
+		if var_true = "${ENABLE_KDAV}" ; then
+			print_debug "Fail2Ban: Adding Jail - Kopano DAV"
+			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-kdav]
 enabled = ${KDAV_ENABLE_FAIL2BAN}
 port    = http,https
@@ -229,9 +234,11 @@ filter  = kopano-kdav-auth
 logpath = ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
 
 EOF
+		fi
 
-		print_debug "Fail2Ban: Adding Jail - Kopano Webapp"
-		cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
+		if var_true = "${ENABLE_WEBAPP}" ; then
+			print_debug "Fail2Ban: Adding Jail - Kopano Webapp"
+			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-webapp]
 enabled = ${WEBAPP_ENABLE_FAIL2BAN}
 port    = http,https
@@ -239,9 +246,11 @@ filter  = kopano-webapp-auth
 logpath = ${NGINX_LOG_ERROR_LOCATION}/webapp-error.log
 
 EOF
+		fi
 
-		print_debug "Fail2Ban: Adding Jail - Z-Push"
-		cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
+		if var_true = "${ENABLE_ZPUSH}" ; then
+			print_debug "Fail2Ban: Adding Jail - Z-Push"
+			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [z-push]
 enabled  = ${ZPUSH_ENABLE_FAIL2BAN}
 port     = http,https
@@ -249,5 +258,6 @@ filter   = z-push
 logpath  = ${LOG_PATH_ZPUSH}${LOG_FILE_ZPUSH_ERROR}
 
 EOF
+		fi
 	fi
 }
