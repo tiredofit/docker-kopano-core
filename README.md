@@ -577,7 +577,9 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `ENABLE_SPAMD`          | Enable Service                            | `TRUE`                  |
 | `LOG_FILE_SPAMD`        | Logfile Name                              | `spamd.log`             |
 | `SPAMD_FILES_HAM_PATH`  | Where to store HAM files for training     | `/data/spamd/ham/`      |
-| `SPAMD_FILES_SPAM_PATH` | Where to store HAM files for training     | `/data/spamd/spam/`     |
+| `SPAMD_FILES_SPAM_PATH` | Where to store SPAM files for training    | `/data/spamd/spam/`     |
+| `SPAMD_FILES_DB_PATH`   | Where to store learned SPAM DB            | `/data/spamd/`          |
+| `SPAMD_FILES_DB_FILE`   | Learned SPAM DB                           | `spam.db`               |
 | `SPAMD_SA_GROUP`        | Spamassassin Group                        | `kopano`                |
 | `SPAMD_SOCKET_SERVER`   | What should service use to contact server | `${SOCKET_SERVER}`      |
 | `SPAMD_SSL_CERT_FILE`   | SpamD SSL Certificate File                | `/certs/core/spamd.crt` |
