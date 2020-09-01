@@ -640,6 +640,7 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `WEBAPP_LOGINNAME_STRIP_DOMAIN`                      | Strip Doman/Prefix from username                              |                                                                                                                           |
 | `WEBAPP_LOG_SUCCESSFUL_LOGINS`                       |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_LOG_USERS`                                   |                                                               |                                                                                                                           |
+| `WEBAPP_MANUAL_URL` | URL to Load for Manual      | `https://documentation.kopano.io/user_manual_webapp/` |
 | `WEBAPP_MAX_EML_FILES_IN_ZIP`                        |                                                               | `50`                                                                                                                      |
 | `WEBAPP_MAX_GAB_RESULTS`                             | Maximum results for Global Address Book `0` to disable        | `0`                                                                                                                       |
 | `WEBAPP_OIDC_CLIENT_ID`                              |                                                               |                                                                                                                           |
@@ -726,13 +727,7 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 | `WEBAPP_PLUGIN_INTRANET1_AUTOSTART`   | Auto start service upon login        |         |
 | `WEBAPP_PLUGIN_INTRANET1_ICON`        | Icon to load for service             |         |
 
-###### Webapp Plugin: Manual Options
 
-| Parameter                           | Description                 | Default                                               |
-| ----------------------------------- | --------------------------- | ----------------------------------------------------- |
-| `WEBAPP_PLUGIN_ENABLE_MANUAL`       | Enable Webapp Manual Plugin | `TRUE`                                                |
-| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | Auto Enable for new users   | `TRUE`                                                |
-| `WEBAPP_PLUGIN_MANUAL_DEFAULT_USER` | URL to Load for Manual      | `https://documentation.kopano.io/user_manual_webapp/` |
 
 ###### Webapp Plugin: Mattermost Options
 
