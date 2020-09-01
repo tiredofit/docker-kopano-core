@@ -1,2 +1,4 @@
 /install/usr/share/kopano-webapp/plugins
-/build-assets/*
+/build-assets/kopano-core/*
+/build-assets/kopano-meet/*
+/build-assets/kopano-webapp/*
