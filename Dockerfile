@@ -658,7 +658,7 @@ RUN set -x && \
     \
     ### Fetch Additional Scripts
     mkdir -p /rootfs/assets/kopano/scripts && \
-    git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /assets/kopano/scripts/webapp-tools && \
+    git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /rootfs/assets/kopano/scripts/webapp-tools && \
     \
     ### Compress Package
     cd /rootfs/ && \
