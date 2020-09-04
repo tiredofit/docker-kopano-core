@@ -659,6 +659,8 @@ RUN set -x && \
     ### Fetch Additional Scripts
     mkdir -p /rootfs/assets/kopano/scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /rootfs/assets/kopano/scripts/webapp-tools && \
+    mkdir -p /rootfs/assets/kopano/scripts/webapp-tools/set-default-signature && \
+    cp -R /usr/src/kopano-webapp/tools/signatures/* /rootfs/assets/kopano/scripts/webapp-tools/set-default-signature && \
     \
     ### Compress Package
     cd /rootfs/ && \
@@ -744,15 +746,21 @@ RUN set -x && \
                        fail2ban \
                        iptables \
                        libdb5.3++ \
+                       libdigest-hmac-perl \
                        libev4 \
+                       libfile-copy-recursive-perl \
                        libgsoap-kopano-2.8.102 \
                        libhx28 \
                        libical3 \
                        libimagequant0 \
+                       libio-tee-perl \
                        libjsoncpp1 \
+                       libmail-imapclient-perl \
                        libpython3.7 \
+                       libreadonly-perl \
                        libs3-4 \
                        libtidy5 \
+                       libunicode-string-perl \
                        libvmime-kopano3 \
                        libvmime1 \
                        libwebpdemux2 \
@@ -764,6 +772,7 @@ RUN set -x && \
                        python3-bsddb3 \
                        python3-certifi \
                        python3-chardet \
+                       python3-configobj \
                        python3-daemon \
                        python3-dateutil \
                        python3-idna \
