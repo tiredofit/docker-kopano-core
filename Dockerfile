@@ -752,6 +752,7 @@ RUN set -x && \
                        libgsoap-kopano-2.8.102 \
                        libhx28 \
                        libical3 \
+                       libio-socket-ssl-perl \
                        libimagequant0 \
                        libio-tee-perl \
                        libjsoncpp1 \
