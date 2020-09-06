@@ -1711,6 +1711,19 @@ watchdog_max_age = ${SERVER_WATCHDOG_MAX_AGE}
 server_recv_timeout = ${SERVER_TIMEOUT_RECIEVE}
 server_send_timeout = ${SERVER_TIMEOUT_SEND}
 
+cache_cell_size = ${SERVER_CACHE_CELL}
+cache_object_size = ${SERVER_CACHE_OBJECT}
+cache_indexedobject_size = ${SERVER_CACHE_INDEXED_OBJECT}
+cache_quota_size = ${SERVER_CACHE_QUOTA}
+cache_quota_lifetime = ${SERVER_CACHE_QUOTA_LIFETIME}
+cache_acl_size = ${SERVER_CACHE_ACL}
+cache_store_size = ${SERVER_CACHE_STORE}
+cache_user_size = ${SERVER_CACHE_USER}
+cache_userdetails_size = ${SERVER_CACHE_USERDETAILS}
+cache_userdetails_lifetime = ${SERVER_CACHE_USERDETAILS_LIFETIME}
+cache_server_size = ${SERVER_CACHE_SERVER}
+cache_server_lifetime = ${SERVER_CACHE_SERVER_LIFETIME}
+
 allow_local_users = ${SERVER_ALLOW_LOCAL_USERS}
 local_admin_users = ${SERVER_LOCAL_ADMIN_USERS}
 log_file = ${LOG_PATH_KOPANO}${LOG_FILE_SERVER}

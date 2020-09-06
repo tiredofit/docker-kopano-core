@@ -532,6 +532,19 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 | `SERVER_ATTACHMENT_BACKEND`              | Files Backend `FILES` `FILES_V2` `S3`                          | `files_v2`                    |
 | `SERVER_ATTACHMENT_COMPRESSION`          | Level of Gzip Compression for Attachments                      | `6`                           |
 | `SERVER_ATTACHMENT_S3_PROTOCOL`          | Protocol to use for connecting to S3 service                   | `HTTPS`                       |
+|                                          |
+| `SERVER_CACHE_ACL`                       | Access Control List Values                                     | `1M`                          |
+| `SERVER_CACHE_CELL`                      | Main Cache in Kopano                                           | `256M`                        |
+| `SERVER_CACHE_INDEXED_OBJECT`            | Unique IDs of Objects                                          | `16M`                         |
+| `SERVER_CACHE_OBJECT`                    | Objects and Folder Hierarchy                                   | `5M`                          |
+| `SERVER_CACHE_QUOTA_LIFETIME`            | Lifetime for Quota Details                                     | `1`                           |
+| `SERVER_CACHE_QUOTA`                     | Quota Values of Users                                          | `1M`                          |
+| `SERVER_CACHE_SERVER_LIFETIME`           | Lifetime for Server Locations                                  | `30`                          |
+| `SERVER_CACHE_SERVER`                    | Multiserver Only - Server Locations                            | `1M`                          |
+| `SERVER_CACHE_STORE`                     | ID Values                                                      | `1M`                          |
+| `SERVER_CACHE_USERDETAILS_LIFETIME`      | Lifetime for User Details                                      | `0`                           |
+| `SERVER_CACHE_USERDETAILS`               | User Details Values                                            | `3M`                          |
+| `SERVER_CACHE_USER`                      | User ID Values                                                 | `1M`                          |
 | `SERVER_CUSTOM_USERSCRIPT_CREATECOMPANY` |                                                                | `internal`                    |
 | `SERVER_CUSTOM_USERSCRIPT_CREATEGROUP`   |                                                                | `internal`                    |
 | `SERVER_CUSTOM_USERSCRIPT_CREATEUSER`    |                                                                | `internal`                    |
