@@ -747,16 +747,21 @@ RUN set -x && \
                        bc \
                        fail2ban \
                        iptables \
+                       libany-uri-escape-perl \
+                       libdata-uniqid-perl \
                        libdb5.3++ \
                        libdigest-hmac-perl \
                        libev4 \
                        libfile-copy-recursive-perl \
                        libgsoap-kopano-2.8.102 \
+                       libhtml-entities-numbered-perl \
                        libhx28 \
                        libical3 \
-                       libio-socket-ssl-perl \
                        libimagequant0 \
+                       libio-socket-ssl-perl \
                        libio-tee-perl \
+                       libjson-perl \
+                       libjson-webtoken-perl \
                        libjsoncpp1 \
                        libmail-imapclient-perl \
                        libpython3.7 \
