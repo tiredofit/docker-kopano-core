@@ -1469,6 +1469,8 @@ configure_migrator() {
 ## Last Generated on $(date)
 
 pid_file = /var/run/kopano/gateway-migrator.pid
+pop3_listen = *:1110
+pop3s_listen = *:9995
 imap_listen = *:1143
 imaps_listen = *:9993
 ssl_private_key_file = ${GATEWAY_SSL_KEY_FILE}
