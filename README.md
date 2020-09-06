@@ -109,7 +109,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 |                    | `GATEWAY` - Gateway                                                                                                  |            |
 |                    | `ICAL` - ICAL                                                                                                        |            |
 |                    | `KDAV` - KDAV                                                                                                        |            |
-|                    | `MIGRATOR` - Copy of Gateway with Migration mode active (no authentication )                                          |            |
+|                    | `MIGRATOR` - Gateway with Migration mode active (no authentication)                                                  |            |
 |                    | `MONITOR` - Monitor                                                                                                  |            |
 |                    | `SERVER` - Server                                                                                                    |            |
 |                    | `SPAMD` - Spamd                                                                                                      |            |
@@ -544,6 +544,7 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 | `SERVER_ENABLE_GAB`                      | Enable Global Address Book                                     | `TRUE`                        |
 | `SERVER_ENABLE_HTTPS`                    | Enable TLS Communications to Server Socket                     | `FALSE`                       |
 | `SERVER_ENABLE_HTTP`                     | Enable HTTP Communications to Server Socket                    | `FALSE`                       |
+| `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Server Mode                                       | `FALSE`                       |
 | `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Tenant Mode                                       | `FALSE`                       |
 | `SERVER_ENABLE_OPTIMIZED_SQL`            | Use Optimized MariaDB statements                               | `TRUE`                        |
 | `SERVER_ENABLE_SEARCH`                   | Enable Search Functionality                                    | `TRUE`                        |

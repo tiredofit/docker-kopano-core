@@ -1643,6 +1643,7 @@ EOF
             truefalse_yesno SERVER_ALLOW_LOCAL_USERS
             truefalse_yesno SERVER_ATTACHMENT_BACKEND_FILES_FSYNC
             truefalse_yesno SERVER_ENABLE_GAB
+            truefalse_yesno SERVER_ENABLE_MULTI_SERVER
             truefalse_yesno SERVER_ENABLE_MULTI_TENANT
             truefalse_yesno SERVER_ENABLE_OPTIMIZED_SQL
             truefalse_yesno SERVER_ENABLE_SEARCH
@@ -1693,7 +1694,7 @@ ${server_http}
 ${server_https}
 
 server_name = ${SERVER_SERVER_NAME}
-enable_distributed_kopano = ${SERVER_ENABLE_MULTI_TENANT}
+enable_distributed_kopano = ${SERVER_ENABLE_MULTI_SERVER}
 
 database_engine = mysql
 mysql_host = ${DB_HOST}
