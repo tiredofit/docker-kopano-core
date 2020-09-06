@@ -1,3 +1,20 @@
+## 0.63.0 2020-09-06 <dave at tiredofit dot ca>
+
+   ### Added
+      - Perl dependencies for kopano-migration-imap
+      - Add MODE=MIGRATE - A copy of Kopano Gateway with authentication disabled for migration purposes  
+      - Source file and script injection on each service before compiling via /build-assets
+
+   ### Changed
+      - Fix to fetching webapp repo tools from git
+      - Dirty hacks for Rocketchat Webapp Plugin
+      - Fix WEBAPP_ENALE_PLUGINS
+      - Fix SpamD configuration enforcing a DB entry
+      - Remove Desktop Notifications, Title Counter, Quick Items, Folder Widget plugin routines (embedded in master)
+      - Fix Webapp Manual configuration (embedded in master)
+      - Update dependencies
+      - Do a better job bootstrapping log files and directories
+
 ## 0.52.2 2020-08-30 <dave at tiredofit dot ca>
 
    ### Changed
