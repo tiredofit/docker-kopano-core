@@ -109,7 +109,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 |                    | `GATEWAY` - Gateway                                                                                                  |            |
 |                    | `ICAL` - ICAL                                                                                                        |            |
 |                    | `KDAV` - KDAV                                                                                                        |            |
-|                    | `MIGRATOR` - Copy of Gateway with Migration mode active (no uthentication )                                          |            |
+|                    | `MIGRATOR` - Copy of Gateway with Migration mode active (no authentication )                                          |            |
 |                    | `MONITOR` - Monitor                                                                                                  |            |
 |                    | `SERVER` - Server                                                                                                    |            |
 |                    | `SPAMD` - Spamd                                                                                                      |            |
