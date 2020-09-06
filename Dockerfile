@@ -673,6 +673,8 @@ RUN set -x && \
 FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
+ADD build-assets/kopano /build-assets
+
 ### Move Previously built files from Core image
 COPY --from=core-builder /*.tar.gz /usr/src/core/
 
@@ -883,6 +885,10 @@ RUN set -x && \
     ln -sf /config /etc/kopano && \
     mkdir -p /var/run/kopano && \
     chown -R kopano /var/run/kopano && \
+    \
+    if [ -d "/build-assets/src/" ] ; then cp -R /build-assets/src/* / ; fi; \
+    if [ -f "/build-assets/scripts/kopano.sh" ] ; then /build-assets/scripts/kopano.sh ; fi; \
+    rm -rf /build-assets/ && \
     \
     ##### Cleanup
     apt-get purge -y \
