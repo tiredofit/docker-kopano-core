@@ -109,6 +109,7 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 |                    | `GATEWAY` - Gateway                                                                                                  |            |
 |                    | `ICAL` - ICAL                                                                                                        |            |
 |                    | `KDAV` - KDAV                                                                                                        |            |
+|                    | `MIGRATOR` - Copy of Gateway with Migration mode active (no uthentication )                                          |            |
 |                    | `MONITOR` - Monitor                                                                                                  |            |
 |                    | `SERVER` - Server                                                                                                    |            |
 |                    | `SPAMD` - Spamd                                                                                                      |            |
@@ -426,6 +427,19 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH`  | Require SSL when using AUTHPLAIN                 | `TRUE`                    |
 | `LOG_FILE_GATEWAY`                    | Logfile Name                                     | `gateway.log`             |
 
+##### Gateway Migrator Mode Options
+
+When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gateway that skips authentication checks on any user in order to perform migration tasks moving messages from a remote store to the locally stored database. All options above are the same with the exception of the following that are _hardcoded_. Perform your migration work with the included `kopano-migration-imap` script included in image.
+
+| Parameter                             | Description                                      | Hardcoded                            |
+| ------------------------------------- | ------------------------------------------------ | ------------------------------------ |
+| `GATEWAY_BYPASS_AUTHENTICATION_ADMIN` | Bypass authentication for Admins on local socket | `TRUE`                               |
+| `GATEWAY_LISTEN_PORT_IMAP_SECURE`     | Listen port (insecure)                           | `9993`                               |
+| `GATEWAY_LISTEN_PORT_IMAP`            | Listen port (insecure)                           | `1143`                               |
+| `GATEWAY_IMAP_MAX_MESSAGE_SIZE`       | Maximum Message Size to Process for POP3/IMAP    | `100M`                               |
+| `LOG_FILE_MIGRATOR`                   | Logfile Name                                     | `migrator.log`                       |
+| `SERVER_SOCKET`                       | Server Socket                                    | `file:///var/run/kopano/server.sock` |
+
 ##### ICAL Options (needs work)
 
 | Parameter                 | Description                               | Default                |
@@ -640,7 +654,7 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `WEBAPP_LOGINNAME_STRIP_DOMAIN`                      | Strip Doman/Prefix from username                              |                                                                                                                           |
 | `WEBAPP_LOG_SUCCESSFUL_LOGINS`                       |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_LOG_USERS`                                   |                                                               |                                                                                                                           |
-| `WEBAPP_MANUAL_URL` | URL to Load for Manual      | `https://documentation.kopano.io/user_manual_webapp/` |
+| `WEBAPP_MANUAL_URL`                                  | URL to Load for Manual                                        | `https://documentation.kopano.io/user_manual_webapp/`                                                                     |
 | `WEBAPP_MAX_EML_FILES_IN_ZIP`                        |                                                               | `50`                                                                                                                      |
 | `WEBAPP_MAX_GAB_RESULTS`                             | Maximum results for Global Address Book `0` to disable        | `0`                                                                                                                       |
 | `WEBAPP_OIDC_CLIENT_ID`                              |                                                               |                                                                                                                           |
@@ -670,13 +684,6 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `WEBAPP_PLUGIN_CONTACT_FAX_DEFAULT_USER` | Auto Enable for new users | `FALSE`         |
 | `WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_NAME`  | Domain name to append     | `officefax.net` |
 
-###### Webapp Plugin: Desktop Notifications Options
-
-| Parameter                                          | Description                         | Default |
-| -------------------------------------------------- | ----------------------------------- | ------- |
-| `WEBAPP_PLUGIN_ENABLE_DESKTOP_NOTIFICATIONS`       | Enable Desktop Notifications Plugin | `TRUE`  |
-| `WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_DEFAULT_USER` | Auto Enable for new users           | `TRUE`  |
-
 ###### Webapp Plugin: Files Options
 
 This plugin requires an IV and Key to encrypt credentials for users to remove services. If the env vars do not exist, a random 8 char IV and 16 char KEY will be generated and stored in ${CONFIG_PATH}webapp/key-files and reloaded on each container start.
@@ -702,12 +709,6 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `WEBAPP_PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `auto`       |
 | `WEBAPP_PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `page-width` |
 
-###### Webapp Plugin: Folder Widgets
-
-| Parameter                             | Description   | Default |
-| ------------------------------------- | ------------- | ------- |
-| `WEBAPP_PLUGIN_ENABLE_FOLDER_WIDGETS` | Enable Plugin | `TRUE`  |
-
 ###### Webapp Plugin: HTML Editor Quill
 
 | Parameter                               | Description   | Default |
@@ -726,8 +727,6 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 | `WEBAPP_PLUGIN_INTRANET1_URL`         | URL to load for service              |         |
 | `WEBAPP_PLUGIN_INTRANET1_AUTOSTART`   | Auto start service upon login        |         |
 | `WEBAPP_PLUGIN_INTRANET1_ICON`        | Icon to load for service             |         |
-
-
 
 ###### Webapp Plugin: Mattermost Options
 
@@ -762,12 +761,6 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 | `WEBAPP_PLUGIN_ENABLE_PIM_FOLDER` | Enable Plugin             | `TRUE`  |
 | `WEBAPP_PLUGIN_PIM_DEFAULT_USER`  | Auto Enable for new users | `FALSE` |
 
-###### Webapp Plugin: Quick Items
-
-| Parameter                          | Description   | Default |
-| ---------------------------------- | ------------- | ------- |
-| `WEBAPP_PLUGIN_ENABLE_QUICK_ITEMS` | Enable Plugin | `TRUE`  |
-
 ###### Webapp Plugin: Rocketchat Options
 
 | Parameter                               | Description                                  | Default                            |
@@ -791,12 +784,6 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 | `WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE` | Allow browser to remember Passphrase | `FALSE`                      |
 | `WEBAPP_PLUGIN_SMIME_ENABLE_OCSP`                 | Utilize OCSP Stapling                | `TRUE`                       |
 
-###### Webapp Plugin: Title Counter Options
-
-| Parameter                                  | Description               | Default |
-| ------------------------------------------ | ------------------------- | ------- |
-| `WEBAPP_PLUGIN_ENABLE_TITLE_COUNTER`       | Enable Plugin             | `TRUE`  |
-| `WEBAPP_PLUGIN_TITLE_COUNTER_DEFAULT_USER` | Auto Enable for new users | `TRUE`  |
 
 #### Meet Video Conferencing
 

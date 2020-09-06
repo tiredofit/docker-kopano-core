@@ -608,23 +608,22 @@ RUN set -x && \
     if [ -f "/build-assets/scripts/plugin-mdm.sh" ] ; then /build-assets/scripts/plugin-mdm.sh ; fi; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/mdm/config.php /rootfs/assets/kopano/config/webapp/config-mdm.php && \
-    ln -sf /etc/kopano/webapp/config-mdm.php /usr/src/kopano-webapp/deploy/plugins/mdm/config.php
+    ln -sf /etc/kopano/webapp/config-mdm.php /usr/src/kopano-webapp/deploy/plugins/mdm/config.php && \
+    \
     ## Mattermost
-    RUN git clone ${KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL} /usr/src/kopano-webapp/plugins/mattermost && \
+    git clone ${KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL} /usr/src/kopano-webapp/plugins/mattermost && \
     cd /usr/src/kopano-webapp/plugins/mattermost && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION} && \
     if [ -d "/build-assets/plugins/mattermost" ] ; then cp -R /build-assets/plugins/mattermost/* /usr/src/kopano-webapp/plugins/mattermost/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-mattermost.sh" ] ; then /build-assets/scripts/plugin-mattermost.sh ; fi; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/mattermost/config.php /rootfs/assets/kopano/config/webapp/config-mattermost.php && \
-    ls -l /rootfs/ && \
-    ln -sf /etc/kopano/webapp/config-mattermost.php /usr/src/kopano-webapp/deploy/plugins/mattermost/config.php
-
+    ln -sf /etc/kopano/webapp/config-mattermost.php /usr/src/kopano-webapp/deploy/plugins/mattermost/config.php && \
+    \
     ## Rocketchat
-RUN    cd /usr/src/ && \
+    cd /usr/src/ && \
     curl -o /usr/src/rocketchat.zip "${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL}" && \
     unzip -d . rocketchat.zip && \
-    ls -l /rootfs/* && \
     cd Rocket.Chat && \
     ar x kopano-rocketchat-${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION}.deb && \
     tar xvfJ data.tar.xz && \
@@ -633,19 +632,19 @@ RUN    cd /usr/src/ && \
     ln -sf /etc/kopano/webapp/config-rchat.php /usr/src/kopano-webapp/deploy/plugins/rchat/config.php && \
     if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -R /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-rocketchat.sh" ] ; then /build-assets/scripts/plugin-rocketchat.sh ; fi; \
-    ls -l /rootfs/*
+    \
     ## S/MIME
-RUN    git clone ${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL} /usr/src/kopano-webapp/plugins/smime && \
+    git clone ${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL} /usr/src/kopano-webapp/plugins/smime && \
     cd /usr/src/kopano-webapp/plugins/smime && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION} && \
     if [ -d "/build-assets/plugins/smime" ] ; then cp -R /build-assets/plugins/smime/* /usr/src/kopano-webapp/plugins/smime/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-smime.sh" ] ; then /build-assets/scripts/plugin-smime.sh ; fi; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/smime/config.php /rootfs/assets/kopano/config/webapp/config-smime.php && \
-    ln -sf /etc/kopano/webapp/config-smime.php /usr/src/kopano-webapp/deploy/plugins/smime/config.php
+    ln -sf /etc/kopano/webapp/config-smime.php /usr/src/kopano-webapp/deploy/plugins/smime/config.php && \
     \
     ### Move files to RootFS
-RUN    cp -R /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
+    cp -R /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
     cd /rootfs/usr/share/kopano-webapp/ && \
     mv *.dist /rootfs/assets/kopano/config/webapp && \
     ln -sf /etc/kopano/webapp/config.php config.php && \

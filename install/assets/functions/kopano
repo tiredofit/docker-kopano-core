@@ -1451,6 +1451,49 @@ EOF
     fi
 }
 
+configure_migrator() {
+    if var_true "$ENABLE_MIGRATOR" ; then
+        print_warn "You have enabled another process of Kopano Gateway that does not check authentication. When finished, make sure to disable MIGRATOR functionality"
+        certificates "${GATEWAY_SSL_CERT_FILE}"
+        certificates "${GATEWAY_SSL_KEY_FILE}"
+        if [ "$SETUP_TYPE" = "AUTO" ]; then
+            print_notice "Gateway: Auto Configuring"
+            truefalse_yesno GATEWAY_GREETING_SHOW_HOSTNAME
+            truefalse_yesno GATEWAY_IMAP_ONLY_MAIL_FOLDERS
+            truefalse_yesno GATEWAY_IMAP_SHOW_PUBLIC_FOLDERS
+            truefalse_yesno GATEWAY_SSL_PREFER_SERVER_CIPHERS
+            truefalse_yesno GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH
+            cat <<EOF > "${CONFIG_PATH}"migrator.cfg
+## Custom Generated Kopano Gateway - MIGRATION MODE Configuration! Do not edit, instead set ENV Vars
+## If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
+## Last Generated on $(date)
+
+pid_file = /var/run/kopano/gateway-migrator.pid
+imap_listen = *:1143
+imaps_listen = *:9993
+ssl_private_key_file = ${GATEWAY_SSL_KEY_FILE}
+ssl_certificate_file = ${GATEWAY_SSL_CERT_FILE}
+disable_plaintext_auth = ${GATEWAY_SSL_REQUIRE_PLAINTEXT_AUTH}
+ssl_prefer_server_ciphers = ${GATEWAY_SSL_PREFER_SERVER_CIPHERS}
+server_socket = file:///var/run/kopano/server.sock
+bypass_auth = yes
+server_hostname_greeting = ${GATEWAY_GREETING_SHOW_HOSTNAME}
+server_hostname = ${GATEWAY_HOSTNAME}
+coredump_enabled = ${ENABLE_COREDUMPS}
+log_level = ${LOG_LEVEL}
+log_file = ${LOG_PATH_KOPANO}${LOG_FILE_MIGRATOR}
+log_timestamp = ${LOG_TIMESTAMPS}
+imap_only_mailfolders = ${GATEWAY_IMAP_ONLY_MAIL_FOLDERS}
+imap_public_folders = ${GATEWAY_IMAP_SHOW_PUBLIC_FOLDERS}
+imap_max_messagesize = 100M
+imap_max_fail_commands = ${GATEWAY_IMAP_MAX_FAIL_COMMANDS}
+EOF
+        else
+            print_info "Gateway: Skipping Auto Configuration"
+        fi
+    fi
+}
+
 configure_monitor() {
     if var_true "$ENABLE_MONITOR" ; then
         if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -2930,6 +2973,13 @@ setup_container_mode() {
                         service_start 10-nginx
                         service_start 20-php-fpm
                         echo "ENABLE_MEET=TRUE" >> /tmp/state/.mode-env
+                    ;;
+                    "MIGRATOR" | "migrator" )
+                        print_debug "Enabling Container Mode for: MIGRATOR"
+                        echo "ENABLE_MIGRATOR=TRUE" >> /tmp/state/.mode-env
+                        if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
+                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
+                        fi
                     ;;
                     "MONITOR" | "monitor" )
                         print_debug "Enabling Container Mode for: MONITOR"

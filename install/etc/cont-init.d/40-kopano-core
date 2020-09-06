@@ -74,6 +74,16 @@ else
 fi
 
 ### Monitor Config
+if var_true "${ENABLE_MIGRATOR}" ; then
+	print_debug "Configuring Migrator"
+	source /assets/defaults/kopano-gateway
+	configure_migrator
+	print_debug "Finished Configuring Migrator"
+else
+	service_stop 92-kopano-gateway-migrator
+fi
+
+### Monitor Config
 if var_true "${ENABLE_MONITOR}" ; then
 	print_debug "Configuring Monitor"
 	source /assets/defaults/kopano-monitor
