@@ -886,9 +886,13 @@ RUN set -x && \
     mkdir -p /var/run/kopano && \
     chown -R kopano /var/run/kopano && \
     \
+    ### Build Assets Override
     if [ -d "/build-assets/src/" ] ; then cp -R /build-assets/src/* / ; fi; \
     if [ -f "/build-assets/scripts/kopano.sh" ] ; then /build-assets/scripts/kopano.sh ; fi; \
     rm -rf /build-assets/ && \
+    \
+    ### Fix some issues found by community
+    sed -i "s|\"server_ssl\": ssl,|\"server_ssl\": (ssl.lower() == 'true'),|g" /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
     \
     ##### Cleanup
     apt-get purge -y \
