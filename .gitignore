@@ -7,3 +7,5 @@
 !/build-assets/kopano-meet/.empty
 /build-assets/kopano-webapp/*
 !/build-assets/kopano-webapp/.empty
+/build-assets/misc/*
+!/build-assets/misc/.empty
