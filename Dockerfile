@@ -795,7 +795,8 @@ RUN set -x && \
                        python3-setproctitle \
                        python3-setuptools \
                        python3-six \
-                       python3-tz \
+                       python3-tabulate \
+    python3-tz \
                        python3-tzlocal \
                        python3-ujson \
                        python3-urllib3 \
@@ -826,6 +827,7 @@ RUN set -x && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/lab-scripts.git /assets/kopano/scripts/lab-scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/mail-migrations.git /assets/kopano/scripts/mail-migrations && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/support.git /assets/kopano/scripts/support && \
+    find /assets/kopano/scripts -name '*.py' -exec chmod +x {} \; && \
     \
     ##### Unpack KCOIDC
     tar xvfz /usr/src/core/kopano-kcoidc.tar.gz -C / && \
@@ -874,6 +876,9 @@ RUN set -x && \
     cp -R /usr/lib/kopano/userscripts /assets/kopano/userscripts && \
     mkdir -p /assets/kdav/config/ && \
     cp -R /usr/share/kdav/config.php /assets/kdav/config/ && \
+    ln -s /assets/kopano/scripts/core-tools/store-stats/store-stats.py /usr/sbin/store-stats && \
+    ln -s /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py /usr/sbin/files-admin && \
+    ln -s /assets/kopano/scripts/webapp-tools/webapp_admin/webapp_admin.py /usr/sbin/webapp-admin && \
     mkdir -p /assets/zpush/config && \
     cp -R /usr/share/zpush/src/config.php /assets/zpush/config/ && \
     cp -R /usr/share/zpush/src/autodiscover/config.php /assets/zpush/config/config-autodiscover.php && \
