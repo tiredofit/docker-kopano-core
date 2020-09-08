@@ -796,7 +796,7 @@ RUN set -x && \
                        python3-setuptools \
                        python3-six \
                        python3-tabulate \
-    python3-tz \
+                       python3-tz \
                        python3-tzlocal \
                        python3-ujson \
                        python3-urllib3 \
@@ -917,6 +917,7 @@ RUN set -x && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /etc/apt/sources.list.d/kopano*.list && \
     rm -rf /usr/src/* && \
+    rm -rf /etc/logrotate.d/unattended-upgrades && \
     rm -rf /var/log/* && \
     cd /etc/fail2ban && \
     rm -rf fail2ban.conf fail2ban.d jail.conf jail.d paths-*.conf
