@@ -256,7 +256,7 @@ RUN set -x && \
     mkdir -p /rootfs/usr/libexec/kopano/ && \
     cp /usr/src/konnect/dist/kopano-konnect-${KONNECT_VERSION}/konnectd /rootfs/usr/libexec/kopano && \
     mkdir -p /rootfs/usr/share/kopano-konnect/identifier-webapp && \
-    cp /usr/src/konnect/dist/kopano-konnect-${KONNECT_VERSION}/identifier-webapp /rootfs/usr/share/kopano-konnect/identifier-webapp && \
+    cp /usr/src/konnect/dist/kopano-konnect-${KONNECT_VERSION}/identifier-webapp/* /rootfs/usr/share/kopano-konnect/identifier-webapp/ && \
     mkdir -p /rootfs/tiredofit && \
     echo "Konnnect ${KONNECT_VERSION} built from ${KONNECT_REPO_URL} on $(date)" > /rootfs/tiredofit/konnect.version && \
     echo "Commit: $(cd /usr/src/konnect ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/konnect.version && \
