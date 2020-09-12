@@ -201,7 +201,7 @@ ENV GO_VERSION=1.15 \
     KAPI_REPO_URL=${KAPI_REPO_URL:-"https://github.com/Kopano-dev/kapi"} \
     KAPI_VERSION=${KAPI_VERSION:-"v0.15.0"} \
     KONNECT_REPO_URL=${KONNECT_REPO_URL:-"https://github.com/Kopano-dev/konnect"} \
-    KONNECT_VERSION=${KONNECT_VERSION:-"v0.33.5"} \
+    KONNECT_VERSION=${KONNECT_VERSION:-"v0.33.6"} \
     KWMBRIDGE_REPO_URL=${KWMBRIDGE_REPO_URL:-"https://github.com/Kopano-dev/kwmbridge"} \
     KWMBRIDGE_VERSION=${KWMBRIDGE_VERSION:-"v0.1.0"} \
     KWMSERVER_REPO_URL=${KWMSERVER_REPO_URL:-"https://github.com/Kopano-dev/kwmserver"} \
@@ -231,7 +231,8 @@ RUN set -x && \
                     git \
                     imagemagick \
 		            nodejs \
-		            python-scour \
+                    python \
+                    scour \
                     yarn \
     ' && \
     apt-get install -y --no-install-recommends \
@@ -248,8 +249,14 @@ RUN set -x && \
     GOROOT=/usr/local/go \
     PATH=/usr/local/go/bin:$PATH \
     make && \
+    GOROOT=/usr/local/go \
+    PATH=/usr/local/go/bin:$PATH \
+    make dist && \
+    export KONNECT_VERSION=$(echo ${KONNECT_VERSION} | sed "s|v||g") && \
     mkdir -p /rootfs/usr/libexec/kopano/ && \
-    cp -R ./bin/* /rootfs/usr/libexec/kopano/ && \
+    cp /usr/src/konnect/dist/kopano-konnect-${KONNECT_VERSION}/konnectd /rootfs/usr/libexec/kopano && \
+    mkdir -p /rootfs/usr/share/kopano-konnect/identifier-webapp && \
+    cp /usr/src/konnect/dist/kopano-konnect-${KONNECT_VERSION}/identifier-webapp /rootfs/usr/share/kopano-konnect/identifier-webapp && \
     mkdir -p /rootfs/tiredofit && \
     echo "Konnnect ${KONNECT_VERSION} built from ${KONNECT_REPO_URL} on $(date)" > /rootfs/tiredofit/konnect.version && \
     echo "Commit: $(cd /usr/src/konnect ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/konnect.version && \
