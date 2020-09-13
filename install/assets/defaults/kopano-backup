@@ -1,3 +1,5 @@
 #!/usr/bin/with-contenv bash
 
 BACKUP_WORKER_PROCESSES=${BACKUP_WORKER_PROCESSES:-"1"}
+BACKUP_SSL_CERT_FILE=${BACKUP_SSL_CERT_FILE:-"/certs/core/backup.crt"}
+BACKUP_SSL_KEY_FILE=${BACKUP_SSL_KEY_FILE:-"/certs/core/backup.pem"}

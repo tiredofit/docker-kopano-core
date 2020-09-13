@@ -465,9 +465,9 @@ ARG KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL
 ARG KOPANO_WEBAPP_PLUGIN_SMIME_VERSION
 ARG KOPANO_WEBAPP_REPO_URL
 
-#ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"6bb4a9f161204fb5942aff18233256902278955e"} \
+ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"6bb4a9f161204fb5942aff18233256902278955e"} \
 #ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"master"} \
-ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"v4.3-rc.1"} \
+#ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"v4.3-rc.1"} \
     KOPANO_WEBAPP_REPO_URL=${KOPANO_WEBAPP_REPO_URL:-"https://github.com/Kopano-dev/kopano-webapp.git"} \
     KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL=${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL:-"https://stash.kopano.io/scm/kwa/desktopnotifications.git"} \
     KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION:-"tags/v2.0.3"} \
@@ -526,9 +526,10 @@ RUN set -x && \
     git checkout ${KOPANO_WEBAPP_VERSION} && \
     \
     if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-webapp ; fi; \
-    if [ -f "/build-assets/scripts/webapp.sh" ] ; then /build-assets/scripts/webapp.sh ; fi;
+    if [ -f "/build-assets/scripts/webapp.sh" ] ; then /build-assets/scripts/webapp.sh ; fi; \
+    \
     ### Build
-RUN cd /usr/src/kopano-webapp && \
+    cd /usr/src/kopano-webapp && \
     ant deploy && \
     ant deploy-plugins && \
     make all && \
@@ -537,11 +538,11 @@ RUN cd /usr/src/kopano-webapp && \
     mkdir -p /rootfs/tiredofit && \
     mkdir -p /rootfs/usr/share/kopano-webapp && \
     mkdir -p /rootfs/assets/kopano/config/webapp && \
-    mkdir -p /rootfs/assets/kopano/plugins/webapp
-
+    mkdir -p /rootfs/assets/kopano/plugins/webapp && \
+    \
     ### Build Plugins
     ## File Previewer TO BE MERGED INTO MAIN
-RUN    git clone ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL} /usr/src/kopano-webapp/plugins/filepreviewer && \
+    git clone ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL} /usr/src/kopano-webapp/plugins/filepreviewer && \
     cd /usr/src/kopano-webapp/plugins/filepreviewer && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION} && \
     if [ -d "/build-assets/plugins/filepreviewer" ] ; then cp -R /build-assets/plugins/filepreviewer/* /usr/src/kopano-webapp/plugins/filepreviewer/ ; fi; \
@@ -586,10 +587,10 @@ RUN    git clone ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL} /usr/src/kopano-
     git checkout ${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION} && \
     if [ -d "/build-assets/plugins/filesbackendSMB" ] ; then cp -R /build-assets/plugins/filesbackendSMB/* /usr/src/kopano-webapp/plugins/filesbackendSMB/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-filesbackendSMB.sh" ] ; then /build-assets/scripts/plugin-filesbackendSMB.sh ; fi; \
-    ant deploy
-
+    ant deploy && \
+    \
     ## HTML Editor: Minimal
-RUN    git clone ${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny && \
+    git clone ${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny && \
     cd /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny && \
     if [ -d "/build-assets/plugins/htmleditor-minimaltiny" ] ; then cp -R /build-assets/plugins/htmleditor-minimaltiny/* /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-htmleditorminimaltiny.sh" ] ; then /build-assets/scripts/plugin-htmleditorminimaltiny.sh ; fi; \
@@ -643,20 +644,20 @@ RUN    git clone ${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL} /usr/sr
     cp -R usr/share/kopano-webapp/plugins/rchat /usr/src/kopano-webapp/deploy/plugins/ && \
     ln -sf /etc/kopano/webapp/config-rchat.php /usr/src/kopano-webapp/deploy/plugins/rchat/config.php && \
     if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -R /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
-    if [ -f "/build-assets/scripts/plugin-rocketchat.sh" ] ; then /build-assets/scripts/plugin-rocketchat.sh ; fi;
-
+    if [ -f "/build-assets/scripts/plugin-rocketchat.sh" ] ; then /build-assets/scripts/plugin-rocketchat.sh ; fi; \
+    \
     ## S/MIME
-RUN    git clone ${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL} /usr/src/kopano-webapp/plugins/smime && \
+    git clone ${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL} /usr/src/kopano-webapp/plugins/smime && \
     cd /usr/src/kopano-webapp/plugins/smime && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION} && \
     if [ -d "/build-assets/plugins/smime" ] ; then cp -R /build-assets/plugins/smime/* /usr/src/kopano-webapp/plugins/smime/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-smime.sh" ] ; then /build-assets/scripts/plugin-smime.sh ; fi; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/smime/config.php /rootfs/assets/kopano/config/webapp/config-smime.php && \
-    ln -sf /etc/kopano/webapp/config-smime.php /usr/src/kopano-webapp/deploy/plugins/smime/config.php
-
+    ln -sf /etc/kopano/webapp/config-smime.php /usr/src/kopano-webapp/deploy/plugins/smime/config.php && \
+    \
     ### Move files to RootFS
-RUN    cp -R /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
+    cp -R /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
     cd /rootfs/usr/share/kopano-webapp/ && \
     mv *.dist /rootfs/assets/kopano/config/webapp && \
     ln -sf /etc/kopano/webapp/config.php config.php && \
