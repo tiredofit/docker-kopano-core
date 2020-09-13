@@ -201,6 +201,7 @@ EOF
 
 configure_backup() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
+        certificates "${BACKUP_SSL_CERT_FILE}"
         print_notice "Backup: Auto Configuring"
         if [[ $SOCKET_SERVER == *"https://"* ]]; then
             backup_sslkey=$(cat <<EOF
@@ -2011,6 +2012,7 @@ configure_webapp() {
     define("ENABLE_PUBLIC_FOLDERS", ${WEBAPP_ENABLE_PUBLIC_FOLDERS});
     define("DISABLE_SHARED_CONTACT_FOLDERS", ${WEBAPP_DISABLE_SHARED_CONTACT_FOLDERS});
     define("ENABLE_CONVERSATION_VIEW", ${WEBAPP_ENABLE_CONVERSATION_VIEW});
+    define("ENABLE_FILE_PREVIEWER", ${WEBAPP_ENABLE_FILE_PREVIEWER});
     define("ENABLE_SHARED_RULES", ${WEBAPP_ENABLE_SHARED_RULES});
     define("ENABLE_DIRECT_BOOKING", ${WEBAPP_ENABLE_DIRECT_BOOKING});
     define("ENABLE_RESPONSE_COMPRESSION", ${WEBAPP_ENABLE_RESPONSE_COMPRESSION});
@@ -2077,7 +2079,7 @@ configure_webapp_plugins() {
     if var_true "$WEBAPP_ENABLE_PLUGINS" ; then
         print_debug "Webapp Plugins Enabled"
         configure_webapp_plugin_contact_fax
-        configure_webapp_plugin_file_previewer
+        #configure_webapp_plugin_file_previewer
         configure_webapp_plugin_files
         configure_webapp_plugin_files_backend_owncloud
         configure_webapp_plugin_files_backend_seafile

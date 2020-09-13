@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bash
+
+BACKUP_WORKER_PROCESSES=${BACKUP_WORKER_PROCESSES:-"1"}
