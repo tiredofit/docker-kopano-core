@@ -1,8 +1,10 @@
 #!/usr/bin/with-contenv bash
 
 source /assets/functions/00-container
+prepare_service defaults kopano-global
 prepare_service defaults kopano-meet
 prepare_service functions kopano
+
 
 PROCESS_NAME="meet-api"
 check_container_initialized

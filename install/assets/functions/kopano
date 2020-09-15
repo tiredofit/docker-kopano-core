@@ -461,6 +461,7 @@ configure_grapi() {
         else
             print_debug "GRAPI: Make socket directory"
             mkdir -p "${SOCKET_GRAPI}"
+            mkdir -p /usr/share/kopano-grapi/i18n
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_notice "Configuring GRAPI Server"
                 print_debug "GRAPI: Make GRAPI path"
@@ -1633,9 +1634,9 @@ EOF
             if [ -v SERVER_OIDC_IDENTIFIER ]; then
                 truefalse_yesno SERVER_OIDC_DISABLE_TLS_VALIDATION
                 server_oidc=$(cat<<EOF
-#kcoidc_issuer_identifier=${SERVER_OIDC_IDENTIFIER}
-#kcoidc_insecure_skip_verify=${SERVER_OIDC_DISABLE_TLS_VALIDATION}
-#kcoidc_initialize_timeout=${SERVER_OIDC_TIMEOUT_INITIALIZE}
+kcoidc_issuer_identifier=${SERVER_OIDC_IDENTIFIER}
+kcoidc_insecure_skip_verify=${SERVER_OIDC_DISABLE_TLS_VALIDATION}
+kcoidc_initialize_timeout=${SERVER_OIDC_TIMEOUT_INITIALIZE}
 EOF
                     )
             fi
@@ -1808,7 +1809,7 @@ sa_group            = ${SPAMD_SA_GROUP}
 header_tag          = ${DAGENT_SPAM_HEADER_NAME}
 ham_dir             = ${SPAMD_FILES_HAM_PATH}
 spam_dir            = ${SPAMD_FILES_SPAM_PATH}
-spam_db             = ${SPAMD_FILES_DB_PATH}${SPAM_FILES_DB_FILE}
+spam_db             = ${SPAMD_FILES_DB_PATH}${SPAMD_FILES_DB_FILE}
 EOF
         else
             print_info "SpamD: Skipping Auto Configuration"

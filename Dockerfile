@@ -7,7 +7,7 @@ ARG KOPANO_DEPENDENCY_HASH
 ARG KOPANO_KCOIDC_REPO_URL
 ARG KOPANO_KCOIDC_VERSION
 
-ENV GO_VERSION=1.15 \
+ENV GO_VERSION=1.14 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"master"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b3eaad3"} \
@@ -195,7 +195,7 @@ ARG KWMSERVER_VERSION
 ARG MEET_REPO_URL
 ARG MEET_VERSION
 
-ENV GO_VERSION=1.15 \
+ENV GO_VERSION=1.14 \
     GRAPI_REPO_URL=${GRAPI_REPO_URL:-"https://github.com/Kopano-dev/grapi"} \
     GRAPI_VERSION=${GRAPI_VERSION:-"v10.5.0"} \
     KAPI_REPO_URL=${KAPI_REPO_URL:-"https://github.com/Kopano-dev/kapi"} \
@@ -330,6 +330,7 @@ RUN set -x && \
     \
     ### Build GRAPI
     GRAPI_BUILD_DEPS=' \
+                gettext \
                 flake8 \
                 isort \
                 libcap-dev \
@@ -367,15 +368,14 @@ RUN set -x && \
                  bjoern \
                  falcon \
                  prometheus_client \
-                 validators \
-                 && \
-    \
+                 validators && \
     git clone ${GRAPI_REPO_URL} /usr/src/grapi && \
     cd /usr/src/grapi && \
     git checkout ${GRAPI_VERSION} && \
     \
-    if [ -d "/build-assets/src/grapi" ] ; then cp -R /build-assets/src/grapi/* /usr/src/grapi ; fi; \
-    if [ -f "/build-assets/scripts/grapi.sh" ] ; then /build-assets/scripts/grapi.sh ; fi; \
+    #if [ -d "/build-assets/src/grapi" ] ; then cp -R /build-assets/src/grapi/* /usr/src/grapi ; fi; \
+    #if [ -f "/build-assets/scripts/grapi.sh" ] ; then /build-assets/scripts/grapi.sh ; fi; \
+    #\
     \
     sed -i "/MAPI/d" requirements.txt && \
     sed -i "/kopano/d" requirements.txt && \

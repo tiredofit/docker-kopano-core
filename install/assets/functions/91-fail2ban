@@ -200,7 +200,8 @@ EOF
 
 fail2ban_jail_create() {
 	if [ "$SETUP_TYPE" = "AUTO" ]; then
-		if var_true = "${ENABLE_GATEWAY}" ; then
+		source /tmp/state/.mode-env
+		if var_true "${ENABLE_GATEWAY}" ; then
 			print_debug "Fail2Ban: Adding Jail - Kopano Gateway"
 			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-gateway]
@@ -212,7 +213,7 @@ logpath = ${LOG_PATH_KOPANO}${LOG_FILE_GATEWAY}
 EOF
 		fi
 
-		if var_true = "${ENABLE_ICAL}" ; then
+		if var_true "${ENABLE_ICAL}" ; then
 			print_debug "Fail2Ban: Adding Jail - Kopano ICAL"
 			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-ical]
@@ -224,7 +225,7 @@ logpath = ${LOG_PATH_KOPANO}${LOG_FILE_ICAL}
 EOF
 		fi
 
-		if var_true = "${ENABLE_KDAV}" ; then
+		if var_true "${ENABLE_KDAV}" ; then
 			print_debug "Fail2Ban: Adding Jail - Kopano DAV"
 			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-kdav]
@@ -236,7 +237,7 @@ logpath = ${LOG_PATH_KOPANO}${LOG_FILE_KDAV}
 EOF
 		fi
 
-		if var_true = "${ENABLE_WEBAPP}" ; then
+		if var_true "${ENABLE_WEBAPP}" ; then
 			print_debug "Fail2Ban: Adding Jail - Kopano Webapp"
 			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [kopano-webapp]
@@ -248,7 +249,7 @@ logpath = ${NGINX_LOG_ERROR_LOCATION}/webapp-error.log
 EOF
 		fi
 
-		if var_true = "${ENABLE_ZPUSH}" ; then
+		if var_true "${ENABLE_ZPUSH}" ; then
 			print_debug "Fail2Ban: Adding Jail - Z-Push"
 			cat <<EOF >> ${FAIL2BAN_CONFIG_PATH}jail.local
 [z-push]

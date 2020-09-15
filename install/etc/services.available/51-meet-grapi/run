@@ -1,8 +1,10 @@
 #!/usr/bin/with-contenv bash
 
 source /assets/functions/00-container
+prepare_service defaults kopano-global
 prepare_service defaults kopano-meet
 prepare_service functions kopano
+
 
 PROCESS_NAME="meet-grapi"
 check_container_initialized
@@ -74,7 +76,7 @@ wait_for_server grapi
 print_info "Starting Kopano GRAPI Service"
 if [ "${LOG_TYPE}" = "FILE" ] || [ "${LOG_TYPE}" = "file" ] ; then
 	if [ "${LOG_FILE_GRAPI}" = "/dev/null" ] ; then unset "${LOG_PATH_KOPANO}" ; fi;
-	/usr/bin/kopano-grapi-mfr "$@" 2>> "${LOG_PATH_KOPANO}""${LOG_FILE_GRAPI}"
+	/usr/local/bin/kopano-grapi-mfr "$@" 2>> "${LOG_PATH_KOPANO}""${LOG_FILE_GRAPI}"
 else
-	/usr/bin/kopano-grapi-mfr "$@"
+	/usr/local/bin/kopano-grapi-mfr "$@"
 fi
