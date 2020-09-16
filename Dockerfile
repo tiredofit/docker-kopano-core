@@ -1,4 +1,4 @@
-FROM tiredofit/debian:buster as core-builder
+FROM tiredofit/nginx-php-fpm:debian-7.4 as core-builder
 
 #### Kopano Core
 ARG KOPANO_CORE_VERSION
@@ -683,7 +683,7 @@ RUN set -x && \
     tar cvfz /kopano-webapp.tar.gz .
 
 #### Runtime Image
-FROM tiredofit/nginx-php-fpm:debian-7.3
+FROM tiredofit/nginx-php-fpm:debian-7.4
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ADD build-assets/kopano /build-assets
