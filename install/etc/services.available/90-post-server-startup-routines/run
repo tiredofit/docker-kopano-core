@@ -5,7 +5,7 @@ source /assets/defaults/kopano-server
 prepare_service functions kopano
 PROCESS_NAME="post-startup-routines"
 check_container_initialized
-check_service_initialized 41-kopano-server
+check_service_initialized 31-kopano-server
 liftoff
 
 wait_for_server

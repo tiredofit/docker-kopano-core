@@ -1648,6 +1648,7 @@ configure_webapp_plugin_files() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         cp -R /assets/kopano/plugins/webapp/files /usr/share/kopano-webapp/plugins
         mkdir -p "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
+        ln -sf ${WEBAPP_PLUGIN_FILES_CACHE_DIR} /var/lib/kopano-webapp/
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
