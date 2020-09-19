@@ -578,9 +578,9 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 | `SERVER_PIPE_PRIORITY_NAME`              | Prioritized Server Pipe Name                                   | `/var/run/kopano/prio.sock`   |
 | `SERVER_PURGE_SOFTDELETE`                |                                                                | `30`                          |
 | `SERVER_QUOTA_COMPANY_WARN`              |                                                                | `0`                           |
-| `SERVER_QUOTA_HARD`                      |                                                                | `8192`                        |
-| `SERVER_QUOTA_SOFT`                      |                                                                | `4096`                        |
-| `SERVER_QUOTA_WARN`                      |                                                                | `1024`                        |
+| `SERVER_QUOTA_HARD`                      |                                                                | `1024`                        |
+| `SERVER_QUOTA_SOFT`                      |                                                                | `950`                        |
+| `SERVER_QUOTA_WARN`                      |                                                                | `900`                        |
 | `SERVER_SERVER_NAME`                     |                                                                | `Kopano`                      |
 | `SERVER_SSL_CERT_FILE`                   | Server SSL Certificate File                                    | `/certs/core/server.crt`      |
 | `SERVER_SSL_KEY_FILE`                    | Server SSL Key File                                            | `/certs/core/server.pem`      |
