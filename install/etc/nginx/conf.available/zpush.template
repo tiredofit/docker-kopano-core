@@ -6,7 +6,7 @@
 
      ### Populate your custom directives here
      index  index.php;
-    
+
      location ~ \.php(/|$) {
         include /etc/nginx/nginx.conf.d/php-fpm.conf;
         fastcgi_split_path_info ^(.+?\.php)(/.+)$;
@@ -15,17 +15,17 @@
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
      }
-    
+
      location / {
      }
-  
+
     ### Includes
-    
+
     # Deny access to any files with a .php extension in the uploads directory
      location ~* /(?:uploads|files)/.*\.php$ {
         deny all;
      }
-  
+
     ### Don't edit past here
     include /etc/nginx/nginx.conf.d/site_optimization.conf;
     include /etc/nginx/nginx.conf.d/exploit_protection.conf;

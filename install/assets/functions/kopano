@@ -2232,14 +2232,11 @@ EOF
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_debug "Z-Push: Autoconfiguring"
                 ### Configure Nginx
-                if [ "${ZPUSH_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-                    sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-autodiscover.template;" /etc/nginx/conf.available/webapp.template
-                else
-                    sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/zpush-autodiscover.template;" /etc/nginx/conf.available/zpush.template
-                fi
-                ### Configure Nginx
+                sed -i "s|<LISTEN_PORT>|${NGINX_LISTEN_PORT}|g" /etc/nginx/conf.available/zpush-autodiscover.template
+                sed -i "s|<AUTODISCOVER_HOSTNAME>|${ZPUSH_AUTODISCOVER_HOSTNAME}|g" /etc/nginx/conf.available/zpush-autodiscover.template
                 sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/zpush-autodiscover.template
                 sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/zpush-autodiscover.template
+                ln -sf /etc/nginx/conf.available/zpush-autodiscover.template /etc/nginx/conf.d/zpush-autodiscover.conf
                 rm -rf /usr/share/zpush/src/autodiscover/config.php
                 ln -sf "${CONFIG_PATH}""${ZPUSH_CONFIG_AUTODISCOVER_FILE}" /usr/share/zpush/src/autodiscover/config.php
                 cat <<EOF > "${CONFIG_PATH}""${ZPUSH_CONFIG_AUTODISCOVER_FILE}"
