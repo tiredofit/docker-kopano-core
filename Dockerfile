@@ -437,9 +437,6 @@ ADD build-assets/kopano /build-assets
 ### Move Previously built files from Core image
 COPY --from=core-builder /*.tar.gz /usr/src/core/
 
-### Move Previously built files from Meet image
-COPY --from=meet-builder /*.tar.gz /usr/src/meet/
-
 ### Move Previously built files from Webapp image
 COPY --from=webapp-builder /*.tar.gz /usr/src/webapp/
 
