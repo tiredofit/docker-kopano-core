@@ -454,42 +454,6 @@ EOF
     fi
 }
 
-configure_grapi() {
-    if var_true "$ENABLE_GRAPI" ; then
-        if var_true "$grapi_configured" ; then
-            :
-        else
-            print_debug "GRAPI: Make socket directory"
-            mkdir -p "${SOCKET_GRAPI}"
-            mkdir -p /usr/share/kopano-grapi/i18n
-            if [ "$SETUP_TYPE" = "AUTO" ]; then
-                print_notice "Configuring GRAPI Server"
-                print_debug "GRAPI: Make GRAPI path"
-                mkdir -p "$GRAPI_PATH"
-                truefalse_yesno GRAPI_DISABLE_TLS_VALIDATION
-                truefalse_yesno GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS
-                cat <<EOF > "${CONFIG_PATH}""${GRAPI_CONFIG_FILE}"
-# Custom Generated Kopano GRAPI Server Configuration! Do not edit, instead set ENV Vars
-# If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on $(date)
-
-enable_experimental_endpoints = ${GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS}
-insecure = ${GRAPI_DISABLE_TLS_VALIDATION}
-log_level = ${grapi_log_level}
-num_workers = ${GRAPI_WORKERS}
-persistency_path = ${GRAPI_PATH}
-pid_file = ${GRAPI_PID_FILE}
-server_socket = ${GRAPI_SOCKET_SERVER}
-socket_path = ${SOCKET_GRAPI}
-EOF
-            else
-                print_info "GRAPI: Skipping Auto Configuration"
-            fi
-        grapi_configured=TRUE
-        fi
-    fi
-}
-
 ### ICAL
 configure_ical() {
     if var_true "$ENABLE_ICAL" ; then
@@ -856,108 +820,68 @@ configure_logging() {
             files_log_level="NONE"
             webapp_log_level="OFF"
             zpush_log_level="OFF"
-            LOG_FILE_GRAPI="/dev/null"
-            LOG_FILE_API="/dev/null"
             LOG_FILE_KDAV="/dev/null"
-            LOG_FILE_KONNECT="/dev/null"
-            LOG_FILE_KWMSERVER="/dev/null"
         ;;
         "CRITICAL" | "critical" | "crit" | "1" )
             LOG_LEVEL=1
             files_log_level="ERROR"
-            grapi_log_level="critical"
-            kapi_log_level="fatal"
             kdav_log_level="FATAL"
-            konnect_log_level="fatal"
-            kwm_log_level="fatal"
             webapp_log_level="FATAL"
             zpush_log_level="FATAL"
         ;;
         "ERROR" | "error" | "err" | "2" )
             LOG_LEVEL=2
             files_log_level="ERROR"
-            grapi_log_level="error"
-            kapi_log_level="error"
             kdav_log_level="ERROR"
-            konnect_log_level="error"
-            kwm_log_level="error"
             webapp_log_level="ERROR"
             zpush_log_level="ERROR"
         ;;
         "WARN" | "warn" | "3" )
             LOG_LEVEL=3
             files_log_level="NORMAL"
-            grapi_log_level="warning"
-            kapi_log_level="warn"
             kdav_log_level="WARN"
-            konnect_log_level="warn"
-            kwm_log_level="warn"
             webapp_log_level="WARN"
             zpush_log_level="WARN"
         ;;
         "NOTICE" | "notice" | "4" )
             LOG_LEVEL=4
             files_log_level="NORMAL"
-            grapi_log_level="info"
-            kapi_log_level="info"
             kdav_log_level="INFO"
-            konnect_log_level="info"
-            kwm_log_level="info"
             webapp_log_level="WARN"
             zpush_log_level="WARN"
         ;;
         "INFO" | "info" | "5" )
             LOG_LEVEL=5
             files_log_level="NORMAL"
-            grapi_log_level="info"
-            kapi_log_level="info"
             kdav_log_level="INFO"
-            konnect_log_level="info"
-            kwm_log_level="info"
             webapp_log_level="INFO"
             zpush_log_level="INFO"
                     ;;
         "DEBUG" | "debug" | "6" )
             LOG_LEVEL=6
             files_log_level="DEBUG"
-            grapi_log_level="debug"
-            kapi_log_level="debug"
             kdav_log_level="DEBUG"
-            konnect_log_level="debug"
-            kwm_log_level="debug"
             webapp_log_level="DEBUG"
             zpush_log_level="DEBUG"
         ;;
         "WBXML" | "wbxml" )
             LOG_LEVEL=6
             files_log_level="DEBUG"
-            grapi_log_level="debug"
-            kapi_log_level="debug"
             kdav_log_level="DEBUG"
-            konnect_log_level="debug"
-            kwm_log_level="debug"
             webapp_log_level="DEBUG"
             zpush_log_level="WBXML"
         ;;
         "DEVICEID" | "deviceid" )
             LOG_LEVEL=6
             files_log_level="DEBUG"
-            grapi_log_level="debug"
-            kapi_log_level="debug"
             kdav_log_level="DEBUG"
-            konnect_log_level="debug"
-            kwm_log_level="debug"
             webapp_log_level="DEBUG"
             zpush_log_level="DEVICEID"
         ;;
         "WBXMLSTACK" | "wbxmlstack" )
             LOG_LEVEL=6
             files_log_level="DEBUG"
-            grapi_log_level="debug"
-            kapi_log_level="debug"
             kdav_log_level="DEBUG"
-            konnect_log_level="debug"
-            kwm_log_level="debug"
             webapp_log_level="DEBUG"
             zpush_log_level="WBXMLSTACK"
         ;;
@@ -1007,84 +931,6 @@ configure_logging() {
     fi
 }
 
-## Needs Work
-configure_kapi() {
-    if var_true "${ENABLE_KAPI}" ; then
-        if var_true "${kapi_configured}"; then
-            :
-        else
-            if [ -v SERVER_OIDC_IDENTIFIER ]; then
-                print_notice "KAPI: Auto Configuring"
-                if [ "${KAPI_LISTEN_HOST}" = "0.0.0.0" ] ; then KAPI_HOST="127.0.0.1"; fi;
-                sed -i "s|<KAPI_HOST>|${KAPI_HOST}|g" /etc/nginx/conf.available/upstream-kapi.template
-                sed -i "s|<KAPI_PORT>|${KAPI_PORT}|g" /etc/nginx/conf.available/upstream-kapi.template
-                ln -sf /etc/nginx/conf.available/upstream-kapi.template /etc/nginx/conf.d/upstream-kapi.conf
-                if [ "${KAPI_HOST}" != "127.0.0.1" ] && [ "${KAPI_HOST}" != "localhost" ] ; then
-                    print_debug "KAPI: Host is not localhost"
-                    if var_true "$KAPI_HOST_SECURE" ; then
-                        print_debug "KAPI: Changing to use HTTPS"
-                        sed -i "s|proxy_pass http://kapi/|proxy_pass https://kapi/|g" /etc/nginx/confd.available/meet.template
-                        sed -i "s|proxy_pass http://kapi/|proxy_pass https://kapi/|g" /etc/nginx/confd.available/calendar.template
-                    fi
-                fi
-
-                case "${KAPI_KVS_DB_TYPE}" in
-                    "SQLITE3" | "SQLITE" | "sqlite" | "sqlite3" )
-                        print_debug "KAPI: Setting SQLite3 Data Type"
-                        mkdir -p "$(dirname "${KAPI_KVS_DB_SQLITE_FILE}")"
-                        kapi_kvs_db_driver="sqlite3"
-                        kapi_kvs_db_dsn=${KAPI_KVS_DB_SQLITE_FILE}
-                        print_debug "KAPI: ${kapi_kvs_db_driver} | DSN: ${kapi_kvs_db_dsn}"
-                    ;;
-                    "MYSQL" | "mysql" | "MARIADB" | "mariadb" )
-                        print_debug "KAPI: Setting MariaDB Data Type"
-                        kapi_kvs_db_driver="mysql"
-                        kapi_kvs_db_dsn="[${KAPI_KVS_DB_USER}[:${KAPI_KVS_DB_PASS}]@][protocol[(${KAPI_KVS_DB_HOST})]]/${KAPI_KVS_DB_NAME}[?param1=value1&...&paramN=valueN]" # Needs Work
-                        print_debug "KAPI: ${kapi_kvs_db_driver} | DSN: ${kapi_kvs_db_dsn}"
-                    ;;
-                esac
-
-                if [ ! -f "${KAPI_PUBS_SECRET_KEY_FILE}" ]; then
-                    print_debug "KAPI: No PUBS API Secret Key File - Generating"
-                    mkdir -p "$(dirname "${KAPI_PUBS_SECRET_KEY_FILE}")"
-                    silent openssl rand -out "${KAPI_PUBS_SECRET_KEY_FILE}" -hex 64
-                fi
-
-                if [ -n "${KAPI_PLUGINS}" ] ; then
-                    kapi_plugins=$(cat<<EOF
-plugins = ${KAPI_PLUGINS}
-EOF
-                    )
-
-                kapi_oidc_server_identifier="oidc_issuer_identifier = ${SERVER_OIDC_IDENTIFIER}"
-                fi
-
-                truefalse_yesno KAPI_DISABLE_TLS_VALIDATION
-                cat <<EOF > "${CONFIG_PATH}""${KAPI_CONFIG_FILE}"
-# Custom Generated Kopano KAPI Server Configuration! Do not edit, instead set ENV Vars
-# If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on $(date)
-
-insecure = ${KAPI_DISABLE_TLS_VALIDATION}
-listen = ${KAPI_LISTEN_HOST}:${KAPI_LISTEN_PORT}
-log_level = ${kapi_log_level}
-${kapi_oidc_server_identifier}
-plugin_grapi_socket_path = ${SOCKET_GRAPI}
-plugin_kvs_db_datasource = ${kapi_kvs_db_dsn}
-plugin_kvs_db_drivername = ${kapi_kvs_db_driver}
-plugin_kvs_db_migrations = ${KAPI_KVS_PATH_DB_MIGRATIONS}
-plugin_pubs_secret_key = ${KAPI_PUBS_SECRET_KEY_FILE}
-plugins_path = ${KAPI_PATH_PLUGINS}
-${kapi_plugins}
-EOF
-                else
-                    print_info "KAPI: Skipping Auto Configuration"
-                fi
-            kapi_configured=TRUE
-        fi
-    fi
-}
-
 configure_kdav() {
     if var_true "$ENABLE_KDAV" ; then
         mkdir -p "${KDAV_PATH}"
@@ -1131,324 +977,6 @@ define('DEVELOPER_MODE', ${KDAV_DEVELOPER_MODE});
 EOF
         else
             print_info "KDAV: Skipping Auto Configuration"
-        fi
-    fi
-}
-
-
-configure_konnect() {
-    if var_true "$ENABLE_KONNECT" ; then
-        if var_true "$konnect_configured" ; then
-            :
-        else
-            if [ "$SETUP_TYPE" = "AUTO" ]; then
-                print_notice "Konnect: Auto Configuring"
-
-                mkdir -p "${KONNECT_VALIDATION_KEYS_PATH}"
-
-                if [ "${KONNECT_LISTEN_HOST}" = "0.0.0.0" ] ; then KONNECT_HOST="127.0.0.1" ; fi;
-                sed -i "s|<KONNECT_HOST>|${KONNECT_HOST}|g" /etc/nginx/conf.available/upstream-konnect.template
-                sed -i "s|<KONNECT_PORT>|${KONNECT_PORT}|g" /etc/nginx/conf.available/upstream-konnect.template
-                ln -sf /etc/nginx/conf.available/upstream-konnect.template /etc/nginx/conf.d/upstream-konnect.conf
-
-                if [ "${KONNECT_HOST}" != "127.0.0.1" ] && [ "${KONNECT_HOST}" != "localhost" ] ; then
-                    print_debug "Konnect: Host is not localhost"
-                    if var_true "$KONNECT_HOST_SECURE" ; then
-                        print_debug "Konnect: Changing to use HTTPS"
-                        sed -i "s|proxy_pass http://konnect/|proxy_pass https://konnect/|g" /etc/nginx/confd.available/calendar.template
-                        sed -i "s|proxy_pass http://konnect/|proxy_pass https://konnect/|g" /etc/nginx/confd.available/meet.template
-                    fi
-                fi
-
-                case "$KONNECT_BACKEND" in
-                    "KC" | "kc" | "KOPANO" | "kopano" )
-                        konnect_backend="kc"
-                    ;;
-                    "LDAP" | "ldap" )
-                        source /assets/defaults/ldap
-                        konnect_backend="ldap"
-                        konnect_backend_ldap=$(cat<<EOF
-ldap_basedn = ${LDAP_BASE_DN}
-ldap_binddn = ${LDAP_BIND_DN}
-ldap_bindpw = ${LDAP_BIND_PASS}
-ldap_filter = ${LDAP_FILTER_KONNECT}
-ldap_login_attribute = ${LDAP_ATTRIBUTE_LOGINNAME}
-ldap_scope = ${LDAP_SCOPE}
-ldap_uri = ${LDAP_URI}
-ldap_uuid_attribute = ${LDAP_ATTRIBUTE_USER_UNIQUE}
-EOF
-                                            )
-                    ;;
-                esac
-
-                if [ ! -f "${KONNECT_SIGNING_KEY_FILE}" ]; then
-                    print_debug "Konnect: No Signing Key File - Generating"
-                    mkdir -p "$(dirname "${KONNECT_SIGNING_KEY_FILE}")"
-                    silent openssl genpkey   -algorithm RSA \
-                                             -out "${KONNECT_SIGNING_KEY_FILE}" \
-                                             -pkeyopt rsa_keygen_bits:4096
-                    silent openssl genpkey -algorithm RSA -out "${KONNECT_SIGNING_KEY_FILE}" -pkeyopt rsa_keygen_bits:4096 -pkeyopt rsa_keygen_pubexp:65537
-                fi
-
-                if [ ! -f "${KONNECT_SIGNING_SECRET_FILE}" ]; then
-                    print_debug "Konnect: No Signing Encryption Secret Key File - Generating"
-                    mkdir -p "$(dirname "${KONNECT_SIGNING_SECRET_FILE}")"
-                    silent openssl rand -out "${KONNECT_SIGNING_SECRET_FILE}" 32
-                fi
-
-                if [ -f "${CONFIG_PATH}""${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}" ] ; then
-                    konnect_registration_identifier_conf=$(cat<<EOF
-identifier_registration_conf = ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION}
-EOF
-                    )
-                fi
-
-                if [ -n "${KONNECT_SIGNING_KID}" ] ; then
-                    konnect_signing_kid=$(cat<<EOF
-signing_kid = ${KONNECT_SIGNING_KID}
-EOF
-                    )
-                fi
-
-                if [ -n "${KONNECT_ALLOWED_SCOPES}" ] ; then
-                    konnect_allowed_scopes=$(cat<<EOF
-allowed_scopes = ${KONNECT_ALLOWED_SCOPES}
-EOF
-                    )
-                fi
-
-                if [ -n "${KONNECT_TRUSTED_PROXIES}" ] ; then
-                    konnect_trusted_proxies=$(cat<<EOF
-trusted_proxies = ${KONNECT_TRUSTED_PROXIES}
-EOF
-                    )
-                fi
-
-                truefalse_yesno KONNECT_DISABLE_TLS_VALIDATION
-                truefalse_yesno KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION
-                truefalse_yesno KONNECT_ENABLE_CLIENT_GUESTS
-
-                cat <<EOF > "${CONFIG_PATH}""${KONNECT_CONFIG_FILE}"
-# Custom Generated Konnect Server Configuration! Do not edit, instead set ENV Vars
-# If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on $(date)
-
-allow_client_guests = ${KONNECT_ENABLE_CLIENT_GUESTS}
-allow_dynamic_client_registration = ${KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION}
-encryption_secret_key = ${KONNECT_SIGNING_SECRET_FILE}
-identifier_scopes_conf = ${CONFIG_PATH}${KONNECT_CONFIG_FILE_IDENTIFIER_SCOPES}
-identity_manager = ${konnect_backend}
-identity_manager_args = ${KONNECT_IDENTITY_MANAGER_ARGUMENTS}
-insecure = ${KONNECT_DISABLE_TLS_VALIDATION}
-kc_server_uri = ${KONNECT_SOCKET_SERVER}
-kc_session_timeout = ${KONNECT_TIMEOUT_SESSION_KOPANO}
-listen = ${KONNECT_LISTEN_HOST}:${KONNECT_LISTEN_PORT}
-log_level = ${konnect_log_level}
-oidc_issuer_identifier = https://${KONNECT_HOSTNAME}
-signing_method = ${KONNECT_JWT_METHOD}
-signing_private_key = ${KONNECT_SIGNING_KEY_FILE}
-validation_keys_path = ${KONNECT_VALIDATION_KEYS_PATH}
-web_resources_path = ${KONNECT_WEBROOT}
-${konnect_backend_ldap}
-${konnect_allowed_scopes}
-${konnect_registration_identifier_conf}
-${konnect_signing_kid}
-${konnect_trusted_proxies}
-
-EOF
-
-                if [ ! -f "${CONFIG_PATH}/konnectd-identifier-scopes.yaml" ] ; then
-                    cp -R /assets/kopano/config/konnectd-identifier-scopes.yaml "${CONFIG_PATH}"
-                fi
-
-            else
-                print_info "Konnect: Skipping Auto Configuration"
-            fi
-
-            kapi_configured=TRUE
-        fi
-    fi
-}
-
-configure_kwm() {
-    if var_true "$ENABLE_KWM" ; then
-        if var_true "$kwm_configured" ; then
-            :
-        else
-            if [ -v SERVER_OIDC_IDENTIFIER ]; then
-                print_notice "KWM: Auto Configuring"
-                if [ "${KWM_LISTEN_HOST}" = "0.0.0.0" ] ; then KWM_HOST="127.0.0.1"; fi;
-                sed -i "s|<KWM_HOST>|${KWM_HOST}|g" /etc/nginx/conf.available/upstream-kwmserver.template
-                sed -i "s|<KWM_PORT>|${KWM_PORT}|g" /etc/nginx/conf.available/upstream-kwmserver.template
-                ln -sf /etc/nginx/conf.available/upstream-kwmserver.template /etc/nginx/conf.d/upstream-kwmserver.conf
-                if [ "${KWM_HOST}" != "127.0.0.1" ] && [ "${KWM_HOST}" != "localhost" ] ; then
-                    print_debug "KWM: Host is not localhost"
-                    if var_true "$KWM_HOST_SECURE" ; then
-                        print_debug "KWM: Changing to use HTTPS"
-                        sed -i "s|proxy_pass http://kwmserver/|proxy_pass https://kwmserver/|g" /etc/nginx/confd.available/calendar.template
-                        sed -i "s|proxy_pass http://kwmserver/|proxy_pass https://kwmserver/|g" /etc/nginx/confd.available/meet.template
-                    fi
-                fi
-
-                truefalse_yesno KWM_DISABLE_TLS_VALIDATION
-                truefalse_yesno KWM_ENABLE_API_GUEST
-                truefalse_yesno KWM_ENABLE_API_MCU
-                truefalse_yesno KWM_ENABLE_API_RTM
-                truefalse_yesno KWM_GUEST_ALLOW_JOIN_EMPTY
-
-                if [ ! -f "${KWM_TOKENS_SECRET_KEY_FILE}" ]; then
-                    print_debug "KWM: No Tokens Secret Key File - Generating"
-                    mkdir -p "$(dirname "${KWM_TOKENS_SECRET_KEY_FILE}")"
-                    silent openssl rand -out "${KWM_TOKENS_SECRET_KEY_FILE}" 32
-                fi
-
-                if [ -f "${CONFIG_PATH}""${KWM_TURN_AUTH_SERVER_FILE}" ] ; then
-                    kwm_turn_service_credentials=$(cat<<EOF
-turn_service_credentials = ${CONFIG_PATH}${KWM_TURN_AUTH_SERVER_FILE}
-EOF
-                    )
-                fi
-
-                if [ -f "${CONFIG_PATH}""${KWM_TURN_AUTH_SECRET_FILE}" ] ; then
-                    kwm_turn_auth_secret=$(cat<<EOF
-turn_server_shared_secret = ${KWM_TURN_AUTH_SECRET_FILE}
-EOF
-                    )
-                fi
-
-                if [ -n "${KWM_REQUIRED_SCOPES}" ] ; then
-                    kwm_required_scopes=$(cat<<EOF
-rtm_required_scopes = ${KWM_RTM_REQUIRED_SCOPES}
-EOF
-                    )
-                fi
-
-                if [ -n "${KWM_TURN_URIS}" ] ; then
-                    kwm_turn_uris=$(cat<<EOF
-turn_uris = ${KWM_TURN_URIS}
-EOF
-                    )
-                fi
-
-                if [ -f "${CONFIG_PATH}""${KWM_CONFIG_FILE_REGISTRATION}" ] ; then
-                    kwm_registration_conf=$(cat<<EOF
-registration_conf = ${CONFIG_PATH}${KWM_CONFIG_FILE_REGISTRATION}
-EOF
-                    )
-                fi
-
-                cat <<EOF > "${CONFIG_PATH}""${KWM_CONFIG_FILE}"
-# Custom Generated Kopano KWM Server Configuration! Do not edit, instead set ENV Vars
-# If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-# Last Generated on $(date)
-
-oidc_issuer_identifier = ${SERVER_OIDC_IDENTIFIER}
-admin_tokens_secret_key = ${KWM_TOKENS_SECRET_KEY_FILE}
-allow_guest_only_channels = ${KWM_GUEST_ALLOW_JOIN_EMPTY}
-enable_guest_api = ${KWM_ENABLE_API_GUEST}
-enable_mcu_api = ${KWM_ENABLE_API_MCU}
-enable_rtm_api = ${KWM_ENABLE_API_RTM}
-insecure = ${KWM_DISABLE_TLS_VALIDATION}
-listen = ${KWM_LISTEN_HOST}:${KWM_LISTEN_PORT}
-log_level = ${kwm_log_level}
-public_guest_access_regexp = ${KWM_GUEST_PUBLIC_ACCESS_REGEXP}
-turn_service_url = ${KWM_TURN_URL}
-${kwm_turn_auth_secret}
-${kwm_turn_service_credentials}
-${kwm_turn_uris}
-${kwm_required_scopes}
-${krm_registration_conf}
-EOF
-            else
-                print_info "KWM: Skipping Auto Configuration"
-            fi
-            kwm_configured=TRUE
-        fi
-    fi
-}
-
-configure_meet() {
-    if var_true "$ENABLE_MEET" ; then
-        print_notice "Meet: Enabled"
-        sanity_var MEET_HOSTNAME "Meet Hostname"
-
-        ### Configure Nginx
-        if [ "${MEET_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet.template;" /etc/nginx/conf.available/webapp.template
-        else
-            sed -i "s|<MEET_HOSTNAME>|${MEET_HOSTNAME}|g" /etc/nginx/conf.available/meet.template
-            ln -s /etc/nginx/conf.available/meet.template /etc/nginx/conf.d/meet.conf
-        fi
-        sed -i "s|<LISTEN_PORT>|${NGINX_LISTEN_PORT}|g" /etc/nginx/conf.available/meet.template
-        sed -i "s|<WEBROOT_MEET>|${MEET_WEBROOT}|g" /etc/nginx/conf.available/meet.template
-        sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/meet.template
-        sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/meet.template
-        sed -i "s|<MEET_CONFIG>|${MEET_CONFIG_FILE}|g" /etc/nginx/conf.available/meet.template
-        sed -i "s|<CONFIG_PATH>|${CONFIG_PATH}|g" /etc/nginx/conf.available/meet.template
-        ln -sf /etc/nginx/conf.available/meet.template /etc/nginx/conf.d/meet.conf
-        mkdir -p "$(dirname "${CONFIG_PATH}""${MEET_CONFIG_FILE}")"
-
-        if [ "$SETUP_TYPE" = "AUTO" ]; then
-            print_notice "Meet: Auto Configuring"
-            cat <<EOF > "${CONFIG_PATH}""${MEET_CONFIG_FILE}"
-{
-  "apiPrefix": "/api/gc/v1",
-  "disableFullGAB": "${MEET_DISABLE_FULL_GAB}",
-  "guests": {
-    "default": "${MEET_GUESTS_DEFAULT}",
-    "enabled": "${MEET_ENABLE_GUESTS}"
-  },
-  "kwm": {
-    "url": "${MEET_KWM_URL}"
-  },
-  "oidc": {
-    "clientID": "${MEET_OIDC_CLIENT_ID}",
-    "iss": "${MEET_OIDC_ISS}"
-  },
-  "apps": {
-    "enabled": []
-  }
-}
-EOF
-            if [ -n "${MEET_EXTERNAL_APPS}" ]; then
-                meet_external_apps_array=$(echo "$MEET_EXTERNAL_APPS" | tr "," "\n")
-                lines=$(echo "${meet_external_apps_array}" | wc -l | awk '{print $1}')
-                counter=1
-                for app in $meet_external_apps_array
-                    do
-                    print_debug "Meet: Enabling External App - ${app}"
-                    if [ "${counter}" -gt 1 ]; then
-                        seperator=","
-                    fi
-                    external_apps_enabled="${external_apps_enabled}${seperator}\"${app}\""
-                    (( counter+=1 ))
-                    sed -i 's|"enabled": \[.*\]|"enabled": \['"${external_apps_enabled}"'\]|g' "${CONFIG_PATH}""${MEET_CONFIG_FILE}"
-                    case "${app}" in
-                        "kopano-webapp" )
-                            sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-webapp.template;" /etc/nginx/conf.available/meet.template
-                            sed -i "s|<WEBAPP_EXT_HOSTNAME>|${MEET_EXTERNAL_WEBAPP_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-webapp.template
-                        ;;
-                        "kopano-mail" )
-                            sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-mail.template;" /etc/nginx/conf.available/meet.template
-                            sed -i "s|<MAIL_EXT_HOSTNAME>|${MEET_EXTERNAL_MAIL_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-mail.template
-                        ;;
-                        "kopano-konnect" )
-                            sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-konnect.template;" /etc/nginx/conf.available/meet.template
-                            sed -i "s|<KONNECT_EXT_HOSTNAME>|${MEET_EXTERNAL_KONNECT_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-konnect.template
-                        ;;
-                        "kopano-contacts" )
-                            sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-contacts.template;" /etc/nginx/conf.available/meet.template
-                            sed -i "s|<CONTACTS_EXT_HOSTNAME>|${MEET_EXTERNAL_CONTACTS_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-contacts.template
-                        ;;
-                        "kopano-calendar" )
-                            sed -i "/## Includes/a \ \ \ \ \ \ include \/etc\/nginx\/conf.available\/meet-ext-calendar.template;" /etc/nginx/conf.available/meet.template
-                            sed -i "s|<CALENDAR_EXT_HOSTNAME>|${MEET_EXTERNAL_CALENDAR_HOSTNAME}|g" /etc/nginx/conf.available/meet-ext-calendar.template
-                        ;;
-                    esac
-                done
-            fi
-        else
-            print_info "Meet: Skipping Auto Configuration"
         fi
     fi
 }
@@ -2890,12 +2418,7 @@ setup_container_mode() {
             echo "ENABLE_BACKUP=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_DAGENT=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_GATEWAY=TRUE" >> /tmp/state/.mode-env
-            echo "ENABLE_GRAPI=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_ICAL=TRUE" >> /tmp/state/.mode-env
-            echo "ENABLE_KAPI=TRUE" >> /tmp/state/.mode-env
-            echo "ENABLE_KONNECT=TRUE" >> /tmp/state/.mode-env
-            echo "ENABLE_MEET=TRUE" >> /tmp/state/.mode-env
-            echo "ENABLE_KWM=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_MONITOR=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_SEARCH=TRUE" >> /tmp/state/.mode-env
             echo "ENABLE_SPAMD=TRUE" >> /tmp/state/.mode-env
@@ -2944,23 +2467,9 @@ setup_container_mode() {
                             echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
                         fi
                     ;;
-                    "GRAPI" | "grapi" )
-                        print_debug "Enabling Container Mode for: GRAPI"
-                        echo "ENABLE_GRAPI=TRUE" >> /tmp/state/.mode-env
-                        if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
-                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
-                        fi
-                    ;;
                     "ICAL" | "ical" )
                         print_debug "Enabling Container Mode for: ICAL"
                         echo "ENABLE_ICAL=TRUE" >> /tmp/state/.mode-env
-                        if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
-                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
-                        fi
-                    ;;
-                    "KAPI" | "kapi" )
-                        print_debug "Enabling Container Mode for: KAPI"
-                        echo "ENABLE_KAPI=TRUE" >> /tmp/state/.mode-env
                         if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
                             echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
                         fi
@@ -2971,27 +2480,6 @@ setup_container_mode() {
                         if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
                             echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
                         fi
-                    ;;
-                    "KONNECT" | "konnnect" )
-                        print_debug "Enabling Container Mode for: KONNECT"
-                        service_start 10-nginx
-                        echo "ENABLE_KONNECT=TRUE" >> /tmp/state/.mode-env
-                        if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
-                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
-                        fi
-                    ;;
-                    "KWM" | "kwm" )
-                        print_debug "Enabling Container Mode for: KWM"
-                        echo "ENABLE_KWM=TRUE" >> /tmp/state/.mode-env
-                        if [[ "$(grep -cq 'create_log_kopano=TRUE' /tmp/state/.mode-env)" -eq 0 ]] ; then
-                            echo "create_log_kopano=TRUE" >> /tmp/state/.mode-env
-                        fi
-                    ;;
-                    "MEET" | "meet" )
-                        print_debug "Enabling Container Mode for: MEET"
-                        service_start 10-nginx
-                        service_start 20-php-fpm
-                        echo "ENABLE_MEET=TRUE" >> /tmp/state/.mode-env
                     ;;
                     "MIGRATOR" | "migrator" )
                         print_debug "Enabling Container Mode for: MIGRATOR"
