@@ -1,3 +1,0 @@
-upstream konnect {
-        server <KONNECT_HOST>:<KONNECT_PORT>;
-}

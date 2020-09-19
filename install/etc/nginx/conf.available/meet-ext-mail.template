@@ -1,3 +1,0 @@
-    location /mail/ {
-		return 301 $scheme://<MAIL_EXT_HOSTNAME> ;
-	}

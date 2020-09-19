@@ -1,13 +1,13 @@
-# hub.docker.com/r/tiredofit/kopano
+# hub.docker.com/r/tiredofit/kopano-core-cpre
 
-[![Build Status](https://img.shields.io/docker/build/tiredofit/kopano.svg)](https://hub.docker.com/r/tiredofit/kopano)
-[![Docker Pulls](https://img.shields.io/docker/pulls/tiredofit/kopano.svg)](https://hub.docker.com/r/tiredofit/kopano)
-[![Docker Stars](https://img.shields.io/docker/stars/tiredofit/kopano.svg)](https://hub.docker.com/r/tiredofit/kopano)
-[![Docker Layers](https://images.microbadger.com/badges/image/tiredofit/kopano.svg)](https://microbadger.com/images/tiredofit/kopano)
+[![Build Status](https://img.shields.io/docker/build/tiredofit/kopano-core.svg)](https://hub.docker.com/r/tiredofit/kopano-core)
+[![Docker Pulls](https://img.shields.io/docker/pulls/tiredofit/kopano-core.svg)](https://hub.docker.com/r/tiredofit/kopano-core)
+[![Docker Stars](https://img.shields.io/docker/stars/tiredofit/kopano-core.svg)](https://hub.docker.com/r/tiredofit/kopano-core)
+[![Docker Layers](https://images.microbadger.com/badges/image/tiredofit/kopano-core.svg)](https://microbadger.com/images/tiredofit/kopano-core)
 
 ## Introduction
 
-This will build a container for the [Kopano Groupware](https://kopano.io/) suite.
+This will build a container for the [Kopano Core Groupware](https://kopano.io/) suite.
 
 **At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the ins and outs of the software to potentially use for a non-profit educational institution. I am constantly relying on the expertise of the community in the Kopano.io Community forums and the manuals, and still have a long way to go**
 
@@ -17,7 +17,6 @@ This will build a container for the [Kopano Groupware](https://kopano.io/) suite
 * Configured for LDAP usage, no other backend
 * Kopano Core (backup, dagent, gateway, ical, monitor, server, spamd, spooler, webapp)
 * Various Webapp plugins installed
-* Kopano Meet (grapi, kapi, kwmserver, konnect, meet)
 * Z-Push for CalDAV,CardDAV
 * Fail2ban included for blocking attackers
 * Everything configurable via environment variables
@@ -59,11 +58,11 @@ You will also need an external [MySQL/MariaDB](https://hub.docker.com/r/tiredofi
 
 ## Installation
 
-Automated builds of the image are available on [Docker Hub](https://hub.docker.com/r/tiredofit/kopano) and is the recommended
+Automated builds of the image are available on [Docker Hub](https://hub.docker.com/r/tiredofit/kopano-core) and is the recommended
 method of installation.
 
 ```bash
-docker pull tiredofit/kopano:latest
+docker pull tiredofit/kopano-core:latest
 ```
 
 ### Quick Start

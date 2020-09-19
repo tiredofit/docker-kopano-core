@@ -1,3 +1,0 @@
-    location /calendar/ {
-		return 301 $scheme://<CALENDAR_EXT_HOSTNAME> ;
-	}

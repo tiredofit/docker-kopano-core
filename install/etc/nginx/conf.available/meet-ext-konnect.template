@@ -1,3 +1,0 @@
-    location /konnect/ {
-		return 301 $scheme://<KONNECT_EXT_HOSTNAME> ;
-	}

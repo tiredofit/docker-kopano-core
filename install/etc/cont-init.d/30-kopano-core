@@ -3,7 +3,6 @@
 source /assets/functions/00-container
 source /assets/defaults/kopano-global
 source /assets/functions/kopano
-check_service_initialized init 30-kopano-konnect
 setup_container_mode
 
 PROCESS_NAME="kopano-core"
@@ -23,7 +22,7 @@ if var_true "${ENABLE_SERVER}" ; then
 	configure_server
 	print_debug "Finished Configuring Kopano Server"
 else
-	service_stop 41-kopano-server
+	service_stop 31-kopano-server
     service_stop 90-post-server-startup-routines
 fi
 
@@ -50,7 +49,7 @@ if var_true "${ENABLE_DAGENT}" ; then
 	configure_dagent
 	print_debug "Finished Configuring DAgent"
 else
-	service_stop 44-kopano-dagent
+	service_stop 34-kopano-dagent
 fi
 
 ### Gateway Config
@@ -60,7 +59,7 @@ if var_true "${ENABLE_GATEWAY}" ; then
 	configure_gateway
 	print_debug "Finished Configuring Gateway"
 else
-    service_stop 43-kopano-gateway
+    service_stop 33-kopano-gateway
 fi
 
 ### ICAL Config
@@ -70,7 +69,7 @@ if var_true "${ENABLE_ICAL}" ; then
 	configure_ical
 	print_debug "Finished Configuring ICAL"
 else
-	service_stop 45-kopano-ical
+	service_stop 35-kopano-ical
 fi
 
 ### Monitor Config
@@ -90,7 +89,7 @@ if var_true "${ENABLE_MONITOR}" ; then
 	configure_monitor
 	print_debug "Finished Configuring Monitor"
 else
-	service_stop 48-kopano-monitor
+	service_stop 38-kopano-monitor
 fi
 
 ### Search Config
@@ -100,7 +99,7 @@ if var_true "${ENABLE_SEARCH}" ; then
 	configure_search
 	print_debug "Finished Configuring Search"
 else
-	service_stop 47-kopano-search
+	service_stop 37-kopano-search
 fi
 
 ### SPAMD Config
@@ -111,7 +110,7 @@ if var_true "${ENABLE_SPAMD}" ; then
 	configure_spamd
 	print_debug "Finished Configuring Spamd"
 else
-	service_stop 46-kopano-spamd
+	service_stop 36-kopano-spamd
 fi
 
 ### Spooler Config
@@ -121,7 +120,7 @@ if var_true "${ENABLE_SPOOLER}" ; then
 	configure_spooler
 	print_debug "Finished Configuring Spooler"
 else
-	service_stop 42-kopano-spooler
+	service_stop 32-kopano-spooler
 fi
 
 ### Copy custom files overtop of the root directory

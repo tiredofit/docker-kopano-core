@@ -2,7 +2,7 @@ version: '3.7'
 services:
 
   kopano-app:
-    image: tiredofit/kopano
+    image: tiredofit/kopano-core
     container_name: kopano-app
     links:
       - kopano-db
@@ -71,17 +71,6 @@ services:
       - LDAP_FILTER_USER_SEARCH=(&(objectClass=kopano-user)(kopanoAccount=1))
       - LDAP_ATTRIBUTE_USER_UNIQUE=entryUUID
 
-     ### Konnect
-      - KONNECT_HOSTNAME=meet.example.com
-
-     ### Meet
-      - MEET_HOSTNAME=meet.example.com
-      - MEET_EXTERNAL_CALENDAR_HOSTNAME=mail.example.com
-      - MEET_EXTERNAL_CONTACTS_HOSTNAME=mail.example.com
-      - MEET_EXTERNAL_KONNECT_HOSTNAME=meet.example.com
-      - MEET_EXTERNAL_MAIL_HOSTNAME=mail.example.com
-      - MEET_EXTERNAL_WEBAPP_HOSTNAME=mail.example.com
-
      ### Search
       - SEARCH_ENABLE_HTTPS=FALSE
 
@@ -90,7 +79,7 @@ services:
       - SERVER_GAB_HIDE_EVERYONE=TRUE
       - SERVER_GAB_HIDE_SYSTEM=TRUE
       - SERVER_ADDITIONAL_ARGS=--ignore-attachment-storage-conflict
-      - SERVER_OIDC_IDENTIFIER=https://meet.example.com
+      #- SERVER_OIDC_IDENTIFIER=https://konnect.example.com
         #### Server: S3
       - SERVER_ATTACHMENT_BACKEND=S3
       - SERVER_ATTACHMENT_BACKEND_S3_HOST=minio.example.com
