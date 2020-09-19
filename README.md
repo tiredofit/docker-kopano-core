@@ -1,4 +1,4 @@
-# hub.docker.com/r/tiredofit/kopano-core-cpre
+# hub.docker.com/r/tiredofit/kopano-core
 
 [![Build Status](https://img.shields.io/docker/build/tiredofit/kopano-core.svg)](https://hub.docker.com/r/tiredofit/kopano-core)
 [![Docker Pulls](https://img.shields.io/docker/pulls/tiredofit/kopano-core.svg)](https://hub.docker.com/r/tiredofit/kopano-core)
