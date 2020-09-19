@@ -1,3 +1,13 @@
+## 0.70.0 2020-09-18 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Stripped Kopano Meet, Konnect, GRAPI, KWMserver, KAPI from image
+      - Switch to PHP 7.4
+      - Fix SPAMD DB File
+      - Fix TLS issues
+      - Fix Kopano Backup Configuration
+      - Alter some defaults
+
 ## 0.63.0 2020-09-06 <dave at tiredofit dot ca>
 
    ### Added
