@@ -12,6 +12,7 @@ mkdir -p "${CONFIG_PATH}"
 configure_logging
 if var_true $ENABLE_CALENDAR || var_true $ENABLE_KDAV || var_true $ENABLE_WEBAPP || var_true $ENABLE_ZPUSH ; then
 	source /assets/defaults/10-nginx
+	rm -rf /etc/nginx/conf.d/default.conf
 else
     service_stop 10-nginx
     service_stop 11-nginx-config-reload

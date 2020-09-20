@@ -630,6 +630,7 @@ RUN set -x && \
     cp -R /usr/share/zpush/src/backend/sqlstatemachine/config.php /assets/zpush/config/backend/sqlstatemachine/ && \
     rm -rf /etc/kopano && \
     ln -sf /config /etc/kopano && \
+    ln -s /usr/bin/kopano-autorespond /usr/sbin/kopano-autorespond && \
     mkdir -p /var/run/kopano && \
     chown -R kopano /var/run/kopano && \
     \
