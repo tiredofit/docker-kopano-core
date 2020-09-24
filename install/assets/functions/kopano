@@ -1530,6 +1530,7 @@ configure_webapp() {
     define("PATH_PLUGIN_DIR", "plugins");
     define("ENABLE_PLUGINS", ${WEBAPP_ENABLE_PLUGINS});
     define("DISABLED_PLUGINS_LIST", "${webapp_disabled_plugins}");
+    define("ENABLE_FILE_PREVIEWER", ${WEBAPP_ENABLE_FILE_PREVIEWER);
     define("ALWAYS_ENABLED_PLUGINS_LIST", "${webapp_always_enabled_plugins}");
     define("THEME", "${WEBAPP_THEME}");
     define("ICONSET", "${WEBAPP_ICONSET}");
@@ -1608,7 +1609,6 @@ configure_webapp_plugins() {
     if var_true "$WEBAPP_ENABLE_PLUGINS" ; then
         print_debug "Webapp Plugins Enabled"
         configure_webapp_plugin_contact_fax
-        #configure_webapp_plugin_file_previewer
         configure_webapp_plugin_files
         configure_webapp_plugin_files_backend_owncloud
         configure_webapp_plugin_files_backend_seafile
@@ -1719,26 +1719,6 @@ configure_webapp_plugin_files_backend_smb() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SMB}" ; then
             cp -R /assets/kopano/plugins/webapp/filesbackendSMB /usr/share/kopano-webapp/plugins
-        fi
-    fi
-}
-
-configure_webapp_plugin_file_previewer() {
-    if var_true "${WEBAPP_PLUGIN_ENABLE_FILEPREVIEWER}" ; then
-        cp -R /assets/kopano/plugins/webapp/filepreviewer /usr/share/kopano-webapp/plugins
-
-        if [ "$SETUP_TYPE" = "AUTO" ]; then
-            print_notice "Webapp Plugin: File Previewer - Auto Configuring"
-            cat <<EOF > "${CONFIG_PATH}"webapp/config-filepreviewer.php
-<?php
-// Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
-// If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
-
-define('PLUGIN_FILEPREVIEWER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USER});
-define('PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM', "${WEBAPP_PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM}");
-define('PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM', "${WEBAPP_PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM}");
-EOF
         fi
     fi
 }

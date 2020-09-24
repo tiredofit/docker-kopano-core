@@ -183,10 +183,6 @@ RUN set -x && \
 FROM tiredofit/alpine:3.12 as webapp-builder
 
 ARG KOPANO_WEBAPP_VERSION
-ARG KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL
-ARG KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION
-ARG KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL
-ARG KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL
 ARG KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL
@@ -211,14 +207,8 @@ ARG KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL
 ARG KOPANO_WEBAPP_PLUGIN_SMIME_VERSION
 ARG KOPANO_WEBAPP_REPO_URL
 
-ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"6bb4a9f161204fb5942aff18233256902278955e"} \
-#ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"master"} \
-#ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"v4.3-rc.1"} \
+ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"v4.3"} \
     KOPANO_WEBAPP_REPO_URL=${KOPANO_WEBAPP_REPO_URL:-"https://github.com/Kopano-dev/kopano-webapp.git"} \
-    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL=${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_REPO_URL:-"https://stash.kopano.io/scm/kwa/desktopnotifications.git"} \
-    KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION=${KOPANO_WEBAPP_PLUGIN_DESKTOP_NOTIFICATIONS_VERSION:-"tags/v2.0.3"} \
-    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL:-"https://stash.kopano.io/scm/kwa/filepreviewer.git"} \
-    KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION=${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION:-"tags/v2.2.0"} \
     KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-owncloud-backend.git"} \
     KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION:-"tags/v3.0.0"} \
     KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL:-"https://stash.kopano.io/scm/kwa/files.git"} \
@@ -226,7 +216,7 @@ ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"6bb4a9f161204fb5942aff182332
     KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-smb-backend.git"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION:-"tags/v3.0.0"} \
-    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v3.0.0-beta.4"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v3.0.0"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-minimaltiny.git"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION:-"tags/1.0.0"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-quill.git"} \
@@ -274,6 +264,10 @@ RUN set -x && \
     if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-webapp ; fi; \
     if [ -f "/build-assets/scripts/webapp.sh" ] ; then /build-assets/scripts/webapp.sh ; fi; \
     \
+    # Polish Translation is throwin errors, so we remove for time being
+    rm -rf /usr/src/kopano-webapp/server/language/pl_PL* && \
+    #
+    \
     ### Build
     cd /usr/src/kopano-webapp && \
     ant deploy && \
@@ -287,16 +281,6 @@ RUN set -x && \
     mkdir -p /rootfs/assets/kopano/plugins/webapp && \
     \
     ### Build Plugins
-    ## File Previewer TO BE MERGED INTO MAIN
-    git clone ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_REPO_URL} /usr/src/kopano-webapp/plugins/filepreviewer && \
-    cd /usr/src/kopano-webapp/plugins/filepreviewer && \
-    git checkout ${KOPANO_WEBAPP_PLUGIN_FILEPREVIEWER_VERSION} && \
-    if [ -d "/build-assets/plugins/filepreviewer" ] ; then cp -R /build-assets/plugins/filepreviewer/* /usr/src/kopano-webapp/plugins/filepreviewer/ ; fi; \
-    if [ -f "/build-assets/scripts/plugin-filepreviewer.sh" ] ; then /build-assets/scripts/plugin-filepreviewer.sh ; fi; \
-    ant deploy && \
-    cp /usr/src/kopano-webapp/deploy/plugins/filepreviewer/config.php /rootfs/assets/kopano/config/webapp/config-filepreviewer.php && \
-    ln -sf /etc/kopano/webapp/config-filepreviewer.php /usr/src/kopano-webapp/deploy/plugins/filepreviewer/config.php && \
-    \
     ## Files
     git clone ${KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL} /usr/src/kopano-webapp/plugins/files && \
     cd /usr/src/kopano-webapp/plugins/files && \
@@ -418,15 +402,17 @@ RUN set -x && \
     ### Fetch Additional Scripts
     mkdir -p /rootfs/assets/kopano/scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/webapp-tools.git /rootfs/assets/kopano/scripts/webapp-tools && \
-    mkdir -p /rootfs/assets/kopano/scripts/webapp-tools/set-default-signature && \
-    cp -R /usr/src/kopano-webapp/tools/signatures/* /rootfs/assets/kopano/scripts/webapp-tools/set-default-signature && \
     \
     ### Compress Package
     cd /rootfs/ && \
     echo "Kopano Webapp ${KOPANO_WEBAPP_VERSION} built from ${KOPANO_WEBAPP_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-webapp.version && \
     echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-webapp.version && \
     env | grep KOPANO | sort >> /rootfs/tiredofit/kopano-webapp.version && \
-    tar cvfz /kopano-webapp.tar.gz .
+    tar cvfz /kopano-webapp.tar.gz . && \
+    \
+    ### Cleanup
+    apk del .kopano_webapp-build-deps && \
+    rm -rf /usr/src/* /var/cache/apk/*
 
 #### Runtime Image
 FROM tiredofit/nginx-php-fpm:debian-7.4

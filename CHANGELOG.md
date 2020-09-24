@@ -1,3 +1,12 @@
+## 0.75.0 2020-09-24 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Pin Webapp Version to 4.3
+      - Removed File Previewer Plugin
+      - Update Quota Defaults
+      - Fix Autoresponder
+      - Split Autodiscover to its own seperate nginx configuration
+
 ## 0.70.0 2020-09-18 <dave at tiredofit dot ca>
 
    ### Changed
