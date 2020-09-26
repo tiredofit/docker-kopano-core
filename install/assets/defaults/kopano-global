@@ -93,7 +93,7 @@ if var_true "${SEARCH_ENABLE_HTTP}" || var_true "${SEARCH_ENABLE_HTTPS}" ; then
             fi
     fi
 else
-    SOCKET_SEARCH_LISTEN=${SOCKET_SEARCH:-"file:///var/run/kopano/search.sock"}
-    SOCKET_SEARCH=${SOCKET_SEARCH:-"file:///var/run/kopano/search.sock"}
+    SOCKET_SEARCH_LISTEN=${SOCKET_SEARCH:-"file:///var/run/kopano-search/search.sock"}
+    SOCKET_SEARCH=${SOCKET_SEARCH:-"file:///var/run/kopano-search/search.sock"}
 fi
 

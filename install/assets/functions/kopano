@@ -1067,6 +1067,8 @@ EOF
 
 configure_search() {
     if var_true "$ENABLE_SEARCH" ; then
+        mkdir -p /var/run/kopano-search
+        chown -R kopano: /var/run/kopano-search
         certificates "${SEARCH_SSL_CERT_FILE}"
         certificates "${SEARCH_SSL_LISTEN_CERT_FILE}"
         if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -1128,6 +1130,8 @@ EOF
 
 configure_server() {
     if var_true "$ENABLE_SERVER" ; then
+        mkdir -p /var/run/kopano
+        chown -R kopano: /var/run/kopano
         touch "${CONFIG_PATH}"admin.cfg
         if [ "$SETUP_TYPE" = "AUTO" ]; then
         ### Server
@@ -1530,7 +1534,7 @@ configure_webapp() {
     define("PATH_PLUGIN_DIR", "plugins");
     define("ENABLE_PLUGINS", ${WEBAPP_ENABLE_PLUGINS});
     define("DISABLED_PLUGINS_LIST", "${webapp_disabled_plugins}");
-    define("ENABLE_FILE_PREVIEWER", ${WEBAPP_ENABLE_FILE_PREVIEWER);
+    define("ENABLE_FILE_PREVIEWER", ${WEBAPP_ENABLE_FILE_PREVIEWER});
     define("ALWAYS_ENABLED_PLUGINS_LIST", "${webapp_always_enabled_plugins}");
     define("THEME", "${WEBAPP_THEME}");
     define("ICONSET", "${WEBAPP_ICONSET}");

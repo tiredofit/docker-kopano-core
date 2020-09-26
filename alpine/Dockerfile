@@ -3,6 +3,7 @@ LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ARG GPERFTOOLS_VERSION=2.8
 ARG VMIME_VERSION=v0.9.2k4
+ARG LIBHX_VERSION=3.2.4
 ENV KOPANO_CORE_VERSION=kopanocore-10.0.6 \
     KOPANO_WEBAPP_VERSION=4.2.0 \
     Z_PUSH_VERSION=2.5.2
@@ -75,20 +76,29 @@ RUN git clone git://git.inai.de/libhx /usr/src/libhx && \
     cd /usr/src/libhx && \
     libtoolize --force && \
     ./autogen.sh && \
-    ./configure --prefix=/usr && \
+    ./configure \
+        --prefix=/usr && \
     make -j$(nproc) && \
     make install
 
     ### Vmime
-RUN git clone -b ${VMIME_VERSION} https://github.com/Kopano-dev/vmime /usr/src/vmime && \
-    apk add -t .vmime-buld-deps \
-                cmake \
-                doxygen \
+RUN apk add -t .vmime-buld-deps \
                 libgsasl-dev \
                 gnutls-dev \
+                cmake \
+                gtk+3.0-dev \
                 && \
+    \
+    git clone https://github.com/Kopano-dev/vmime /usr/src/vmime && \
     cd /usr/src/vmime && \
-    cmake -DCMAKE_INSTALL_PREFIX=/usr -G "Unix Makefiles" && \
+    git checkout ${VMIME_VERSION} && \
+    sed -i 's/SET(VMIME_PACKAGE_VERSION	  $VMIME_VERSION))/SET(VMIME_PACKAGE_VERSION	  ${VMIME_VERSION}K1)/g' CMakeLists.txt
+    cd build && \
+    cmake -DCMAKE_INSTALL_PREFIX=/usr \
+		  -DLIB_INSTALL_DIR=/usr/lib/ \
+		  -DCMAKE_BUILD_TYPE=None \
+          -G "Unix Makefiles" \
+          && \
     make -j$(nproc) && \
     make install
 
@@ -104,7 +114,16 @@ RUN git clone https://github.com/bji/libs3 /usr/src/libs3 && \
     make DESTDIR=/usr install
 
     ### Kopano Core
-RUN cd /usr/src/kopano-core && \
+RUN apk add -t .kopano-core-build-deps \
+    gcc e2fsprogs automake autoconf xmlto docbook-xsl git xorgproto \
+    libtool php7 php7-dev libhx xapian-core-dev libxml2-dev db-dev mariadb-dev \
+    gsoap-dev libical-dev icu-dev curl-dev libvmime-dev jsoncpp-dev python3-dev \
+    swig gsoap autoconf automake libtool gnu-libiconv-dev py3-setuptools && \
+    \
+    \
+    cd /usr/src/kopano-core && \
+    \
+
     libtoolize --force && \
      autoreconf -fiv && \
     ./configure \

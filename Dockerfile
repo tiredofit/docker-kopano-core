@@ -618,7 +618,9 @@ RUN set -x && \
     ln -sf /config /etc/kopano && \
     ln -s /usr/bin/kopano-autorespond /usr/sbin/kopano-autorespond && \
     mkdir -p /var/run/kopano && \
+    mkdir -p /var/run/kopano-search && \
     chown -R kopano /var/run/kopano && \
+    chown -R kopano /var/run/kopano-search && \
     \
     ### Build Assets Override
     if [ -d "/build-assets/src/" ] ; then cp -R /build-assets/src/* / ; fi; \

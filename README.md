@@ -516,7 +516,7 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 |                                     | _Dependent on options above enabling HTTP or HTTPS this will auto populate with a default._ |                                 |
 |                                     | ENABLE_HTTP = `http://search:${SEARCH_LISTEN_PORT}`                                         |                                 |
 |                                     | ENABLE_HTTPS = `https://search:${SEARCH_LISTEN_PORT}`                                       |                                 |
-|                                     | None of above = `file:///var/run/kopano/search.sock`                                        |                                 |
+|                                     | None of above = `file:///var/run/kopano-search/search.sock`                                 |                                 |
 
 ##### Server Options (needs work)
 
@@ -579,8 +579,8 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 | `SERVER_PURGE_SOFTDELETE`                |                                                                | `30`                          |
 | `SERVER_QUOTA_COMPANY_WARN`              |                                                                | `0`                           |
 | `SERVER_QUOTA_HARD`                      |                                                                | `1024`                        |
-| `SERVER_QUOTA_SOFT`                      |                                                                | `950`                        |
-| `SERVER_QUOTA_WARN`                      |                                                                | `900`                        |
+| `SERVER_QUOTA_SOFT`                      |                                                                | `950`                         |
+| `SERVER_QUOTA_WARN`                      |                                                                | `900`                         |
 | `SERVER_SERVER_NAME`                     |                                                                | `Kopano`                      |
 | `SERVER_SSL_CERT_FILE`                   | Server SSL Certificate File                                    | `/certs/core/server.crt`      |
 | `SERVER_SSL_KEY_FILE`                    | Server SSL Key File                                            | `/certs/core/server.pem`      |
@@ -649,7 +649,7 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 | `WEBAPP_DISABLE_WHATS_NEW_DIALOG`                    | Show What's New Dialog on login                               | `FALSE`                                                                                                                   |
 | `WEBAPP_ENABLED_LANGUAGES`                           | Enabled Languages                                             | `cs_CZ;da_DK;de_DE;en_GB;en_US;es_CA;es_ES;fi_FI;fr_FR;hu_HU;it_IT;ja_JP;nb_NO;nl_NL;pl_PL;pt_BR;ru_RU;sl_SI;tr_TR;zh_TW` |
 | `WEBAPP_ENABLE_ADVANCED_SETTINGS`                    | Enable Advanced Settings                                      | `FALSE`                                                                                                                   |
-| `WEBAPP_ENABLE_CONVERSATION_VIEW`                    |                                                               | `TRUE`                                                                                                                   |
+| `WEBAPP_ENABLE_CONVERSATION_VIEW`                    |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_ENABLE_DEFAULT_SOFT_DELETE`                  |                                                               | `FALSE`                                                                                                                   |
 | `WEBAPP_ENABLE_DIRECT_BOOKING`                       |                                                               | `TRUE`                                                                                                                    |
 | `WEBAPP_ENABLE_DOMPURIFY_FILTER`                     |                                                               | `FALSE`                                                                                                                   |
@@ -713,15 +713,6 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `WEBAPP_PLUGIN_FILES_CACHE_DIR`               | Files cache directory           | `/data/cache/webapp/plugin_files` |
 | `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV                  | (random)                          |
 | `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV                 | (random)                          |
-
-###### Webapp Plugin: Filepreviewer Options
-
-| Parameter                                      | Description                     | Default      |
-| ---------------------------------------------- | ------------------------------- | ------------ |
-| `WEBAPP_PLUGIN_ENABLE_FILEPREVIEWER`           | Enable Plugin                   | `TRUE`       |
-| `WEBAPP_PLUGIN_FILEPREVIEWER_DEFAULT_USER`     | Auto Enable for new users       | `TRUE`       |
-| `WEBAPP_PLUGIN_FILEPREVIEWER_ODF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `auto`       |
-| `WEBAPP_PLUGIN_FILEPREVIEWER_PDF_DEFAULT_ZOOM` | Default Zoom type for ODF Files | `page-width` |
 
 ###### Webapp Plugin: HTML Editor Quill
 
