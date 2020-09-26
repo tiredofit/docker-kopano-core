@@ -86,6 +86,7 @@ fi
 if var_true "${ENABLE_MONITOR}" ; then
 	print_debug "Configuring Monitor"
 	source /assets/defaults/kopano-monitor
+	create_quota_templates
 	configure_monitor
 	print_debug "Finished Configuring Monitor"
 else

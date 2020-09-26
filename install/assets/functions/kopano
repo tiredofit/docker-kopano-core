@@ -1056,8 +1056,11 @@ log_file = ${LOG_PATH_KOPANO}${LOG_FILE_MONITOR}
 log_timestamp = ${LOG_TIMESTAMPS}
 quota_check_interval = ${MONITOR_QUOTA_CHECK_INTERVAL}
 mailquota_resend_interval = ${MONITOR_QUOTA_RESEND_INTERVAL}
-userquota_warning_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_COMPANY_QUOTA}
+userquota_warning_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_USER_QUOTA}
+userquota_soft_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_USER_SOFT_QUOTA}
+userquota_hard_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_USER_HARD_QUOTA}
 companyquota_warning_template = ${TEMPLATE_MONITOR_PATH}${TEMPLATE_MONITOR_COMPANY_QUOTA}
+
 EOF
         else
             print_info "Monitor: Skipping Auto Configuration"

@@ -12,4 +12,4 @@ wait_for_server monitor
 sleep 3
 
 print_info "Starting Kopano Monitoring Service"
-kopano-monitor "${MONITOR_ADDITIONAL_ARGS}"
+kopano-monitor "${MONITOR_ADDITIONAL_ARGS}" -F

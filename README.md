@@ -474,18 +474,20 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 
 ##### Monitor Options
 
-| Parameter                        | Description                               | Default                   |
-| -------------------------------- | ----------------------------------------- | ------------------------- |
-| `ENABLE_MONITOR`                 | Enable Service                            | `TRUE`                    |
-| `MONITOR_QUOTA_CHECK_INTERVAL`   | Check Quotas in minutes interval          | `15`                      |
-| `MONITOR_QUOTA_RESEND_INTERVAL`  | Resend Notifications in minutes interval  | `-1`                      |
-| `MONITOR_SSL_CERT_FILE`          | Monitor SSL Certificate File              | `/certs/core/monitor.crt` |
-| `MONTIOR_SSL_KEY_FILE`           | Monitor SSL Key File                      | `/certs/core/monitor.pem` |
-| `MONITOR_SOCKET_SERVER`          | What should service use to contact server | `${SOCKET_SERVER}`        |
-| `LOG_FILE_MONITOR`               | Logfile Name                              | `monitor.log`             |
-| `TEMPLATE_MONITOR_COMPANY_QUOTA` | Template: Company exceeded Quota          | `companywarning.mail`     |
-| `TEMPLATE_MONITOR_PATH`          | Where to find templates                   | `/data/templates/quotas`  |
-| `TEMPLATE_MONITOR_USER_QUOTA`    | Template: User exceeded Quota             | `userwarning.mail`        |
+| Parameter                          | Description                               | Default                   |
+| ---------------------------------- | ----------------------------------------- | ------------------------- |
+| `ENABLE_MONITOR`                   | Enable Service                            | `TRUE`                    |
+| `MONITOR_QUOTA_CHECK_INTERVAL`     | Check Quotas in minutes interval          | `15`                      |
+| `MONITOR_QUOTA_RESEND_INTERVAL`    | Resend Notifications in dats interval     | `1`                       |
+| `MONITOR_SSL_CERT_FILE`            | Monitor SSL Certificate File              | `/certs/core/monitor.crt` |
+| `MONTIOR_SSL_KEY_FILE`             | Monitor SSL Key File                      | `/certs/core/monitor.pem` |
+| `MONITOR_SOCKET_SERVER`            | What should service use to contact server | `${SOCKET_SERVER}`        |
+| `LOG_FILE_MONITOR`                 | Logfile Name                              | `monitor.log`             |
+| `TEMPLATE_MONITOR_COMPANY_QUOTA`   | Template: Company exceeded Quota          | `companywarning.mail`     |
+| `TEMPLATE_MONITOR_PATH`            | Where to find templates                   | `/data/templates/quotas`  |
+| `TEMPLATE_MONITOR_USER_QUOTA`      | Template: User exceeded Quota             | `userwarning.mail`        |
+| `TEMPLATE_MONITOR_USER_HARD_QUOTA` | Template: User exceeded Quota Hard        | `userhard.mail`           |
+| `TEMPLATE_MONITOR_USER_SOFT_QUOTA` | Template: User exceeded Quota Soft        | `usersoft.mail`           |
 
 ##### Search Options
 
