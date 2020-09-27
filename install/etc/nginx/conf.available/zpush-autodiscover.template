@@ -5,7 +5,7 @@
      root /usr/share/zpush/src;
 
      ### Populate your custom directives here
-     #index  index.php;
+     index  autodiscover/autodiscover.php;
 
     location ~* /AutoDiscover/AutoDiscover.xml {
         access_log  <LOG_ACCESS_LOCATION>/zpush-autodiscover-access.log;
@@ -13,6 +13,16 @@
         include /etc/nginx/nginx.conf.d/php-fpm.conf;
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME /usr/share/zpush/src/autodiscover/autodiscover.php;
+    }
+
+    location ~ \.php(/|$) {
+        include /etc/nginx/nginx.conf.d/php-fpm.conf;
+        access_log  <LOG_ACCESS_LOCATION>/zpush-autodiscover-access.log;
+        error_log   <LOG_ERROR_LOCATION>/zpush-autodiscover-error.log;
+        fastcgi_split_path_info ^(.+?\.php)(/.+)$;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
     }
 
     ### Includes
