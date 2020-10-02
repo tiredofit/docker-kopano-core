@@ -1740,13 +1740,13 @@ configure_webapp_plugin_intranet () {
         cp -R /assets/kopano/plugins/webapp/intranet /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Intranet - Auto Configuring"
-            cat <<EOF > "${CONFIG_PATH}"webapp/config-intranet.php
+            cat <<EOF > ${CONFIG_PATH}webapp/config-intranet.php
 <?php
 // Custom Generated Kopano Webapp Intranet Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
 // Last Generated on $(date)
 
-define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_INTRANET_DEFAULT_USER});
+\$intranet_items = array();
 EOF
 
         NUM=$(printenv | sort | grep -c '^WEBAPP_PLUGIN_INTRANET.*TITLE')
@@ -1756,20 +1756,65 @@ EOF
             intranet_url=WEBAPP_PLUGIN_INTRANET${i}_URL
             intranet_autostart=WEBAPP_PLUGIN_INTRANET${i}_AUTOSTART
             intranet_icon=WEBAPP_PLUGIN_INTRANET${i}_ICON
-            print_notice "Webapp Plugin: Intranet - Adding Tab #${i} - ${!intranet_title} - ${!intranet_url}"
+            intranet_group=WEBAPP_PLUGIN_INTRANET${i}_GROUP
+            if [ ${intranet_group} = "" ] ; then
+                intranet_group="ALL"
+            fi
+            echo "Webapp Plugin: Intranet - Adding Tab #${i} - ${!intranet_title} - ${!intranet_url}"
             if [ "${!intranet_title}" != "" ] ; then
                 if [ "${i}" != "1" ] ; then
                     suffix="_$(expr "${i}" - 1)"
                 fi
-                cat <<EOF >> "${CONFIG_PATH}"webapp/config-intranet.php
-
-define('PLUGIN_INTRANET_BUTTON_TITLE${suffix}', '${!intranet_title}');
-define('PLUGIN_INTRANET_URL${suffix}', '${!intranet_url}');
-define('PLUGIN_INTRANET_AUTOSTART${suffix}', ${!intranet_autostart});
-define('PLUGIN_INTRANET_ICON${suffix}', '${!intranet_icon}');
+                cat <<EOF >> ${CONFIG_PATH}webapp/config-intranet.php
+\$intranet_items[] = array("${!intranet_group}", "${!intranet_title}", "${!intranet_url}", ${!intranet_autostart}, "${!intranet_icon}");
 EOF
-                fi
-            done
+
+fi
+done
+
+cat <<EOD >> ${CONFIG_PATH}webapp/config-intranet.php
+
+if (@\$_SERVER['GROUPS']) {
+    \$user_groups = array_map('trim', explode(';', \$_SERVER['GROUPS']));
+} else {
+    \$user_groups = array();
+}
+
+define('PLUGIN_INTRANET_USER_DEFAULT_ENABLE', TRUE);
+
+\$found = 0;
+foreach (\$intranet_items as \$item) {
+    // they have access to this intranet item
+    if (has_access(\$item[0], \$user_groups)) {
+        if (\$found === 0) {
+            \$ident_str = "";
+        } else {
+            \$ident_str = "_".\$found;
+        }
+
+        define('PLUGIN_INTRANET_BUTTON_TITLE'.\$ident_str, \$item[1]);
+        define('PLUGIN_INTRANET_URL'.\$ident_str, \$item[2]);
+        define('PLUGIN_INTRANET_AUTOSTART'.\$ident_str, \$item[3]);
+        define('PLUGIN_INTRANET_ICON'.\$ident_str, \$item[4]);
+
+        \$found++;
+    }
+}
+
+function has_access(\$groups_string, \$groups) {
+    // if you pass 'ALL into \$groups_string it'll give everyone permissions
+    if (\$groups_string == "ALL") return 1;
+
+    \$check_array = array_map('trim', explode(',', \$groups_string));
+    foreach (\$check_array as \$check) {
+        if (in_array(\$check, \$groups)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+EOD
         fi
     fi
 }
