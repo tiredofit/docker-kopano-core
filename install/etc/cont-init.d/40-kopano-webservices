@@ -29,6 +29,12 @@ fi
 if var_true "${ENABLE_KDAV}" ; then
 	source /assets/defaults/kopano-kdav
 	configure_kdav
+	if [ "${KDAV_SERVE_MODE}" = "APACHE" ]; then
+		print_notice "Adding Apache to startup for KDAV"
+		cp -R /assets/services.available/41-kopano-kdav-apache /etc/services.available/
+		mkdir -p /var/log/apache2
+		chown -R ${NGINX_USER}:${NGINX_GROUP} /var/log/apache2
+	fi
 fi
 
 ### Webapp Config

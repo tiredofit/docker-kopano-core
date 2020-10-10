@@ -1,3 +1,10 @@
+## 0.81.0 2020-10-08 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Reverted back to PHP 7.3 due to PDO issues
+      - Load Apache2 to handle KDAV queries for now
+      - Webapp 4.4
+
 ## 0.75.0 2020-09-24 <dave at tiredofit dot ca>
 
    ### Changed
@@ -21,7 +28,7 @@
 
    ### Added
       - Perl dependencies for kopano-migration-imap
-      - Add MODE=MIGRATE - A copy of Kopano Gateway with authentication disabled for migration purposes  
+      - Add MODE=MIGRATE - A copy of Kopano Gateway with authentication disabled for migration purposes
       - Source file and script injection on each service before compiling via /build-assets
 
    ### Changed

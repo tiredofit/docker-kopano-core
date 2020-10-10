@@ -946,18 +946,28 @@ configure_kdav() {
         fi
         sed -i "s|level value=\"TRACE\"|level value=\"${kdav_log_level}\"|g" /usr/share/kdav/log4php.xml
 
-        ### Configure Nginx
-        if [ "${KDAV_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
-            sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/kdav-webapp.template;" /etc/nginx/conf.available/webapp.template
+        if [ "${KDAV_SERVE_MODE}" = "APACHE" ]; then
+            print_debug "Using Apache for KDAV"
+            ### Configure Apache
+            sed -i "s|<KDAV_HOSTNAME>|${KDAV_HOSTNAME}|g" /etc/apache2/sites-enabled/kdav.conf
+            mkdir -p /logs/apache
+            chown -R ${NGINX_USER}:${NGINX_GROUP} /logs/apache
         else
-            sed -i "s|<KDAV_HOSTNAME>|${KDAV_HOSTNAME}|g" /etc/nginx/conf.available/kdav.template
-            ln -s /etc/nginx/conf.available/kdav.template /etc/nginx/conf.d/kdav.conf
+            ### Configure Nginx
+            print_debug "Using Nginx for KDAV"
+            if [ "${KDAV_HOSTNAME}" = "${WEBAPP_HOSTNAME}" ] ; then
+                sed -i "/### Includes/a\ \ \ \ \ \ include \/etc\/nginx\/conf.available\/kdav-webapp.template;" /etc/nginx/conf.available/webapp.template
+            else
+                sed -i "s|<KDAV_HOSTNAME>|${KDAV_HOSTNAME}|g" /etc/nginx/conf.available/kdav.template
+                ln -s /etc/nginx/conf.available/kdav.template /etc/nginx/conf.d/kdav.conf
+            fi
+            sed -i "s|<LISTEN_PORT>|${NGINX_LISTEN_PORT}|g" /etc/nginx/conf.available/kdav.template
+            sed -i "s|<WEBROOT>|/usr/share/kdav|g" /etc/nginx/conf.available/kdav.template
+            sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/kdav.template
+            sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/kdav.template
+            ln -sf /etc/nginx/conf.available/kdav.template /etc/nginx/conf.d/kdav.conf
         fi
-        sed -i "s|<LISTEN_PORT>|${NGINX_LISTEN_PORT}|g" /etc/nginx/conf.available/kdav.template
-        sed -i "s|<WEBROOT>|/usr/share/kdav|g" /etc/nginx/conf.available/kdav.template
-        sed -i "s|<LOG_ACCESS_LOCATION>|${NGINX_LOG_ACCESS_LOCATION}|g" /etc/nginx/conf.available/kdav.template
-        sed -i "s|<LOG_ERROR_LOCATION>|${NGINX_LOG_ERROR_LOCATION}|g" /etc/nginx/conf.available/kdav.template
-        ln -sf /etc/nginx/conf.available/kdav.template /etc/nginx/conf.d/kdav.conf
+
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "KDAV: Auto Configuring"
             rm -rf /usr/share/kdav/config.php

@@ -1,4 +1,4 @@
-FROM tiredofit/nginx-php-fpm:debian-7.4 as core-builder
+FROM tiredofit/nginx-php-fpm:debian-7.3 as core-builder
 
 #### Kopano Core
 ARG KOPANO_CORE_VERSION
@@ -166,7 +166,7 @@ RUN set -x && \
     ###
     \
     echo "Kopano Core ${KOPANO_CORE_VERSION} built from ${KOPANO_CORE_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-core.version && \
-    echo "Commit: $(cd /usr/src/kopano-webapp ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-core.version && \
+    echo "Commit: $(cd /usr/src/kopano-core ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-core.version && \
     env | grep KOPANO | sed "/KOPANO_KCOIDC/d" | sort >> /rootfs/tiredofit/kopano-core.version && \
     echo "Dependency Hash '${KOPANO_DEPENDENCY_HASH} from: 'https://download.kopano.io/community/dependencies:'" >> /rootfs/tiredofit/kopano-core.version && \
     tar cvfz /kopano-core.tar.gz . &&\
@@ -416,7 +416,7 @@ RUN set -x && \
     rm -rf /usr/src/* /var/cache/apk/*
 
 #### Runtime Image
-FROM tiredofit/nginx-php-fpm:debian-7.4
+FROM tiredofit/nginx-php-fpm:debian-7.3
 LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
 
 ADD build-assets/kopano /build-assets
@@ -432,7 +432,7 @@ ARG KOPANO_KDAV_VERSION
 ARG Z_PUSH_VERSION
 
 ENV KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b3eaad3"} \
-    KOPANO_KDAV_VERSION=${KOPANO_KDAV_VERSION:-"v0.10.0"} \
+    KOPANO_KDAV_VERSION=${KOPANO_KDAV_VERSION:-"master"} \
     Z_PUSH_VERSION=${Z_PUSH_VERSION:-"2.6.0.beta1"} \
     NGINX_LOG_ACCESS_LOCATION=/logs/nginx \
     NGINX_LOG_ERROR_LOCATION=/logs/nginx \
@@ -558,6 +558,30 @@ RUN set -x && \
     ln -s /usr/share/z-push/src/z-push-top.php /usr/sbin/z-push-top && \
     \
 ### KDAV Install
+    ### Temporary Hack for KDAV - Using Apache along side of Nginx is not what I want to do, but see issues
+    ### posted at https://forum.kopano.io/topic/3433/kdav-with-nginx
+    apt-get install -y \
+                     apache2 \
+                     crudini \
+                     libapache2-mod-php \
+                     php-mbstring \
+                     php-sqlite3 \
+                     php-xml \
+                     php-zip \
+                     sqlite \
+    && \
+    rm -rf /etc/apache2/sites-enabled/* && \
+    a2disconf other-vhosts-access-log && \
+    echo "Listen 8888" > /etc/apache2/ports.conf && \
+    sed -i "s#export APACHE_RUN_USER=www-data#export APACHE_RUN_USER=nginx#g" /etc/apache2/envvars && \
+    a2enmod rewrite && \
+    crudini --set /etc/php/7.3/apache2/php.ini PHP upload_max_filesize 500M && \
+    crudini --set /etc/php/7.3/apache2/php.ini PHP post_max_size 500M && \
+    crudini --set /etc/php/7.3/apache2/php.ini PHP max_input_vars 1800 && \
+    crudini --set /etc/php/7.3/apache2/php.ini Session session.save_path /run/sessions && \
+    apt-get remove -y crudini && \
+    ##########
+    \
     git clone -b ${KOPANO_KDAV_VERSION} https://github.com/Kopano-dev/kdav /usr/share/kdav && \
     cd /usr/share/kdav && \
     phpenmod xmlwriter && \
@@ -582,7 +606,8 @@ RUN set -x && \
     tar xvfz /usr/src/webapp/kopano-webapp.tar.gz -C / && \
     chown -R nginx:www-data /assets/kopano/plugins/webapp && \
     chown -R nginx:www-data /usr/share/kopano-webapp && \
-    echo "extension=mapi.so" > /etc/php/$(php-fpm -v | head -n 1 | awk '{print $2}' | cut -c 1-3)/fpm/conf.d/20-mapi.ini && \
+    echo "extension=mapi.so" > /etc/php/$(php-fpm -v | head -n 1 | awk '{print $2}' | cut -c 1-3)/mods-available/mapi.ini && \
+    phpenmod mapi && \
     \
     ##### Configuration
     mkdir -p /assets/kopano/config && \
