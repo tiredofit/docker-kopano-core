@@ -1629,6 +1629,7 @@ configure_webapp_plugins() {
         configure_webapp_plugin_files_backend_owncloud
         configure_webapp_plugin_files_backend_seafile
         configure_webapp_plugin_files_backend_smb
+        configure_webapp_plugin_htmleditor_jodit
         configure_webapp_plugin_htmleditor_quill
         configure_webapp_plugin_intranet
         configure_webapp_plugin_mattermost
@@ -1736,6 +1737,12 @@ configure_webapp_plugin_files_backend_smb() {
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SMB}" ; then
             cp -R /assets/kopano/plugins/webapp/filesbackendSMB /usr/share/kopano-webapp/plugins
         fi
+    fi
+}
+
+configure_webapp_plugin_htmleditor_jodit () {
+    if var_true "${WEBAPP_PLUGIN_ENABLE_HTMLEDITOR_JODIT}" ; then
+        cp -R /assets/kopano/plugins/webapp/htmleditor-jodit /usr/share/kopano-webapp/plugins
     fi
 }
 

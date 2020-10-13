@@ -194,6 +194,8 @@ ARG KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_FILES_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL
 ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION
+ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_REPO_URL
+ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL
 ARG KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL
@@ -218,6 +220,8 @@ ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"v4.4"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-smb-backend.git"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION:-"tags/v3.0.0"} \
     KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v3.0.0-final"} \
+    KOPANO_WEBAPP_PLUGIN_JODIT_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-jodit.git"} \
+    KOPANO_WEBAPP_PLUGIN_JODIT_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-minimaltiny.git"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION:-"tags/1.0.0"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-quill.git"} \
@@ -327,11 +331,18 @@ RUN set -x && \
     if [ -f "/build-assets/scripts/plugin-htmleditorminimaltiny.sh" ] ; then /build-assets/scripts/plugin-htmleditorminimaltiny.sh ; fi; \
     ant deploy && \
     \
+    ## HTML Editor: Jodit
+    git clone ${KOPANO_WEBAPP_PLUGIN_JODIT_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-jodit && \
+    cd /usr/src/kopano-webapp/plugins/htmleditor-jodit && \
+    if [ -d "/build-assets/plugins/htmleditor-jodit" ] ; then cp -R /build-assets/plugins/htmleditor-jodit/* /usr/src/kopano-webapp/plugins/htmleditor-jodit/ ; fi; \
+    if [ -f "/build-assets/scripts/plugin-htmleditor-jodit.sh" ] ; then /build-assets/scripts/plugin-htmleditor-jodit.sh ; fi; \
+    ant deploy && \
+    \
     ## HTML Editor: Quill
     git clone ${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-quill && \
     cd /usr/src/kopano-webapp/plugins/htmleditor-quill && \
     if [ -d "/build-assets/plugins/htmleditor-quill" ] ; then cp -R /build-assets/plugins/htmleditor-quill/* /usr/src/kopano-webapp/plugins/htmleditor-quill/ ; fi; \
-    if [ -f "/build-assets/scripts/plugin-htmleditor-quill.sh" ] ; then /build-assets/scripts/plugin-htmleditor-qill.sh ; fi; \
+    if [ -f "/build-assets/scripts/plugin-htmleditor-quill.sh" ] ; then /build-assets/scripts/plugin-htmleditor-quill.sh ; fi; \
     ant deploy && \
     \
     ## Intranet

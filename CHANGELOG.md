@@ -1,3 +1,8 @@
+## 0.82.0 2020-10-13 <dave at tiredofit dot ca>
+
+   ### Added
+      - Added Jodit HTML Editor to Webapp
+
 ## 0.81.0 2020-10-08 <dave at tiredofit dot ca>
 
    ### Changed

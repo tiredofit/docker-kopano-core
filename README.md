@@ -716,6 +716,13 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV                  | (random)                          |
 | `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV                 | (random)                          |
 
+###### Webapp Plugin: HTML Editor Jodit
+
+| Parameter                               | Description   | Default |
+| --------------------------------------- | ------------- | ------- |
+| `WEBAPP_PLUGIN_ENABLE_HTMLEDITOR_JODIT` | Enable Plugin | `TRUE`  |
+
+
 ###### Webapp Plugin: HTML Editor Quill
 
 | Parameter                               | Description   | Default |
