@@ -1,3 +1,8 @@
+## 0.86.0 2020-10-22 <dave at tiredofit dot ca>
+
+   ### Added
+      - Kopano Webapp 4.6.1
+
 ## 0.85.0 2020-10-22 <dave at tiredofit dot ca>
 
    ### Added
