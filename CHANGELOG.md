@@ -1,3 +1,8 @@
+## 0.86.0 2020-10-28 <dave at tiredofit dot ca>
+
+   ### Added
+      - Z-Push 2.6.0
+
 ## 0.86.0 2020-10-22 <dave at tiredofit dot ca>
 
    ### Added
