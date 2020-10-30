@@ -1670,22 +1670,45 @@ configure_webapp_plugin_files() {
 
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Files - Auto Configuring"
-            if [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] || [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] ; then
-                if [ ! -f "${CONFIG_PATH}"webapp/key-files ]; then
-                    WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"}
-                    WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"}
-                    cat <<EOF > "${CONFIG_PATH}"webapp/key-files
-## This is the KEY and IV for the Webapp Files Plugin. If you don't have the variables set then you will lose your account
-## credentials upon each startup. Don't delete this file.
-## Generated on $(date)
-
+            if [ "${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:6:1}" = "3" ] ; then
+                if [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] || [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_IV" ] ; then
+                    if [ ! -f "${CONFIG_PATH}"webapp/key-files ]; then
+                        WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)"}
+                        WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 16 | head -n 1)"}
+                        iv_key=$(cat<<EOF
 IV: ${WEBAPP_PLUGIN_FILES_PASSWORD_IV}
 Key: ${WEBAPP_PLUGIN_FILES_PASSWORD_KEY}
 EOF
-                else
+                                )
+                    fi
+                fi
+            else
+                if [ -z "$WEBAPP_PLUGIN_FILES_PASSWORD_SECRET" ] ; then
+                    if [ ! -f "${CONFIG_PATH}"webapp/key-files ]; then
+                        WEBAPP_PLUGIN_FILES_PASSWORD_SECRET=${WEBAPP_PLUGIN_FILES_PASSWORD_SECRET:-"$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 24 | head -n 1)"}
+                        files_secret=$(cat<<EOF
+Secret: ${WEBAPP_PLUGIN_FILES_PASSWORD_SECRET}
+EOF
+                                    )
+                    fi
+                fi
+            fi
+            if [ -n "$iv_key" ] || [ -n "$files_secret" ] ; then
+                cat <<EOF > "${CONFIG_PATH}"webapp/key-files
+## This is the KEY and IV for the Webapp Files Plugin. If you don't have the variables set then you will lose your account
+## Key and IV are being phased out for Webapp version 4.x but exist for legacy purposes
+## Secret is used in Webapp Files 4.x forward
+## credentials upon each startup. Don't delete this file.
+## Generated on $(date)
+
+${iv_key}
+${files_secret}
+
+EOF
+            else
                     WEBAPP_PLUGIN_FILES_PASSWORD_IV=${WEBAPP_PLUGIN_FILES_PASSWORD_IV:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "IV:" | awk '{print $2}')}"}
                     WEBAPP_PLUGIN_FILES_PASSWORD_KEY=${WEBAPP_PLUGIN_FILES_PASSWORD_KEY:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "Key:" | awk '{print $2}')}"}
-                fi
+                    WEBAPP_PLUGIN_FILES_PASSWORD_SECRET=${WEBAPP_PLUGIN_FILES_PASSWORD_SECRET:-"$(cat "${CONFIG_PATH}"webapp/key-files | grep "Secret:" | awk '{print $2}')}"}
             fi
             cat <<EOF > "${CONFIG_PATH}"webapp/config-files.php
 <?php
@@ -1699,6 +1722,7 @@ define('PLUGIN_FILES_CACHE_DIR', "${WEBAPP_PLUGIN_FILES_CACHE_DIR}");
 define('PLUGIN_FILESBROWSER_LOGLEVEL', "${files_log_level}");
 define('FILES_PASSWORD_KEY', '${WEBAPP_PLUGIN_FILES_PASSWORD_KEY}');
 define('FILES_PASSWORD_IV', '${WEBAPP_PLUGIN_FILES_PASSWORD_IV}');
+define('FILES_ACCOUNTSTORE_V1_SECRET_KEY', '${WEBAPP_PLUGIN_FILES_PASSWORD_SECRET}');
 EOF
         fi
     fi

@@ -702,7 +702,7 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 
 ###### Webapp Plugin: Files Options
 
-This plugin requires an IV and Key to encrypt credentials for users to remove services. If the env vars do not exist, a random 8 char IV and 16 char KEY will be generated and stored in ${CONFIG_PATH}webapp/key-files and reloaded on each container start.
+This plugin requires an IV and Key (3.x) or Secret (> 4.x) to encrypt credentials for users to access services. If the env vars do not exist, a random 8 char IV and 16 char KEY or 24 char secret will be generated and stored in ${CONFIG_PATH}webapp/key-files and reloaded on each container start.
 
 | Parameter                                     | Description                     | Default                           |
 | --------------------------------------------- | ------------------------------- | --------------------------------- |
@@ -713,8 +713,9 @@ This plugin requires an IV and Key to encrypt credentials for users to remove se
 | `WEBAPP_PLUGIN_FILES_DEFAULT_USER`            | Auto Enable for new users       | `TRUE`                            |
 | `WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE`       | Ask users before deleting files | `TRUE`                            |
 | `WEBAPP_PLUGIN_FILES_CACHE_DIR`               | Files cache directory           | `/data/cache/webapp/plugin_files` |
-| `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV                  | (random)                          |
-| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV                 | (random)                          |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_IV`             | 8 character IV (Legacy)         | (random)                          |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_KEY`            | 16 character IV (Legacy         | (random)                          |
+| `WEBAPP_PLUGIN_FILES_PASSWORD_SECRET`         | 24 character Secret             | (random)                          |
 
 ###### Webapp Plugin: HTML Editor Jodit
 
