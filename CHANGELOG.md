@@ -1,3 +1,15 @@
+## 0.88.0 2020-11-04 <dave at tiredofit dot ca>
+
+   ### Added
+      - Kopano Webapp switched to master branch (5.0)
+      - Kopano Webapp Files, Owncloud, and SMB plugins updated to 4.0
+      - Changed some WEBAPP_DISABLE_* variables to WEBAPP_ENABLE_* variables due to change in Kopano Webapp 5.x
+
+## 0.87.0 2020-11-04 <dave at tiredofit dot ca>
+
+   ### Added
+      - Kopano Webapp 4.6.3
+
 ## 0.86.0 2020-10-28 <dave at tiredofit dot ca>
 
    ### Added
