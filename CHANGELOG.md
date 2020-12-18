@@ -1,3 +1,15 @@
+## 1.0.0 2020-12-19 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Image is Alpine based
+      - PHP 7.4
+      - Reworked all build scripts and supplementary build-assets folders
+      - Reworked the /assets/ folder for configuration defaults
+
+   ### Fixed
+      - Kopano Monitor never worked properly
+      - OIDC authentication via Konnect or other never actually worked
+
 ## 0.90.0 2020-12-16 <dave at tiredofit dot ca>
 
    ### Changed

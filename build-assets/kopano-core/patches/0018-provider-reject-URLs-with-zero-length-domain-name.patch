@@ -1,0 +1,54 @@
+From 465d49efa1b29ec9364cbee58464bc9360ec6b92 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Tue, 24 Nov 2020 03:27:02 +0100
+Subject: [PATCH 18/31] provider: reject URLs with zero-length domain name
+
+Zero-length domain has a special meaning in gsoap. Avoid its use; the
+documentation for kopano-admin was already correct in its examples,
+but could use a more precise term than "path".
+---
+ doc/kopano-admin.8           |  4 ++--
+ provider/common/SOAPSock.cpp | 10 ++++++++++
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/doc/kopano-admin.8 b/doc/kopano-admin.8
+index b9f73c59e..14539efb9 100644
+--- a/doc/kopano-admin.8
++++ b/doc/kopano-admin.8
+@@ -706,10 +706,10 @@ Force the current locale to UTF\-8
+ .PP
+ Other options to control the connection to the kopano\-server are:
+ .PP
+-\fB\-\-host\fR, \fB\-h\fR \fIpath\fR
++\fB\-\-host\fR, \fB\-h\fR \fIurl\fR
+ .RS 4
+ Connect to the storage server through
+-\fIpath\fR, e.g.
++\fIurl\fR, e.g.
+ \fIfile:///path/to/socket\fP or \fIhttps://a.example:237/\fP.
+ This option can always be specified.
+ .PP
+diff --git a/provider/common/SOAPSock.cpp b/provider/common/SOAPSock.cpp
+index 63d5047f4..bcbf4862e 100644
+--- a/provider/common/SOAPSock.cpp
++++ b/provider/common/SOAPSock.cpp
+@@ -144,6 +144,16 @@ HRESULT CreateSoapTransport(const sGlobalProfileProps &prof, KCmdProxy2 **lppCmd
+ 		SSL_CTX_set_verify(lpCmd->soap->ctx, SSL_VERIFY_PEER, lpCmd->soap->fsslverify);
+ 	}
+ #endif
++	if (*lpCmd->soap_endpoint == '/')
++		/*
++		 * Based upon "a.com/b" being a common shorthand for
++		 * "http://a.com/b", gsoap treats "/b" as a shorthand for
++		 * "http://<zero-length-domain>/b". The zero-length domain
++		 * however is a (documented) way to emit HTTP requests on
++		 * (by default) stdout.
++		 */
++		return E_INVALIDARG;
++
+ 	if(strncmp("file:", lpCmd->soap_endpoint, 5) == 0) {
+ 		lpCmd->soap->fconnect = gsoap_connect_pipe;
+ 		lpCmd->soap->fpost = http_post;
+-- 
+2.29.2
+

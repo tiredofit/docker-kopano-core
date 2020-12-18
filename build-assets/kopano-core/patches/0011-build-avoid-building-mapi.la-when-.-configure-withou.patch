@@ -1,0 +1,27 @@
+From 86e8713e1c20f2d5f32969d68df52a23774f0ac1 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Mon, 2 Nov 2020 15:12:25 +0000
+Subject: [PATCH 11/31] build: avoid building mapi.la when ./configure
+ --without-php
+
+---
+ Makefile.am | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/Makefile.am b/Makefile.am
+index 92132d157..5d6bd4933 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -747,7 +747,9 @@ dist_phpsysconf_DATA = php-ext/mapi.ini
+ phplibdir = ${dcprefix}${PHP_EXTENSION_DIR}
+ mapi_la_CPPFLAGS = ${AM_CPPFLAGS} ${PHP_INCLUDES} -I${srcdir}/php-ext
+ mapi_la_CXXFLAGS = ${AM_CXXFLAGS} ${ZPHPCXXFLAGS}
++if WITH_PHP7
+ phplib_LTLIBRARIES = mapi.la
++endif
+ mapi_la_SOURCES = \
+ 	php-ext/ECImportContentsChangesProxy.cpp \
+ 	php-ext/ECImportContentsChangesProxy.h \
+-- 
+2.29.2
+

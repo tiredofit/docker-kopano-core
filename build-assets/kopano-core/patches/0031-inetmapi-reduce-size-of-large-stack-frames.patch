@@ -1,0 +1,51 @@
+From 4d7c2782bd2df9e8fcb87b516fd0ac6fed311a54 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Wed, 2 Dec 2020 22:41:13 +0100
+Subject: [PATCH 31/31] inetmapi: reduce size of large stack frames
+
+6224->2384	static	KC::MAPIToVMIME::handleExtraHeaders
+4208->128	static	KC::ECTNEF::HrGetChecksum
+---
+ inetmapi/MAPIToVMIME.cpp | 2 +-
+ inetmapi/tnef.cpp        | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/inetmapi/MAPIToVMIME.cpp b/inetmapi/MAPIToVMIME.cpp
+index ed45f18e9..a727e99ae 100644
+--- a/inetmapi/MAPIToVMIME.cpp
++++ b/inetmapi/MAPIToVMIME.cpp
+@@ -1409,7 +1409,7 @@ HRESULT MAPIToVMIME::handleExtraHeaders(IMessage *lpMessage,
+ 
+ 	if (!(flags & MTV_SPOOL))
+ 		return hrSuccess;
+-	char buffer[4096]{};
++	char buffer[256]{};
+ 	if (gethostname(buffer, sizeof buffer) == -1)
+ 		strcpy(buffer, "???");
+ 	vmime::relay relay;
+diff --git a/inetmapi/tnef.cpp b/inetmapi/tnef.cpp
+index 183bb50cf..2b18d36a0 100644
+--- a/inetmapi/tnef.cpp
++++ b/inetmapi/tnef.cpp
+@@ -1698,7 +1698,8 @@ HRESULT ECTNEF::HrGetChecksum(IStream *lpStream, ULONG *lpulChecksum)
+ 	ULONG ulChecksum = 0;
+ 	object_ptr<IStream> lpClone;
+ 	ULONG ulRead = 0;
+-	unsigned char buffer[4096];
++	static constexpr size_t BUFSIZE = 4096;
++	auto buffer = std::make_unique<unsigned char[]>(BUFSIZE);
+ 	unsigned int i = 0;
+ 
+ 	auto hr = lpStream->Clone(&~lpClone);
+@@ -1709,7 +1710,7 @@ HRESULT ECTNEF::HrGetChecksum(IStream *lpStream, ULONG *lpulChecksum)
+ 		return hr;
+ 
+ 	while(TRUE) {
+-		hr = lpClone->Read(buffer, 4096, &ulRead);
++		hr = lpClone->Read(buffer.get(), BUFSIZE, &ulRead);
+ 		if(hr != hrSuccess)
+ 			return hr;
+ 		if(ulRead == 0)
+-- 
+2.29.2
+

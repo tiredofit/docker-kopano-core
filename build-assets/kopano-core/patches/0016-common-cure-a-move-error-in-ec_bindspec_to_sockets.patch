@@ -1,0 +1,59 @@
+From 83375ad9ebc9d1f19f31fcc8ff422f3d2c3f9388 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Wed, 11 Nov 2020 19:22:47 +0100
+Subject: [PATCH 16/31] common: cure a move error in ec_bindspec_to_sockets
+
+"spec" is used in a ec_log call after moved away into ec_bindspec_to_socket,
+which constitutes a logical error / can cause garbage to be printed.
+
+References: KF-3361
+---
+ common/ECChannel.cpp | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/common/ECChannel.cpp b/common/ECChannel.cpp
+index 185109c5a..8c8e7ebf1 100644
+--- a/common/ECChannel.cpp
++++ b/common/ECChannel.cpp
+@@ -1065,10 +1065,10 @@ bool ec_socket::operator<(const ec_socket &other) const
+ 	return memcmp(m_ai->ai_addr, other.m_ai->ai_addr, m_ai->ai_addrlen) < 0;
+ }
+ 
+-static ec_socket ec_bindspec_to_unixinfo(std::string &&spec)
++static ec_socket ec_bindspec_to_unixinfo(const std::string &spec)
+ {
+ 	ec_socket sk;
+-	sk.m_spec = std::move(spec);
++	sk.m_spec = spec;
+ 	if (sk.m_spec.size() - 5 >= sizeof(sockaddr_un::sun_path)) {
+ 		sk.m_err = -ENAMETOOLONG;
+ 		return sk;
+@@ -1147,12 +1147,12 @@ static std::pair<int, std::list<ec_socket>> ec_bindspec_to_inetinfo(const char *
+ 	return {0, std::move(vec)};
+ }
+ 
+-static std::pair<int, std::list<ec_socket>> ec_bindspec_to_sockinfo(std::string &&spec)
++static std::pair<int, std::list<ec_socket>> ec_bindspec_to_sockinfo(const std::string &spec)
+ {
+ 	if (!kc_starts_with(spec, "unix:"))
+ 		return ec_bindspec_to_inetinfo(spec.c_str());
+ 	std::list<ec_socket> skl;
+-	auto sk = ec_bindspec_to_unixinfo(std::move(spec));
++	auto sk = ec_bindspec_to_unixinfo(spec);
+ 	if (sk.m_err >= 0)
+ 		skl.emplace_back(std::move(sk));
+ 	return {sk.m_err, std::move(skl)};
+@@ -1174,8 +1174,8 @@ std::pair<int, std::list<ec_socket>> ec_bindspec_to_sockets(std::vector<std::str
+ 	std::list<ec_socket> out;
+ 	int xerr = 0;
+ 
+-	for (auto &&spec : in) {
+-		auto p = ec_bindspec_to_sockinfo(std::move(spec));
++	for (const auto &spec : in) {
++		auto p = ec_bindspec_to_sockinfo(spec);
+ 		if (p.first != 0) {
+ 			ec_log_err("Unrecognized format in bindspec: \"%s\"", spec.c_str());
+ 			return {p.first, std::move(out)};
+-- 
+2.29.2
+

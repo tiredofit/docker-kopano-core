@@ -1,0 +1,84 @@
+From 9667f7a04225d1ec0422cf77db52a707caebc20e Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Fri, 7 Aug 2020 14:57:10 +0000
+Subject: [PATCH 02/31] build: fix build failure with libintl
+
+If the GNU gettext implementation of gettext functions is used
+instead of the GNU libc implementation of gettext functions, there is
+a link error.
+
+This is because INTL_LIBS stays empty when it should not.
+
+/usr/x86_64-alpine-linux-musl/bin/ld: .libs/libkcutil.so:
+undefined reference to "libintl_bind_textdomain_codeset"
+undefined reference to "libintl_dcgettext"
+
+References: KF-3318
+---
+ Makefile.am  |  5 +++--
+ configure.ac | 26 +++++++++++++++++++++-----
+ 2 files changed, 24 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 0dc84a1aa..92132d157 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -206,7 +206,7 @@ kopano_dagent_SOURCES = \
+ 	spooler/rules.cpp spooler/rules.h
+ kopano_dagent_LDADD = \
+ 	libkcinetmapi.la libmapi.la libkcutil.la libkcarchiver.la -lpthread \
+-	${DL_LIBS} ${INTL_LIBS} ${SSL_LIBS} ${XML2_LIBS} ${icu_uc_LIBS}
++	${DL_LIBS} ${SSL_LIBS} ${XML2_LIBS} ${icu_uc_LIBS}
+ 
+ 
+ #
+@@ -672,7 +672,8 @@ libkcutil_la_SOURCES = \
+ 	common/charset/convstring.cpp common/charset/localeutil.cpp
+ libkcutil_la_LIBADD = \
+ 	-lpthread -lz ${CRYPTO_LIBS} ${curl_LIBS} ${GZ_LIBS} ${iconv_LIBS} \
+-	${idn_LIBS} ${icu_i18n_LIBS} ${icu_uc_LIBS} ${jsoncpp_LIBS} ${libHX_LIBS} \
++	${idn_LIBS} ${icu_i18n_LIBS} ${icu_uc_LIBS} ${INTL_LIBS} \
++	${jsoncpp_LIBS} ${libHX_LIBS} \
+ 	${SSL_LIBS} ${UUID_LIBS}
+ libkcutil_la_SYFLAGS = -Wl,--version-script=common/libkcutil.sym
+ libkcutil_la_LDFLAGS = ${AM_LDFLAGS} -no-undefined \
+diff --git a/configure.ac b/configure.ac
+index 1acbea74c..590399dd2 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -594,11 +594,27 @@ AC_CHECK_LIB([z], [gzopen], GZ_LIBS="-lz",
+ )
+ AC_SUBST(GZ_LIBS)
+ 
+-AC_CHECK_FUNCS([gettext], INTL_LIBS="", dnl gettext in libc
+-  AC_CHECK_LIB([intl], [gettext], INTL_LIBS="-lintl", dnl in -lintl
+-    AC_MSG_ERROR([required library libintl missing or unusable])
+-  )
+-)
++AC_MSG_CHECKING([dcgettext])
++m4_define([LIBINTLTEST], [AC_LANG_SOURCE([
++	#include <libintl.h>
++	int main() { dcgettext("", "", 0); return 0; }
++])])
++INTL_LIBS=""
++AC_LINK_IFELSE([LIBINTLTEST], [
++	AC_MSG_RESULT([yes])
++], [
++	AC_MSG_RESULT([no])
++	AC_MSG_CHECKING([dcgettext in -lintl])
++	LIBS="-lintl"
++	AC_LINK_IFELSE([LIBINTLTEST], [
++		INTL_LIBS="-lintl"
++		AC_MSG_RESULT([yes])
++	], [
++		AC_MSG_RESULT([no])
++		AC_MSG_ERROR([gettext functions neither in libc nor libintl])
++	])
++	LIBS=""
++])
+ AC_SUBST(INTL_LIBS)
+ 
+ # check epoll support
+-- 
+2.29.2
+

@@ -6,6 +6,5 @@ PROCESS_NAME="kopano-kdav-apache"
 check_container_initialized
 liftoff
 
-print_info "Starting Apache for Kopano KDAV on port 8080"
-source /etc/apache2/envvars
-silent apache2 -DFOREGROUND
+print_info "Starting Apache for Kopano KDAV on port 8888"
+silent httpd -DFOREGROUND

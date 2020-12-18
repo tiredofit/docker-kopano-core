@@ -1,0 +1,611 @@
+From d4c1f78963f1c9cb125751da6b737f45c091174b Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Wed, 2 Dec 2020 15:50:25 +0100
+Subject: [PATCH 21/31] libserver: reduce size of huge stack frames
+
+kopano-server is prone to exhaust the thread stack and subsequently
+crash. There are some quite heavy variables used that are hereby
+moved to the free store.
+
+394192->992	static	KC::ECFileAttachment2::SaveAttachmentInstance(KC::ext_siid&, ULONG, size_t, KC::ECSerializer*)
+393712->512	static	KC::ECDatabaseAttachment::SaveAttachmentInstance(KC::ext_siid&, ULONG, size_t, KC::ECSerializer*)
+393488->272	static	KC::ECFileAttachment::SaveAttachmentInstance(KC::ext_siid&, ULONG, size_t, KC::ECSerializer*)
+393408->208	static	KC::ECFileAttachment::LoadAttachmentInstance(const KC::ext_siid&, size_t*, KC::ECSerializer*)
+393392->192	static	KC::ECFileAttachment2::LoadAttachmentInstance(const KC::ext_siid&, size_t*, KC::ECSerializer*)
+165264->928	static	KC::ECSearchFolders::SaveSearchCriteriaRow
+165104->800	dynamic,bounded KC::ECGenericObjectTable::GetCollapseState
+165008->688	dynamic,bounded	KC::ECGenericObjectTable::SetCollapseState
+164832->496	static	KC::ECSearchFolders::LoadSearchCriteria2
+56256->256	dynamic,bounded	KC::getchanges_contents
+16432->64	static	virtual KC::ECRESULT KC::ECStreamSerializer::Flush()
+16432->80	static	virtual KC::ECRESULT ECFifoSerializer::Flush()
+8800->624	dynamic,bounded	KC::ECAuthSession::ValidateSSOData_NTLM
+4208->128	static	KC::ECStreamSerializer::Skip
+1248->224	static	KC::ECAuthSession::ValidateUserSocket
+---
+ .gitignore                                  |  1 +
+ provider/libserver/ECAttachmentStorage.cpp  | 45 ++++++++---------
+ provider/libserver/ECGenericObjectTable.cpp | 55 +++++++++++----------
+ provider/libserver/ECICS.cpp                |  7 +--
+ provider/libserver/ECSearchFolders.cpp      | 34 ++++++-------
+ provider/libserver/ECSession.cpp            | 27 +++++-----
+ provider/libserver/StreamUtil.cpp           | 12 +++--
+ provider/libserver/cmd.cpp                  |  7 +--
+ 8 files changed, 96 insertions(+), 92 deletions(-)
+
+diff --git a/.gitignore b/.gitignore
+index 91d3c8667..b04018a74 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -10,6 +10,7 @@ Makefile.in
+ *.lo
+ *.mo
+ *.o
++*.su
+ .dirstamp
+ stamp-h1
+ stamp-h2
+diff --git a/provider/libserver/ECAttachmentStorage.cpp b/provider/libserver/ECAttachmentStorage.cpp
+index 524833d87..4db5ff034 100644
+--- a/provider/libserver/ECAttachmentStorage.cpp
++++ b/provider/libserver/ECAttachmentStorage.cpp
+@@ -1034,21 +1034,20 @@ ECRESULT ECDatabaseAttachment::SaveAttachmentInstance(ext_siid &ulInstanceId,
+ ECRESULT ECDatabaseAttachment::SaveAttachmentInstance(ext_siid &ulInstanceId,
+     ULONG ulPropId, size_t iSize, ECSerializer *lpSource)
+ {
+-	unsigned char szBuffer[CHUNK_SIZE]{};
++	auto szBuffer = std::make_unique<unsigned char[]>(CHUNK_SIZE);
+ 
+ 	// make chunks of 393216 bytes (384*1024)
+ 	size_t iSizeLeft = iSize, ulChunk = 0;
+ 
+ 	while (iSizeLeft > 0) {
+ 		size_t iChunkSize = iSizeLeft < CHUNK_SIZE ? iSizeLeft : CHUNK_SIZE;
+-		auto er = lpSource->Read(szBuffer, 1, iChunkSize);
++		auto er = lpSource->Read(szBuffer.get(), 1, iChunkSize);
+ 		if (er != erSuccess)
+ 			return er;
+ 
+ 		std::string strQuery = "INSERT INTO lob (instanceid, chunkid, tag, val_binary) VALUES (" +
+ 			stringify(ulInstanceId.siid) + ", " + stringify(ulChunk) + ", " + stringify(ulPropId) +
+-			", " + m_lpDatabase->EscapeBinary(szBuffer, iChunkSize) + ")";
+-
++			", " + m_lpDatabase->EscapeBinary(szBuffer.get(), iChunkSize) + ")";
+ 		er = m_lpDatabase->DoInsert(strQuery);
+ 		if (er != erSuccess)
+ 			return ec_perror("ECAttachmentStorage::SaveAttachmentInstance(): DoInsert failed", er);
+@@ -1444,7 +1443,7 @@ ECRESULT ECFileAttachment::LoadAttachmentInstance(const ext_siid &ulInstanceId,
+ {
+ 	ECRESULT er = erSuccess;
+ 	bool bCompressed = false;
+-	char buffer[CHUNK_SIZE];
++	auto buffer = std::make_unique<char[]>(CHUNK_SIZE);
+ 
+ 	*lpiSize = 0;
+ 	auto filename = CreateAttachmentFilename(ulInstanceId, bCompressed);
+@@ -1479,7 +1478,7 @@ ECRESULT ECFileAttachment::LoadAttachmentInstance(const ext_siid &ulInstanceId,
+ #endif
+ 
+ 		for(;;) {
+-			ssize_t lReadNow = gzread_retry(gzfp, buffer, sizeof(buffer));
++			ssize_t lReadNow = gzread_retry(gzfp, buffer.get(), CHUNK_SIZE);
+ 			if (lReadNow < 0) {
+ 				ec_log_err("ECFileAttachment::LoadAttachmentInstance(): Error while gzreading attachment data from \"%s\".", filename.c_str());
+ 				er = KCERR_DATABASE_ERROR;
+@@ -1488,9 +1487,7 @@ ECRESULT ECFileAttachment::LoadAttachmentInstance(const ext_siid &ulInstanceId,
+ 
+ 			if (lReadNow == 0)
+ 				break;
+-
+-			lpSink->Write(buffer, 1, lReadNow);
+-
++			lpSink->Write(buffer.get(), 1, lReadNow);
+ 			*lpiSize += lReadNow;
+ 		}
+ 
+@@ -1499,7 +1496,7 @@ ECRESULT ECFileAttachment::LoadAttachmentInstance(const ext_siid &ulInstanceId,
+ 	}
+ 	else {
+ 		for(;;) {
+-			ssize_t lReadNow = read_retry(fd, buffer, sizeof(buffer));
++			ssize_t lReadNow = read_retry(fd, buffer.get(), CHUNK_SIZE);
+ 			if (lReadNow < 0) {
+ 				ec_log_err("ECFileAttachment::LoadAttachmentInstance(SOAP): Error while reading attachment data from \"%s\": %s", filename.c_str(), strerror(errno));
+ 				er = KCERR_DATABASE_ERROR;
+@@ -1508,9 +1505,7 @@ ECRESULT ECFileAttachment::LoadAttachmentInstance(const ext_siid &ulInstanceId,
+ 
+ 			if (lReadNow == 0)
+ 				break;
+-
+-			lpSink->Write(buffer, 1, lReadNow);
+-
++			lpSink->Write(buffer.get(), 1, lReadNow);
+ 			*lpiSize += lReadNow;
+ 		}
+ 	}
+@@ -1680,7 +1675,7 @@ ECRESULT ECFileAttachment::SaveAttachmentInstance(ext_siid &ulInstanceId,
+ {
+ 	ECRESULT er = erSuccess;
+ 	auto filename = CreateAttachmentFilename(ulInstanceId, m_bFileCompression);
+-	unsigned char szBuffer[CHUNK_SIZE];
++	auto szBuffer = std::make_unique<unsigned char[]>(CHUNK_SIZE);
+ 	size_t iSizeLeft = iSize;
+ 
+ 	int fd = open(filename.c_str(), O_RDWR | O_CREAT, S_IWUSR | S_IRUSR);
+@@ -1707,14 +1702,14 @@ ECRESULT ECFileAttachment::SaveAttachmentInstance(ext_siid &ulInstanceId,
+ 		while (iSizeLeft > 0) {
+ 			size_t iChunkSize = iSizeLeft < CHUNK_SIZE ? iSizeLeft : CHUNK_SIZE;
+ 
+-			er = lpSource->Read(szBuffer, 1, iChunkSize);
++			er = lpSource->Read(szBuffer.get(), 1, iChunkSize);
+ 			if (er != erSuccess) {
+ 				ec_log_err("Problem retrieving attachment from ECSource: %s (0x%x)", GetMAPIErrorMessage(kcerr_to_mapierr(er, ~0U /* anything yielding UNKNOWN */)), er);
+ 				er = KCERR_DATABASE_ERROR;
+ 				break;
+ 			}
+ 
+-			ssize_t iWritten = gzwrite_retry(gzfp, szBuffer, iChunkSize);
++			ssize_t iWritten = gzwrite_retry(gzfp, szBuffer.get(), iChunkSize);
+ 			if (iWritten != static_cast<ssize_t>(iChunkSize)) {
+ 				ec_log_err("Unable to gzwrite %zu bytes to attachment \"%s\", returned %zd",
+ 					iChunkSize, filename.c_str(), iWritten);
+@@ -1754,14 +1749,14 @@ ECRESULT ECFileAttachment::SaveAttachmentInstance(ext_siid &ulInstanceId,
+ 		while (iSizeLeft > 0) {
+ 			size_t iChunkSize = iSizeLeft < CHUNK_SIZE ? iSizeLeft : CHUNK_SIZE;
+ 
+-			er = lpSource->Read(szBuffer, 1, iChunkSize);
++			er = lpSource->Read(szBuffer.get(), 1, iChunkSize);
+ 			if (er != erSuccess) {
+ 				ec_log_err("Problem retrieving attachment from ECSource: %s (0x%x)", GetMAPIErrorMessage(kcerr_to_mapierr(er, ~0U)), er);
+ 				er = KCERR_DATABASE_ERROR;
+ 				break;
+ 			}
+ 
+-			ssize_t iWritten = write_retry(fd, szBuffer, iChunkSize);
++			ssize_t iWritten = write_retry(fd, szBuffer.get(), iChunkSize);
+ 			if (iWritten != static_cast<ssize_t>(iChunkSize)) {
+ 				ec_log_err("Unable to write %zu bytes to streaming attachment: %s", iChunkSize, strerror(errno));
+ 				er = KCERR_DATABASE_ERROR;
+@@ -2265,16 +2260,16 @@ ECRESULT ECFileAttachment2::SaveAttachmentInstance(ext_siid &instance,
+ 	}
+ 
+ 	give_filesize_hint(fd, dsize);
++	auto buffer = std::make_unique<char[]>(CHUNK_SIZE);
+ 	while (dsize > 0) {
+ 		size_t chunk_size = std::min(static_cast<size_t>(CHUNK_SIZE), dsize);
+-		char buffer[CHUNK_SIZE];
+-		ret = src->Read(buffer, 1, chunk_size);
++		ret = src->Read(buffer.get(), 1, chunk_size);
+ 		if (ret != erSuccess) {
+ 			close(fd);
+ 			return ret;
+ 		}
+-		SHA256_Update(&shactx, buffer, chunk_size);
+-		ssize_t did_write = write_retry(fd, buffer, chunk_size);
++		SHA256_Update(&shactx, buffer.get(), chunk_size);
++		ssize_t did_write = write_retry(fd, buffer.get(), chunk_size);
+ 		if (did_write != static_cast<ssize_t>(chunk_size)) {
+ 			ec_log_err("K-1289: Unable to write bytes to attachment \"%s\": %s.",
+ 				sl.content_file.c_str(), strerror(errno));
+@@ -2426,9 +2421,9 @@ ECRESULT ECFileAttachment2::LoadAttachmentInstance(const ext_siid &instance,
+ 		return KCERR_NO_ACCESS;
+ 	}
+ 	my_readahead(fd);
++	auto buffer = std::make_unique<char[]>(CHUNK_SIZE);
+ 	while (true) {
+-		char buffer[CHUNK_SIZE];
+-		ssize_t rd = read_retry(fd, buffer, sizeof(buffer));
++		ssize_t rd = read_retry(fd, buffer.get(), CHUNK_SIZE);
+ 		if (rd < 0) {
+ 			ec_log_err("K-1284: read: %s", strerror(errno));
+ 			close(fd);
+@@ -2436,7 +2431,7 @@ ECRESULT ECFileAttachment2::LoadAttachmentInstance(const ext_siid &instance,
+ 		} else if (rd == 0) {
+ 			break;
+ 		}
+-		sink->Write(buffer, 1, rd);
++		sink->Write(buffer.get(), 1, rd);
+ 		*dsize += rd;
+ 	}
+ 	close(fd);
+diff --git a/provider/libserver/ECGenericObjectTable.cpp b/provider/libserver/ECGenericObjectTable.cpp
+index 7c6a0349c..fa1989dc5 100644
+--- a/provider/libserver/ECGenericObjectTable.cpp
++++ b/provider/libserver/ECGenericObjectTable.cpp
+@@ -1072,14 +1072,15 @@ ECRESULT ECGenericObjectTable::CollapseRow(xsd__base64Binary sInstanceKey, unsig
+     return er;
+ }
+ 
+-ECRESULT ECGenericObjectTable::GetCollapseState(struct soap *soap, struct xsd__base64Binary sBookmark, struct xsd__base64Binary *lpsCollapseState)
++ECRESULT ECGenericObjectTable::GetCollapseState(struct soap *msoap,
++    struct xsd__base64Binary sBookmark, struct xsd__base64Binary *lpsCollapseState)
+ {
+     struct collapseState sCollapseState;
+     int n = 0;
+     std::ostringstream os;
+     sObjectTableKey sKey;
+     struct rowSet *lpsRowSet = NULL;
+-    struct soap xmlsoap;	// static, so c++ inits struct, no need for soap init
++	auto xmlsoap = std::make_unique<soap>();
+ 	ulock_rec biglock(m_hLock);
+ 
+ 	auto er = Populate();
+@@ -1088,13 +1089,13 @@ ECRESULT ECGenericObjectTable::GetCollapseState(struct soap *soap, struct xsd__b
+ 
+     // Generate a binary collapsestate which is simply an XML stream of all categories with their collapse state
+     sCollapseState.sCategoryStates.__size = m_mapCategories.size();
+-	sCollapseState.sCategoryStates.__ptr  = soap_new_categoryState(soap, sCollapseState.sCategoryStates.__size);
++	sCollapseState.sCategoryStates.__ptr  = soap_new_categoryState(msoap, sCollapseState.sCategoryStates.__size);
+ 
+ 	for (const auto &p : m_mapCategories) {
+ 		sCollapseState.sCategoryStates.__ptr[n].fExpanded = p.second->m_fExpanded;
+-		sCollapseState.sCategoryStates.__ptr[n].sProps.__ptr = soap_new_propVal(soap, p.second->m_cProps);
++		sCollapseState.sCategoryStates.__ptr[n].sProps.__ptr = soap_new_propVal(msoap, p.second->m_cProps);
+ 		for (unsigned int i = 0; i < p.second->m_cProps; ++i) {
+-			er = CopyPropVal(&p.second->m_lpProps[i], &sCollapseState.sCategoryStates.__ptr[n].sProps.__ptr[i], soap);
++			er = CopyPropVal(&p.second->m_lpProps[i], &sCollapseState.sCategoryStates.__ptr[n].sProps.__ptr[i], msoap);
+             if (er != erSuccess)
+                 goto exit;
+         }
+@@ -1116,7 +1117,9 @@ ECRESULT ECGenericObjectTable::GetCollapseState(struct soap *soap, struct xsd__b
+             // in the current sort.
+             ECObjectTableList list;
+ 			list.emplace_back(sKey);
+-            er = m_lpfnQueryRowData(this, &xmlsoap, lpSession, &list, lpsPropTagArray, m_lpObjectData, &lpsRowSet, false, true);
++			er = m_lpfnQueryRowData(this, xmlsoap.get(), lpSession,
++			     &list, lpsPropTagArray, m_lpObjectData, &lpsRowSet,
++			     false, true);
+             if(er != erSuccess)
+                 goto exit;
+             // Copy row 1 from rowset into our bookmark props.
+@@ -1125,19 +1128,19 @@ ECRESULT ECGenericObjectTable::GetCollapseState(struct soap *soap, struct xsd__b
+         }
+     }
+ 
+-	soap_set_mode(&xmlsoap, SOAP_XML_TREE | SOAP_C_UTFSTRING);
+-    xmlsoap.os = &os;
+-    soap_serialize_collapseState(&xmlsoap, &sCollapseState);
+-    soap_begin_send(&xmlsoap);
+-    soap_put_collapseState(&xmlsoap, &sCollapseState, "CollapseState", NULL);
+-    soap_end_send(&xmlsoap);
++	soap_set_mode(xmlsoap.get(), SOAP_XML_TREE | SOAP_C_UTFSTRING);
++	xmlsoap->os = &os;
++	soap_serialize_collapseState(xmlsoap.get(), &sCollapseState);
++	soap_begin_send(xmlsoap.get());
++	soap_put_collapseState(xmlsoap.get(), &sCollapseState, "CollapseState", nullptr);
++	soap_end_send(xmlsoap.get());
+     // os.str() now contains serialized objects, copy into return structure
+     lpsCollapseState->__size = os.str().size();
+-	lpsCollapseState->__ptr  = soap_new_unsignedByte(soap, os.str().size());
++	lpsCollapseState->__ptr  = soap_new_unsignedByte(msoap, os.str().size());
+     memcpy(lpsCollapseState->__ptr, os.str().c_str(), os.str().size());
+ exit:
+-	soap_destroy(&xmlsoap);
+-	soap_end(&xmlsoap);
++	soap_destroy(xmlsoap.get());
++	soap_end(xmlsoap.get());
+ 	// static struct, so c++ destructor frees memory
+ 	biglock.unlock();
+     return er;
+@@ -1145,7 +1148,7 @@ exit:
+ 
+ ECRESULT ECGenericObjectTable::SetCollapseState(struct xsd__base64Binary sCollapseState, unsigned int *lpulBookmark)
+ {
+-    struct soap xmlsoap;
++	auto xmlsoap = std::make_unique<soap>();
+ 	struct collapseState cst;
+     std::istringstream is(std::string((const char *)sCollapseState.__ptr, sCollapseState.__size));
+ 	sObjectTableKey sKey;
+@@ -1157,17 +1160,17 @@ ECRESULT ECGenericObjectTable::SetCollapseState(struct xsd__base64Binary sCollap
+         goto exit;
+ 
+     // The collapse state is the serialized collapse state as returned by GetCollapseState(), which we need to parse here
+-	soap_set_mode(&xmlsoap, SOAP_XML_TREE | SOAP_C_UTFSTRING);
+-    xmlsoap.is = &is;
+-	soap_default_collapseState(&xmlsoap, &cst);
+-    if (soap_begin_recv(&xmlsoap) != 0) {
++	soap_set_mode(xmlsoap.get(), SOAP_XML_TREE | SOAP_C_UTFSTRING);
++	xmlsoap->is = &is;
++	soap_default_collapseState(xmlsoap.get(), &cst);
++	if (soap_begin_recv(xmlsoap.get()) != 0) {
+ 		er = KCERR_NETWORK_ERROR;
+ 		goto exit;
+     }
+-	soap_get_collapseState(&xmlsoap, &cst, "CollapseState", NULL);
+-    if(xmlsoap.error) {
++	soap_get_collapseState(xmlsoap.get(), &cst, "CollapseState", nullptr);
++	if (xmlsoap->error != 0) {
+ 		er = KCERR_DATABASE_ERROR;
+-		ec_log_crit("ECGenericObjectTable::SetCollapseState(): xmlsoap error %d", xmlsoap.error);
++		ec_log_crit("ECGenericObjectTable::SetCollapseState(): xmlsoap error %d", xmlsoap->error);
+ 		goto exit;
+     }
+ 
+@@ -1221,11 +1224,11 @@ ECRESULT ECGenericObjectTable::SetCollapseState(struct xsd__base64Binary sCollap
+ 	 * ExpandRow and CollapseRow. You just need to reload the table
+ 	 * yourself.
+ 	 */
+-	if (soap_end_recv(&xmlsoap) != 0)
++	if (soap_end_recv(xmlsoap.get()) != 0)
+ 		er = KCERR_NETWORK_ERROR;
+ exit:
+-	soap_destroy(&xmlsoap);
+-	soap_end(&xmlsoap);
++	soap_destroy(xmlsoap.get());
++	soap_end(xmlsoap.get());
+ 	giblock.unlock();
+ 	return er;
+ }
+diff --git a/provider/libserver/ECICS.cpp b/provider/libserver/ECICS.cpp
+index 9a4df3768..c68689090 100644
+--- a/provider/libserver/ECICS.cpp
++++ b/provider/libserver/ECICS.cpp
+@@ -504,14 +504,15 @@ static ECRESULT getchanges_contents(struct soap *soap, ECSession *lpSession, ECD
+ 	std::vector<DB_ROW> db_rows;
+ 	std::vector<DB_LENGTHS> db_lengths;
+ 	static constexpr unsigned int ncols = 7;
+-	unsigned long col_lengths[1000*ncols];
++	static constexpr size_t ROWS_AT_A_TIME = 1000;
++	auto col_lengths = std::make_unique<unsigned long[]>(ROWS_AT_A_TIME*ncols);
+ 	unsigned int length_counter = 0;
+ 
+ 	while (lpDBResult && (lpDBRow = lpDBResult.fetch_row()) != nullptr) {
+ 		auto lpDBLen = lpDBResult.fetch_row_lengths();
+ 		if (lpDBLen == NULL)
+ 			continue;
+-		memcpy(&col_lengths[length_counter*ncols], lpDBLen, ncols * sizeof(*col_lengths));
++		memcpy(&col_lengths[length_counter*ncols], lpDBLen, ncols * sizeof(decltype(col_lengths)::element_type));
+ 		lpDBLen = &col_lengths[length_counter*ncols];
+ 		++length_counter;
+ 		if (lpDBRow[icsSourceKey] == NULL || lpDBRow[icsParentSourceKey] == NULL) {
+@@ -520,7 +521,7 @@ static ECRESULT getchanges_contents(struct soap *soap, ECSession *lpSession, ECD
+ 		}
+ 		db_rows.emplace_back(lpDBRow);
+ 		db_lengths.emplace_back(lpDBLen);
+-		if (db_rows.size() == 1000) {
++		if (db_rows.size() == ROWS_AT_A_TIME) {
+ 			er = lpHelper->ProcessRows(db_rows, db_lengths);
+ 			if (er != erSuccess)
+ 				return er;
+diff --git a/provider/libserver/ECSearchFolders.cpp b/provider/libserver/ECSearchFolders.cpp
+index d2200ba14..0032dc270 100644
+--- a/provider/libserver/ECSearchFolders.cpp
++++ b/provider/libserver/ECSearchFolders.cpp
+@@ -1318,20 +1318,20 @@ ECRESULT ECSearchFolders::LoadSearchCriteria2(const std::string &xmldata,
+     struct searchCriteria **lppSearchCriteria)
+ {
+ 	std::istringstream xml(xmldata);
+-	struct soap xmlsoap;
++	auto xmlsoap = std::make_unique<soap>();
+ 	struct searchCriteria crit;
+ 	ECRESULT er = erSuccess;
+ 
+ 	/* Use the soap (de)serializer to store the data */
+-	soap_set_mode(&xmlsoap, SOAP_XML_TREE | SOAP_C_UTFSTRING);
+-	xmlsoap.is = &xml;
+-	soap_default_searchCriteria(&xmlsoap, &crit);
+-	if (soap_begin_recv(&xmlsoap) != 0)
++	soap_set_mode(xmlsoap.get(), SOAP_XML_TREE | SOAP_C_UTFSTRING);
++	xmlsoap->is = &xml;
++	soap_default_searchCriteria(xmlsoap.get(), &crit);
++	if (soap_begin_recv(xmlsoap.get()) != 0)
+ 		return KCERR_NETWORK_ERROR;
+-	soap_get_searchCriteria(&xmlsoap, &crit, "SearchCriteria", NULL);
++	soap_get_searchCriteria(xmlsoap.get(), &crit, "SearchCriteria", nullptr);
+ 
+ 	// We now have the object, allocated by xmlsoap object,
+-	if (soap_end_recv(&xmlsoap) != 0)
++	if (soap_end_recv(xmlsoap.get()) != 0)
+ 		er = KCERR_NETWORK_ERROR;
+ 	else
+ 		er = CopySearchCriteria(nullptr, &crit, lppSearchCriteria);
+@@ -1339,9 +1339,9 @@ ECRESULT ECSearchFolders::LoadSearchCriteria2(const std::string &xmldata,
+ 	 * We do not need the error here: lppSearchCriteria will not be
+ 	 * touched, and we need to free the soap structs.
+ 	 */
+-	soap_destroy(&xmlsoap);
+-	soap_end(&xmlsoap);
+-	soap_done(&xmlsoap);
++	soap_destroy(xmlsoap.get());
++	soap_end(xmlsoap.get());
++	soap_done(xmlsoap.get());
+ 	return er;
+ }
+ 
+@@ -1371,21 +1371,21 @@ ECRESULT ECSearchFolders::SaveSearchCriteria(unsigned int ulFolderId,
+ ECRESULT ECSearchFolders::SaveSearchCriteriaRow(ECDatabase *lpDatabase,
+     unsigned int ulFolderId, const struct searchCriteria *lpSearchCriteria)
+ {
+-	struct soap				xmlsoap;
++	auto xmlsoap = std::make_unique<soap>();
+ 	struct searchCriteria	sSearchCriteria;
+ 	std::ostringstream		xml;
+ 
+ 	// We use the soap serializer / deserializer to store the data
+-	soap_set_mode(&xmlsoap, SOAP_XML_TREE | SOAP_C_UTFSTRING);
++	soap_set_mode(xmlsoap.get(), SOAP_XML_TREE | SOAP_C_UTFSTRING);
+ 	sSearchCriteria.lpFolders = lpSearchCriteria->lpFolders;
+ 	sSearchCriteria.lpRestrict = lpSearchCriteria->lpRestrict;
+ 	sSearchCriteria.ulFlags = lpSearchCriteria->ulFlags;
+-	xmlsoap.os = &xml;
+-	soap_serialize_searchCriteria(&xmlsoap, &sSearchCriteria);
+-	if (soap_begin_send(&xmlsoap) != 0 ||
+-	    soap_put_searchCriteria(&xmlsoap, &sSearchCriteria, "SearchCriteria", nullptr) != 0)
++	xmlsoap->os = &xml;
++	soap_serialize_searchCriteria(xmlsoap.get(), &sSearchCriteria);
++	if (soap_begin_send(xmlsoap.get()) != 0 ||
++	    soap_put_searchCriteria(xmlsoap.get(), &sSearchCriteria, "SearchCriteria", nullptr) != 0)
+ 		return KCERR_NOT_ENOUGH_MEMORY;
+-	if (soap_end_send(&xmlsoap) != 0)
++	if (soap_end_send(xmlsoap.get()) != 0)
+ 		return KCERR_NETWORK_ERROR;
+ 
+ 	// Make sure we're linking with the correct SOAP (c++ version)
+diff --git a/provider/libserver/ECSession.cpp b/provider/libserver/ECSession.cpp
+index 4abd812d0..068b5c204 100644
+--- a/provider/libserver/ECSession.cpp
++++ b/provider/libserver/ECSession.cpp
+@@ -666,7 +666,8 @@ ECRESULT ECAuthSession::ValidateUserSocket(int socket, const char *lpszName,
+ 	auto uid = ~static_cast<uid_t>(0);
+ 	pid_t pid = 0;
+ #ifdef HAVE_GETPWNAM_R
+-	char strbuf[1024];
++	static constexpr size_t STRBUFSIZE = 1024;
++	auto strbuf = std::make_unique<char[]>(STRBUFSIZE);
+ #endif
+ 	auto er = kc_peer_cred(socket, &uid, &pid);
+ 	if (er != erSuccess)
+@@ -678,7 +679,7 @@ ECRESULT ECAuthSession::ValidateUserSocket(int socket, const char *lpszName,
+ 	// Lookup user name
+ 	pw = NULL;
+ #ifdef HAVE_GETPWNAM_R
+-	getpwnam_r(lpszName, &pwbuf, strbuf, sizeof(strbuf), &pw);
++	getpwnam_r(lpszName, &pwbuf, strbuf.get(), STRBUFSIZE, &pw);
+ #else
+ 	// OpenBSD does not have getpwnam_r() .. FIXME: threading issue!
+ 	pw = getpwnam(lpszName);
+@@ -696,9 +697,9 @@ ECRESULT ECAuthSession::ValidateUserSocket(int socket, const char *lpszName,
+ 		auto admuid = strtoul(p, &end, 10);
+ #ifdef HAVE_GETPWNAM_R
+ 		if (p != end && end != nullptr && *end != '\0')
+-			getpwuid_r(admuid, &pwbuf, strbuf, sizeof(strbuf), &pw);
++			getpwuid_r(admuid, &pwbuf, strbuf.get(), STRBUFSIZE, &pw);
+ 		else
+-			getpwnam_r(p, &pwbuf, strbuf, sizeof(strbuf), &pw);
++			getpwnam_r(p, &pwbuf, strbuf.get(), STRBUFSIZE, &pw);
+ #else
+ 		pw = p != end && end != nullptr && *end != '\0' ? getpwuid(admuid) : getpwnam(p);
+ #endif
+@@ -1139,7 +1140,7 @@ ECRESULT ECAuthSession::ValidateSSOData_NTLM(struct soap *soap,
+ {
+ 	ECRESULT er = KCERR_INVALID_PARAMETER;
+ 	struct xsd__base64Binary *lpOutput = NULL;
+-	char buffer[NTLMBUFFER];
++	auto buffer = std::make_unique<char[]>(NTLMBUFFER);
+ 	std::string strEncoded, strDecoded, strAnswer;
+ 	ssize_t bytes = 0;
+ 	char separator = '\\';      // get config version
+@@ -1205,7 +1206,7 @@ ECRESULT ECAuthSession::ValidateSSOData_NTLM(struct soap *soap,
+ 		write(m_stdin, "\n", 1);
+ 	}
+ 
+-	memset(buffer, 0, NTLMBUFFER);
++	memset(buffer.get(), 0, NTLMBUFFER);
+ 	pollfd[0].fd = m_stdout;
+ 	pollfd[1].fd = m_stderr;
+ 	pollfd[0].events = pollfd[1].events = POLLIN;
+@@ -1227,19 +1228,19 @@ retry:
+ 	// stderr is optional, and always written first
+ 	if (pollfd[1].revents & POLLIN) {
+ 		// log stderr of ntlm_auth to logfile (loop?)
+-		bytes = read(m_stderr, buffer, NTLMBUFFER-1);
++		bytes = read(m_stderr, buffer.get(), NTLMBUFFER - 1);
+ 		if (bytes < 0)
+ 			return er;
+ 		buffer[bytes] = '\0';
+ 		// print in lower level. if ntlm_auth was not installed (kerberos only environment), you won't care that ntlm_auth doesn't work.
+ 		// login error is returned to the client, which was expected anyway.
+-		ec_log_notice(std::string("Received error from ntlm_auth:\n") + buffer);
++		ec_log_notice(std::string("Received error from ntlm_auth:\n") + buffer.get());
+ 		return er;
+ 	}
+ 
+ 	// stdout is mandatory, so always read from this pipe
+-	memset(buffer, 0, NTLMBUFFER);
+-	bytes = read(m_stdout, buffer, NTLMBUFFER-1);
++	memset(buffer.get(), 0, NTLMBUFFER);
++	bytes = read(m_stdout, buffer.get(), NTLMBUFFER - 1);
+ 	if (bytes < 0) {
+ 		ec_log_err(std::string("Unable to read data from ntlm_auth: ") + strerror(errno));
+ 		return er;
+@@ -1264,7 +1265,7 @@ retry:
+ 		 * Extract response text (if any) following the reply code
+ 		 * (and space). Else left empty.
+ 		 */
+-		strAnswer.assign(buffer + 3, bytes - 3);
++		strAnswer.assign(&buffer[3], bytes - 3);
+ 
+ 	if (buffer[0] == 'B' && buffer[1] == 'H') {
+ 		/*
+@@ -1272,7 +1273,7 @@ retry:
+ 		 * (unlikely), or ntlm_auth found some reason not to complete,
+ 		 * like /var/lib/samba/winbindd_privileged being inaccessible.
+ 		 */
+-		ec_log_err("ntlm_auth returned generic error \"%.*s\"", static_cast<int>(bytes), buffer);
++		ec_log_err("ntlm_auth returned generic error \"%.*s\"", static_cast<int>(bytes), buffer.get());
+ 		return er;
+ 	} else if (buffer[0] == 'T' && buffer[1] == 'T') {
+ 		// Try This
+@@ -1330,7 +1331,7 @@ retry:
+ 		er = KCERR_LOGON_FAILED;
+ 	} else {
+ 		// unknown response?
+-		ec_log_err("Unknown response from ntlm_auth: %.*s", static_cast<int>(bytes), buffer);
++		ec_log_err("Unknown response from ntlm_auth: %.*s", static_cast<int>(bytes), buffer.get());
+ 		return KCERR_CALL_FAILED;
+ 	}
+ 
+diff --git a/provider/libserver/StreamUtil.cpp b/provider/libserver/StreamUtil.cpp
+index dbd02ff4d..105c63704 100644
+--- a/provider/libserver/StreamUtil.cpp
++++ b/provider/libserver/StreamUtil.cpp
+@@ -224,11 +224,12 @@ ECRESULT ECStreamSerializer::Read(void *ptr, size_t size, size_t nmemb)
+ ECRESULT ECStreamSerializer::Skip(size_t size, size_t nmemb)
+ {
+ 	ECRESULT er = erSuccess;
+-	char buffer[4096];
++	static constexpr size_t BUFSIZE = 4096;
++	auto buffer = std::make_unique<char[]>(BUFSIZE);
+ 	ULONG read = 0;
+ 
+ 	for (size_t total = 0; total < nmemb * size; total += read) {
+-		er = m_lpBuffer->Read(buffer, std::min(sizeof(buffer), (size * nmemb) - total), &read);
++		er = m_lpBuffer->Read(buffer.get(), std::min(BUFSIZE, size * nmemb - total), &read);
+ 		if (er != erSuccess)
+ 			return er;
+ 	}
+@@ -239,14 +240,15 @@ ECRESULT ECStreamSerializer::Flush()
+ {
+ 	ECRESULT er;
+ 	ULONG cbRead = 0;
+-	char buf[16384];
++	static constexpr size_t BUFSIZE = 16384;
++	auto buf = std::make_unique<char[]>(BUFSIZE);
+ 
+ 	while (true) {
+-		er = m_lpBuffer->Read(buf, sizeof(buf), &cbRead);
++		er = m_lpBuffer->Read(buf.get(), BUFSIZE, &cbRead);
+ 		if (er != erSuccess)
+ 			return er;
+ 		m_ulRead += cbRead;
+-		if (cbRead < sizeof(buf))
++		if (cbRead < BUFSIZE)
+ 			break;
+ 	}
+ 	return er;
+diff --git a/provider/libserver/cmd.cpp b/provider/libserver/cmd.cpp
+index 5c8bc800a..f3b4116f5 100644
+--- a/provider/libserver/cmd.cpp
++++ b/provider/libserver/cmd.cpp
+@@ -423,14 +423,15 @@ ECRESULT ECFifoSerializer::Flush()
+ {
+ 	ECRESULT er;
+ 	size_t cbRead = 0;
+-	char buf[16384];
++	static constexpr size_t BUFSIZE = 16384;
++	auto buf = std::make_unique<char[]>(BUFSIZE);
+ 
+ 	while (true) {
+-		er = m_lpBuffer->Read(buf, sizeof(buf), STR_DEF_TIMEOUT, &cbRead);
++		er = m_lpBuffer->Read(buf.get(), BUFSIZE, STR_DEF_TIMEOUT, &cbRead);
+ 		if (er != erSuccess)
+ 			return er;
+ 		m_ulRead += cbRead;
+-		if (cbRead < sizeof(buf))
++		if (cbRead < BUFSIZE)
+ 			break;
+ 	}
+ 	return er;
+-- 
+2.29.2
+

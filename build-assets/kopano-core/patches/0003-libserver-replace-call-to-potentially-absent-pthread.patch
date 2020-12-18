@@ -1,0 +1,40 @@
+From 9b3fc18879f39efe60edcbc951451abc93464de9 Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Fri, 7 Aug 2020 15:00:38 +0000
+Subject: [PATCH 03/31] libserver: replace call to potentially absent
+ pthread_yield
+
+pthread_yield is not available in musl. It is also a suboptimal
+choice to delay execution as a whole, so replace it by something
+more adequate.
+
+References: KF-3318
+---
+ provider/libserver/ECAttachmentStorage.cpp | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/provider/libserver/ECAttachmentStorage.cpp b/provider/libserver/ECAttachmentStorage.cpp
+index 05e126d74..524833d87 100644
+--- a/provider/libserver/ECAttachmentStorage.cpp
++++ b/provider/libserver/ECAttachmentStorage.cpp
+@@ -2218,7 +2218,7 @@ ECRESULT ECFileAttachment2::SaveAttachmentInstance(ext_siid &instance,
+ 				sl.base_dir.c_str(), hl.base_dir.c_str(), strerror(errno));
+ 			return KCERR_DATABASE_ERROR;
+ 		}
+-		pthread_yield();
++		Sleep(1);
+ 		if (--retries == 0)
+ 			break;
+ 	} while (true);
+@@ -2315,7 +2315,7 @@ ECRESULT ECFileAttachment2::SaveAttachmentInstance(ext_siid &instance,
+ 				sl.base_dir.c_str(), hl.base_dir.c_str(), strerror(errno));
+ 			return KCERR_DATABASE_ERROR;
+ 		}
+-		pthread_yield();
++		Sleep(1);
+ 		if (--retries == 0)
+ 			break;
+ 
+-- 
+2.29.2
+

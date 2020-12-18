@@ -949,7 +949,7 @@ configure_kdav() {
         if [ "${KDAV_SERVE_MODE}" = "APACHE" ]; then
             print_debug "Using Apache for KDAV"
             ### Configure Apache
-            sed -i "s|<KDAV_HOSTNAME>|${KDAV_HOSTNAME}|g" /etc/apache2/sites-enabled/kdav.conf
+            sed -i "s|<KDAV_HOSTNAME>|${KDAV_HOSTNAME}|g" /etc/apache2/conf.d/kdav.conf
             mkdir -p /logs/apache
             chown -R ${NGINX_USER}:${NGINX_GROUP} /logs/apache
         else
@@ -2389,7 +2389,7 @@ create_user_scripts() {
     mkdir -p "${SERVER_CUSTOM_USERSCRIPT_PATH}"
     if var_true "${SERVER_ENABLE_CUSTOM_USERSCRIPTS}" ; then
         print_notice "Setting up Default Custom User Scripts"
-        for f in /assets/kopano/userscripts/*
+        for f in /assets/kopano/scripts/userscripts/*
         do
             if [ ! -f "${SERVER_CUSTOM_USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
                 print_debug "User Scripts: Copying User Script: $(basename "$f")"

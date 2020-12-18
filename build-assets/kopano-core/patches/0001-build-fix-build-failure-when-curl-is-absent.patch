@@ -1,0 +1,65 @@
+From 46e026f8f621b070108000b9cf16cd48e65d63ca Mon Sep 17 00:00:00 2001
+From: Jan Engelhardt <jengelh@inai.de>
+Date: Fri, 7 Aug 2020 08:58:32 +0000
+Subject: [PATCH 01/31] build: fix build failure when curl is absent
+
+common/StatsClient.cpp:67:31: error: "CURL" was not declared in this scope
+   67 | static bool sc_proxy_from_env(CURL *ch, const char *url)
+common/StatsClient.cpp: In member function "std::string KC::ECStatsCollector::stats_as_text()":
+common/StatsClient.cpp:144:3: error: "setleaf" was not declared in this scope
+  144 |   setleaf(leaf, i.second);
+
+References: KF-3318
+---
+ common/StatsClient.cpp | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/common/StatsClient.cpp b/common/StatsClient.cpp
+index 93b138d5e..76be42d68 100644
+--- a/common/StatsClient.cpp
++++ b/common/StatsClient.cpp
+@@ -16,8 +16,8 @@
+ #include <sys/utsname.h>
+ #ifdef HAVE_CURL_CURL_H
+ #	include <curl/curl.h>
+-#	include <json/writer.h>
+ #endif
++#include <json/writer.h>
+ #include <libHX/map.h>
+ #include <libHX/option.h>
+ #include <kopano/platform.h>
+@@ -62,7 +62,6 @@ static size_t curl_dummy_write(char *, size_t z, size_t n, void *)
+ {
+ 	return z * n;
+ }
+-#endif
+ 
+ static bool sc_proxy_from_env(CURL *ch, const char *url)
+ {
+@@ -77,7 +76,6 @@ static bool sc_proxy_from_env(CURL *ch, const char *url)
+ 	return true;
+ }
+ 
+-#ifdef HAVE_CURL_CURL_H
+ static void sc_proxy_from_sysconfig(CURL *ch, const char *url)
+ {
+ 	struct mapfree { void operator()(struct HXmap *m) { HXmap_free(m); } };
+@@ -95,6 +93,7 @@ static void sc_proxy_from_sysconfig(CURL *ch, const char *url)
+ 	if (v != nullptr)
+ 		curl_easy_setopt(ch, CURLOPT_NOPROXY, v);
+ }
++#endif
+ 
+ template<typename T> static void setleaf(Json::Value &leaf, const T &elem)
+ {
+@@ -132,7 +131,6 @@ template<typename T> static void setleaf(Json::Value &leaf, const T &elem)
+ 		break;
+ 	}
+ }
+-#endif
+ 
+ std::string ECStatsCollector::stats_as_text()
+ {
+-- 
+2.29.2
+

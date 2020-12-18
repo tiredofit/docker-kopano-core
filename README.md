@@ -9,19 +9,17 @@
 
 This will build a container for the [Kopano Core Groupware](https://kopano.io/) suite.
 
-**At current time this image has the potential of making you cry - Do not use for production use. I am not a Kopano expert yet using this opportunity to understand the ins and outs of the software to potentially use for a non-profit educational institution. I am constantly relying on the expertise of the community in the Kopano.io Community forums and the manuals, and still have a long way to go**
-
 * Compiles latest build from Kopano Repositories
 * Automatic configuration of various services
 * Automatic certificate and CA generation
-* Configured for LDAP usage, no other backend
+* Configured for LDAP usage
 * Kopano Core (backup, dagent, gateway, ical, monitor, server, spamd, spooler, webapp)
 * Various Webapp plugins installed
 * Z-Push for CalDAV,CardDAV
 * Fail2ban included for blocking attackers
 * Everything configurable via environment variables
 
-* This Container uses a [customized Debian Linux base](https://hub.docker.com/r/tiredofit/alpine) which includes [s6 overlay](https://github.com/just-containers/s6-overlay) enabled for PID 1 Init capabilities, [zabbix-agent](https://zabbix.org) for individual container monitoring, Cron also installed along with other tools (bash,curl, less, logrotate, nano, vim) for easier management. It also supports sending to external SMTP servers.
+* This Container uses a [customized Alpine Linux base](https://hub.docker.com/r/tiredofit/alpine) which includes [s6 overlay](https://github.com/just-containers/s6-overlay) enabled for PID 1 Init capabilities, [zabbix-agent](https://zabbix.org) for individual container monitoring, Cron also installed along with other tools (bash,curl, less, logrotate, nano, vim) for easier management. It also supports sending to external SMTP servers.
 * This container also relies on [customized Nginx base](https://hub.docker.com/tiredofit/r/nginx) and a [customized PHP-FPM base](https://hub.docker.com/r/tiredofit/nginx-php-fpm). Each of the above images have their own unique configuration settings that are carried over to this image.
 
 *This is an incredibly complex piece of software that will tries to get you up and running with sane defaults, you will need to switch eventually over to manually configuring the configuration file when depending on your usage case. My defaults do not necessary follow the normal defaults as per the instruction manuals. This is intended as a preview for peer review*
@@ -101,7 +99,6 @@ Along with the Environment Variables from the [Base image](https://hub.docker.co
 |                    | `AIO` All in one - Kopano Core, Webapp, Zpush, Konnect, Meet                                                         |            |
 |                    | `Core` Autorespond, Backup, Dagent, Gateway, ICAL, KDAV, Monitor, Server, Spamd, Spooler, Webapp, Z-Push             |            |
 |                    | `WEB` Webapp, Z-Push                                                                                                 |            |
-|                    | `MEET` GRAPI, KAPI, Konnect, KWMSever, Meet Webapp                                                                   |            |
 |                    | `AUTORESPOND` - Autoresponder                                                                                        |            |
 |                    | `BACKUP` - Backup                                                                                                    |            |
 |                    | `DAGENT` - DAgent                                                                                                    |            |
@@ -407,7 +404,7 @@ In order to work with the [Fusion Directory Plugin](https://github.com/tiredofit
 | `GATEWAY_ENABLE_POP3S`                | Enable POP3 (secure)                             | `TRUE`                    |
 | `GATEWAY_GREETING_SHOW_HOSTNAME`      | Show hostiname in greeting                       | `FALSE`                   |
 | `GATEWAY_HOSTNAME`                    | Greeting Hostname                                | `example.com`             |
-| `GATEWAY_IMAP_MAX_MESSAGE_SIZE`       | Maximum Message Size to Process for POP3/IMAP    | `25M`                     |
+| `GATEWAY_IMAP_MAX_MESSAGE_SIZE`       | Maximum Message Size to Process for POP3/IMAP    | `30M`                     |
 | `GATEWAY_IMAP_MAX_FAIL_COMMANDS`      |                                                  | `5`                       |
 | `GATEWAY_IMAP_ONLY_MAIL_FOLDERS`      |                                                  | `TRUE`                    |
 | `GATEWAY_IMAP_SHOW_PUBLIC_FOLDERS`    |                                                  | `TRUE`                    |
@@ -522,82 +519,82 @@ When enabling `MODE=migrator` you can spawn a seperate local copy of Kopano Gate
 
 ##### Server Options (needs work)
 
-| Parameter                                | Description                                                    | Default                       |
-| ---------------------------------------- | -------------------------------------------------------------- | ----------------------------- |
-| `ENABLE_SERVER`                          | Enable Service                                                 | `TRUE`                        |
-| `LOG_FILE_SERVER`                        | Logfile Name                                                   | `server.log`                  |
-| `SERVER_ALLOW_LOCAL_USERS`               |                                                                | `TRUE`                        |
-| `SERVER_ATTACHMENT_BACKEND_FILES_FSYNC`  |                                                                | `TRUE`                        |
-| `SERVER_ATTACHMENT_BACKEND_FILES_PATH`   | Where to store attachments                                     | `/data/attachments/`          |
-| `SERVER_ATTACHMENT_BACKEND_S3_PATH`      | Path on S3 Bucket to store attachments                         | `attachments`                 |
-| `SERVER_ATTACHMENT_BACKEND`              | Files Backend `FILES` `FILES_V2` `S3`                          | `files_v2`                    |
-| `SERVER_ATTACHMENT_COMPRESSION`          | Level of Gzip Compression for Attachments                      | `6`                           |
-| `SERVER_ATTACHMENT_S3_PROTOCOL`          | Protocol to use for connecting to S3 service                   | `HTTPS`                       |
+| Parameter                                | Description                                                    | Default                                 |
+| ---------------------------------------- | -------------------------------------------------------------- | --------------------------------------- |
+| `ENABLE_SERVER`                          | Enable Service                                                 | `TRUE`                                  |
+| `LOG_FILE_SERVER`                        | Logfile Name                                                   | `server.log`                            |
+| `SERVER_ALLOW_LOCAL_USERS`               |                                                                | `TRUE`                                  |
+| `SERVER_ATTACHMENT_BACKEND_FILES_FSYNC`  |                                                                | `TRUE`                                  |
+| `SERVER_ATTACHMENT_BACKEND_FILES_PATH`   | Where to store attachments                                     | `/data/attachments/`                    |
+| `SERVER_ATTACHMENT_BACKEND_S3_PATH`      | Path on S3 Bucket to store attachments                         | `attachments`                           |
+| `SERVER_ATTACHMENT_BACKEND`              | Files Backend `FILES` `FILES_V2` `S3`                          | `files_v2`                              |
+| `SERVER_ATTACHMENT_COMPRESSION`          | Level of Gzip Compression for Attachments                      | `6`                                     |
+| `SERVER_ATTACHMENT_S3_PROTOCOL`          | Protocol to use for connecting to S3 service                   | `HTTPS`                                 |
 |                                          |
-| `SERVER_CACHE_ACL`                       | Access Control List Values                                     | `1M`                          |
-| `SERVER_CACHE_CELL`                      | Main Cache in Kopano                                           | `256M`                        |
-| `SERVER_CACHE_INDEXED_OBJECT`            | Unique IDs of Objects                                          | `16M`                         |
-| `SERVER_CACHE_OBJECT`                    | Objects and Folder Hierarchy                                   | `5M`                          |
-| `SERVER_CACHE_QUOTA_LIFETIME`            | Lifetime for Quota Details                                     | `1`                           |
-| `SERVER_CACHE_QUOTA`                     | Quota Values of Users                                          | `1M`                          |
-| `SERVER_CACHE_SERVER_LIFETIME`           | Lifetime for Server Locations                                  | `30`                          |
-| `SERVER_CACHE_SERVER`                    | Multiserver Only - Server Locations                            | `1M`                          |
-| `SERVER_CACHE_STORE`                     | ID Values                                                      | `1M`                          |
-| `SERVER_CACHE_USERDETAILS_LIFETIME`      | Lifetime for User Details                                      | `0`                           |
-| `SERVER_CACHE_USERDETAILS`               | User Details Values                                            | `3M`                          |
-| `SERVER_CACHE_USER`                      | User ID Values                                                 | `1M`                          |
-| `SERVER_CUSTOM_USERSCRIPT_CREATECOMPANY` |                                                                | `internal`                    |
-| `SERVER_CUSTOM_USERSCRIPT_CREATEGROUP`   |                                                                | `internal`                    |
-| `SERVER_CUSTOM_USERSCRIPT_CREATEUSER`    |                                                                | `internal`                    |
-| `SERVER_CUSTOM_USERSCRIPT_DELETECOMPANY` |                                                                | `internal`                    |
-| `SERVER_CUSTOM_USERSCRIPT_DELETEGROUP`   |                                                                | `internal`                    |
-| `SERVER_CUSTOM_USERSCRIPT_DELETEUSER`    |                                                                | `internal`                    |
-| `SERVER_CUSTOM_USERSCRIPT_PATH`          | Where to find user scripts for performing add/del user actions | `/etc/kopano/userscripts/`    |
-| `SERVER_DISABLED_FEATURES`               |                                                                |                               |
-| `SERVER_ENABLE_CUSTOM_USERSCRIPTS`       | Enable Custom Userscripts in /config/userscripts               | `TRUE`                        |
-| `SERVER_ENABLE_GAB`                      | Enable Global Address Book                                     | `TRUE`                        |
-| `SERVER_ENABLE_HTTPS`                    | Enable TLS Communications to Server Socket                     | `FALSE`                       |
-| `SERVER_ENABLE_HTTP`                     | Enable HTTP Communications to Server Socket                    | `FALSE`                       |
-| `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Server Mode                                       | `FALSE`                       |
-| `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Tenant Mode                                       | `FALSE`                       |
-| `SERVER_ENABLE_OPTIMIZED_SQL`            | Use Optimized MariaDB statements                               | `TRUE`                        |
-| `SERVER_ENABLE_SEARCH`                   | Enable Search Functionality                                    | `TRUE`                        |
-| `SERVER_ENABLE_SSO`                      | Enable SSO Functionality w/Server                              | `FALSE`                       |
-| `SERVER_GAB_HIDE_EVERYONE`               | Hide everyone from GAB                                         | `FALSE`                       |
-| `SERVER_GAB_HIDE_SYSTEM`                 | Hide System Account from GAB                                   | `FALSE`                       |
-| `SERVER_GAB_SYNC_REALTIME`               |                                                                | `TRUE`                        |
-| `SERVER_HOSTNAME`                        | Server Hostname (multi tenant)                                 | ``                            |
-| `SERVER_LISTEN_HOST`                     | Listen Interface for Server                                    | `*%lo`                        |
-| `SERVER_LISTEN_PORT_SECURE`              | Listen Interface for Secure Server                             | `237`                         |
-| `SERVER_LISTEN_PORT`                     | Listen Port for Server                                         | `236`                         |
-| `SERVER_LOCAL_ADMIN_USERS`               | Admin users on console that do not require authentication      | `root kopano`                 |
-| `SERVER_MULTI_TENANT_LOGINNAME_FORMAT`   |                                                                | `%u`                          |
-| `SERVER_MULTI_TENANT_STORENAME_FORMAT`   |                                                                | `%f_%c`                       |
-| `SERVER_OIDC_DISABLE_TLS_VALIDATION`     |                                                                | `FALSE`                       |
-| `SERVER_OIDC_IDENTIFIER`                 | URL to OIDC Provider                                           |                               |
-| `SERVER_OIDC_TIMEOUT_INITIALIZE`         |                                                                | `60`                          |
-| `SERVER_PIPE_NAME`                       | Server Pipe Name                                               | `/var/run/kopano/server.sock` |
-| `SERVER_PIPE_PRIORITY_NAME`              | Prioritized Server Pipe Name                                   | `/var/run/kopano/prio.sock`   |
-| `SERVER_PURGE_SOFTDELETE`                |                                                                | `30`                          |
-| `SERVER_QUOTA_COMPANY_WARN`              |                                                                | `0`                           |
-| `SERVER_QUOTA_HARD`                      |                                                                | `1024`                        |
-| `SERVER_QUOTA_SOFT`                      |                                                                | `950`                         |
-| `SERVER_QUOTA_WARN`                      |                                                                | `900`                         |
-| `SERVER_SERVER_NAME`                     |                                                                | `Kopano`                      |
-| `SERVER_SSL_CERT_FILE`                   | Server SSL Certificate File                                    | `/certs/core/server.crt`      |
-| `SERVER_SSL_KEY_FILE`                    | Server SSL Key File                                            | `/certs/core/server.pem`      |
-| `SERVER_SSL_KEY_PASS`                    | Set password set on SSL Key                                    |                               |
-| `SERVER_SSL_PUBLIC_PATH`                 | Where to store public keys for SSL                             | `/certs/core/core/public/`    |
-| `SERVER_SYSTEM_EMAIL_ADDRESS`            |                                                                | `postmaster@example.com`      |
-| `SERVER_THREADS`                         | Amount of Threads Server should use                            | `8`                           |
-| `SERVER_TIMEOUT_RECIEVE`                 |                                                                | `5`                           |
-| `SERVER_TIMEOUT_SEND`                    |                                                                | `60`                          |
-| `SERVER_TLS_MIN_PROTOCOL`                | Minimum TLS Protocol accepted                                  | `tls1.2`                      |
-| `SERVER_USER_PLUGIN`                     | User backend selection                                         | `ldap`                        |
-| `SERVER_USER_SAFE_MODE`                  |                                                                | `FALSE`                       |
-| `SERVER_WATCHDOG_FREQUENCY`              |                                                                | `1`                           |
-| `SERVER_WATCHDOG_MAX_AGE`                |                                                                | `500`                         |
-| `SEVER_ADDITIONAL_ARGS`                  | Pass additional arguments to server process                    |                               |
+| `SERVER_CACHE_ACL`                       | Access Control List Values                                     | `1M`                                    |
+| `SERVER_CACHE_CELL`                      | Main Cache in Kopano                                           | `256M`                                  |
+| `SERVER_CACHE_INDEXED_OBJECT`            | Unique IDs of Objects                                          | `16M`                                   |
+| `SERVER_CACHE_OBJECT`                    | Objects and Folder Hierarchy                                   | `5M`                                    |
+| `SERVER_CACHE_QUOTA_LIFETIME`            | Lifetime for Quota Details                                     | `1`                                     |
+| `SERVER_CACHE_QUOTA`                     | Quota Values of Users                                          | `1M`                                    |
+| `SERVER_CACHE_SERVER_LIFETIME`           | Lifetime for Server Locations                                  | `30`                                    |
+| `SERVER_CACHE_SERVER`                    | Multiserver Only - Server Locations                            | `1M`                                    |
+| `SERVER_CACHE_STORE`                     | ID Values                                                      | `1M`                                    |
+| `SERVER_CACHE_USERDETAILS_LIFETIME`      | Lifetime for User Details                                      | `0`                                     |
+| `SERVER_CACHE_USERDETAILS`               | User Details Values                                            | `3M`                                    |
+| `SERVER_CACHE_USER`                      | User ID Values                                                 | `1M`                                    |
+| `SERVER_CUSTOM_USERSCRIPT_CREATECOMPANY` |                                                                | `/etc/kopano/userscripts/createcompany` |
+| `SERVER_CUSTOM_USERSCRIPT_CREATEGROUP`   |                                                                | `/etc/kopano/userscripts/creategroup`   |
+| `SERVER_CUSTOM_USERSCRIPT_CREATEUSER`    |                                                                | `/etc/kopano/userscripts/createuser`    |
+| `SERVER_CUSTOM_USERSCRIPT_DELETECOMPANY` |                                                                | `/etc/kopano/userscripts/deletecompany` |
+| `SERVER_CUSTOM_USERSCRIPT_DELETEGROUP`   |                                                                | `/etc/kopano/userscripts/deletegroup`   |
+| `SERVER_CUSTOM_USERSCRIPT_DELETEUSER`    |                                                                | `/etc/kopano/userscripts/deleteuser`    |
+| `SERVER_CUSTOM_USERSCRIPT_PATH`          | Where to find user scripts for performing add/del user actions | `/etc/kopano/userscripts/`              |
+| `SERVER_DISABLED_FEATURES`               |                                                                |                                         |
+| `SERVER_ENABLE_CUSTOM_USERSCRIPTS`       | Enable Custom Userscripts in /config/userscripts               | `TRUE`                                  |
+| `SERVER_ENABLE_GAB`                      | Enable Global Address Book                                     | `TRUE`                                  |
+| `SERVER_ENABLE_HTTPS`                    | Enable TLS Communications to Server Socket                     | `FALSE`                                 |
+| `SERVER_ENABLE_HTTP`                     | Enable HTTP Communications to Server Socket                    | `FALSE`                                 |
+| `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Server Mode                                       | `FALSE`                                 |
+| `SERVER_ENABLE_MULTI_TENANT`             | Enable Multi Tenant Mode                                       | `FALSE`                                 |
+| `SERVER_ENABLE_OPTIMIZED_SQL`            | Use Optimized MariaDB statements                               | `TRUE`                                  |
+| `SERVER_ENABLE_SEARCH`                   | Enable Search Functionality                                    | `TRUE`                                  |
+| `SERVER_ENABLE_SSO`                      | Enable SSO Functionality w/Server                              | `FALSE`                                 |
+| `SERVER_GAB_HIDE_EVERYONE`               | Hide everyone from GAB                                         | `FALSE`                                 |
+| `SERVER_GAB_HIDE_SYSTEM`                 | Hide System Account from GAB                                   | `FALSE`                                 |
+| `SERVER_GAB_SYNC_REALTIME`               |                                                                | `TRUE`                                  |
+| `SERVER_HOSTNAME`                        | Server Hostname (multi tenant)                                 | ``                                      |
+| `SERVER_LISTEN_HOST`                     | Listen Interface for Server                                    | `*%lo`                                  |
+| `SERVER_LISTEN_PORT_SECURE`              | Listen Interface for Secure Server                             | `237`                                   |
+| `SERVER_LISTEN_PORT`                     | Listen Port for Server                                         | `236`                                   |
+| `SERVER_LOCAL_ADMIN_USERS`               | Admin users on console that do not require authentication      | `root kopano`                           |
+| `SERVER_MULTI_TENANT_LOGINNAME_FORMAT`   |                                                                | `%u`                                    |
+| `SERVER_MULTI_TENANT_STORENAME_FORMAT`   |                                                                | `%f_%c`                                 |
+| `SERVER_OIDC_DISABLE_TLS_VALIDATION`     |                                                                | `FALSE`                                 |
+| `SERVER_OIDC_IDENTIFIER`                 | URL to OIDC Provider                                           |                                         |
+| `SERVER_OIDC_TIMEOUT_INITIALIZE`         |                                                                | `60`                                    |
+| `SERVER_PIPE_NAME`                       | Server Pipe Name                                               | `/var/run/kopano/server.sock`           |
+| `SERVER_PIPE_PRIORITY_NAME`              | Prioritized Server Pipe Name                                   | `/var/run/kopano/prio.sock`             |
+| `SERVER_PURGE_SOFTDELETE`                |                                                                | `30`                                    |
+| `SERVER_QUOTA_COMPANY_WARN`              |                                                                | `0`                                     |
+| `SERVER_QUOTA_HARD`                      |                                                                | `1024`                                  |
+| `SERVER_QUOTA_SOFT`                      |                                                                | `950`                                   |
+| `SERVER_QUOTA_WARN`                      |                                                                | `900`                                   |
+| `SERVER_SERVER_NAME`                     |                                                                | `Kopano`                                |
+| `SERVER_SSL_CERT_FILE`                   | Server SSL Certificate File                                    | `/certs/core/server.crt`                |
+| `SERVER_SSL_KEY_FILE`                    | Server SSL Key File                                            | `/certs/core/server.pem`                |
+| `SERVER_SSL_KEY_PASS`                    | Set password set on SSL Key                                    |                                         |
+| `SERVER_SSL_PUBLIC_PATH`                 | Where to store public keys for SSL                             | `/certs/core/core/public/`              |
+| `SERVER_SYSTEM_EMAIL_ADDRESS`            |                                                                | `postmaster@example.com`                |
+| `SERVER_THREADS`                         | Amount of Threads Server should use                            | `8`                                     |
+| `SERVER_TIMEOUT_RECIEVE`                 |                                                                | `5`                                     |
+| `SERVER_TIMEOUT_SEND`                    |                                                                | `60`                                    |
+| `SERVER_TLS_MIN_PROTOCOL`                | Minimum TLS Protocol accepted                                  | `tls1.2`                                |
+| `SERVER_USER_PLUGIN`                     | User backend selection                                         | `ldap`                                  |
+| `SERVER_USER_SAFE_MODE`                  |                                                                | `FALSE`                                 |
+| `SERVER_WATCHDOG_FREQUENCY`              |                                                                | `1`                                     |
+| `SERVER_WATCHDOG_MAX_AGE`                |                                                                | `500`                                   |
+| `SEVER_ADDITIONAL_ARGS`                  | Pass additional arguments to server process                    |                                         |
 
 ##### Spamd Options
 
@@ -798,104 +795,6 @@ Add multiple Intranet Tabs by adding WEBAPP_PLUGIN_INTRANET(x)_*
 | `WEBAPP_PLUGIN_SMIME_BROWSER_REMEMBER_PASSPHRASE` | Allow browser to remember Passphrase | `FALSE`                      |
 | `WEBAPP_PLUGIN_SMIME_ENABLE_OCSP`                 | Utilize OCSP Stapling                | `TRUE`                       |
 
-
-#### Meet Video Conferencing
-
-##### GRAPI Options
-
-| Parameter                             | Description                               | Default                 |
-| ------------------------------------- | ----------------------------------------- | ----------------------- |
-| `ENABLE_GRAPI`                        | Enable Service                            | `TRUE`                  |
-| `GRAPI_WORKERS`                       | Amount of Worker Processes                | `8`                     |
-| `GRAPI_PATH`                          | Path for Storing GRAPI Data               | `/data/grapi/`          |
-| `GRAPI_CONFIG_FILE`                   | Configuration File                        | `grapi.cfg`             |
-| `GRAPI_DISABLE_TLS_VALIDATION`        | Don't validate client certificates        | `FALSE`                 |
-| `GRAPI_ENABLE_EXPERIMENTAL_ENDPOINTS` | Enable experimental endpoints             | `FALSE`                 |
-| `GRAPI_SOCKET_SERVER`                 | What should service use to contact server | `${SOCKET_SERVER}`      |
-| `SOCKET_GRAPI`                        | Socket file                               | `/var/run/kopano-grapi` |
-
-###### KAPI Options (needs work)
-
-| Parameter                     | Description        | Default                                  |
-| ----------------------------- | ------------------ | ---------------------------------------- |
-| `ENABLE_KAPI`                 | Enable Service     | `TRUE`                                   |
-| `KAPI_CONFIG_FILE`            | Configuration File | `kapi.cfg`                               |
-| `KAPI_DISABLE_TLS_VALIDATION` |                    | `FALSE`                                  |
-| `KAPI_HOST_SECURE`            |                    | `FALSE`                                  |
-| `KAPI_KVS_DB_SQLITE_FILE`     |                    | `/data/kapi/kvs/kvs.db`                  |
-| `KAPI_KVS_DB_TYPE`            |                    | `SQLITE3`                                |
-| `KAPI_KVS_PATH_DB_MIGRATIONS` |                    | `/usr/lib/kopano/kapi-kvs/db/migrations` |
-| `KAPI_LISTEN_HOST`            |                    | `127.0.0.1`                              |
-| `KAPI_LISTEN_PORT`            |                    | `8039`                                   |
-| `KAPI_PATH_PLUGINS`           |                    | `/usr/lib/kopano/kapid-plugins`          |
-| `KAPI_PLUGINS`                |                    | `grapi kvs pubs`                         |
-| `KAPI_PUBS_SECRET_KEY_FILE`   |                    | `/certs/kapi/kapid-pubs-secret.key`      |
-
-###### Konnect Options (needs work)
-
-| Parameter                                     | Description                               | Default                                        |
-| --------------------------------------------- | ----------------------------------------- | ---------------------------------------------- |
-| `ENABLE_KONNECT`                              | Enable Service                            | `TRUE`                                         |
-| `KONNECT_BACKEND`                             | Konnect Backend                           | `KC`                                           |
-| `KONNECT_CONFIG_FILE_IDENTIFIER_REGISTRATION` |                                           | `konnectd-identifier-registration.yml`         |
-| `KONNECT_CONFIG_FILE_IDENTIFIER_SCOPES`       |                                           | `konnectd-identifier-scopes.yaml`              |
-| `KONNECT_CONFIG_FILE`                         | Configuration File                        | `konnectd.cfg`                                 |
-| `KONNECT_DISABLE_TLS_VALIDATION`              |                                           | `FALSE`                                        |
-| `KONNECT_ENABLE_CLIENT_DYNAMIC_REGISTRATION`  |                                           | `FALSE`                                        |
-| `KONNECT_ENABLE_CLIENT_GUESTS`                |                                           | `FALSE`                                        |
-| `KONNECT_HOST_SECURE`                         |                                           | `FALSE`                                        |
-| `KONNECT_HOSTNAME`                            | Konnect Service Hostname                  |                                                |
-| `KONNECT_IDENTITY_MANAGER_ARGUMENTS`          |                                           |                                                |
-| `KONNECT_JWT_METHOD`                          |                                           | `PS256`                                        |
-| `KONNECT_LISTEN_HOST`                         |                                           | `127.0.0.1`                                    |
-| `KONNECT_LISTEN_PORT`                         |                                           | `8777`                                         |
-| `KONNECT_SIGNING_KEY_FILE`                    |                                           | `/certs/konnect/konnect-signing-key.pem`       |
-| `KONNECT_SIGNING_SECRET_FILE`                 |                                           | `/certs/konnect/konnect-encryption-secret.key` |
-| `KONNECT_SOCKET_SERVER`                       | What should service use to contact server | `${SOCKET_SERVER}`                             |
-| `KONNECT_TIMEOUT_SESSION_KOPANO`              |                                           | `240`                                          |
-| `KONNECT_VALIDATION_KEYS_PATH`                |                                           | `/certs/konnect/konnect-validation`            |
-| `KONNECT_WEBROOT`                             |                                           | `/usr/share/kopano-konnect`                    |
-| `LOG_FILE_KONNECT`                            | Logfile Name                              | `konnect.log`                                  |
-
-##### KWM Server Options (needs work)
-
-| Parameter                        | Description        | Default                                       |
-| -------------------------------- | ------------------ | --------------------------------------------- |
-| `ENABLE_KWM`                     | Enable Service     | `TRUE`                                        |
-| `KWM_CONFIG_FILE`                | Configuration File | `kwmserverd.cfg`                              |
-| `KWM_CONFIG_FILE_REGISTRATION`   |                    | `kwmserverd-registration.yml`                 |
-| `KWM_DISABLE_TLS_VALIDATION`     |                    | `FALSE`                                       |
-| `KWM_ENABLE_API_GUEST`           |                    | `FALSE`                                       |
-| `KWM_ENABLE_API_MCU`             |                    | `FALSE`                                       |
-| `KWM_ENABLE_API_RTM`             |                    | `TRUE`                                        |
-| `KWM_GUEST_ALLOW_JOIN_EMPTY`     |                    | `FALSE`                                       |
-| `KWM_GUEST_PUBLIC_ACCESS_REGEXP` |                    | `^group/public/.*`                            |
-| `KWM_HOST_SECURE`                |                    | `FALSE`                                       |
-| `KWM_LISTEN_HOST`                |                    | `127.0.0.1`                                   |
-| `KWM_LISTEN_PORT`                |                    | `8778`                                        |
-| `KWM_TOKENS_SECRET_KEY_FILE`     |                    | `/certs/kwm/kwm-tokens-secret.key`            |
-| `KWM_TURN_AUTH_SECRET_FILE`      |                    | `/certs/kwm/kwm-turn-auth-secret.secret`      |
-| `KWM_TURN_AUTH_SERVER_FILE`      |                    | `/certs/kwm/kwm-turn-auth-server.secret`      |
-| `KWM_TURN_URL`                   |                    | `https://turnauth.kopano.com/turnserverauth/` |
-
-##### Meet Options
-
-| Parameter                         | Description                           | Default                                                                                |
-| --------------------------------- | ------------------------------------- | -------------------------------------------------------------------------------------- |
-| `MEET_CONFIG_FILE`                | Configuration File                    | `meet.json`                                                                            |
-| `MEET_ENABLE_GUESTS`              | Enable Guests to join meetings        | `TRUE`                                                                                 |
-| `MEET_EXTERNAL_APPS`              | What applications to show in Apps bar | `kopano-calendar,kopano-contacts,kopano-meet,kopano-mail,kopano-connect,kopano-webapp` |
-| `MEET_EXTERNAL_CALENDAR_HOSTNAME` | URL for Calendar Hostname in app bar  |                                                                                        |
-| `MEET_EXTERNAL_CONTACTS_HOSTNAME` | URL for Contacts Hostname in app bar  |                                                                                        |
-| `MEET_EXTERNAL_KONNECT_HOSTNAME`  | URL for Konnect Hostname in app bar   |                                                                                        |
-| `MEET_EXTERNAL_MAIL_HOSTNAME`     | URL for Mail Hostname in app bar      |                                                                                        |
-| `MEET_EXTERNAL_WEBAPP_HOSTNAME`   | URL for Webapp Hostname in app bar    |                                                                                        |
-| `MEET_GUESTS_DEFAULT_USER`        |                                       | `null`                                                                                 |
-| `MEET_HOSTNAME`                   | Hostname to use for Kopano Meet       |                                                                                        |
-| `MEET_KWM_URL`                    | KWM URL                               |                                                                                        |
-| `MEET_OIDC_ISS`                   | OIDC ISS                              |                                                                                        |
-| `MEET_WEBROOT`                    | For Nginx configuration               | `/usr/share/kopano-meet/meet-webapp`                                                   |
-
 #### Z-Push Activesync
 
 ##### Z-Push Database Options
@@ -1005,7 +904,6 @@ The following ports are exposed.
 | `8039` | KAPI            |
 | `8080` | ICal            |
 | `8443` | ICal - Secure   |
-| `8777` | Konnect         |
 | `8778` | KWM Server      |
 
 ## Maintenance
