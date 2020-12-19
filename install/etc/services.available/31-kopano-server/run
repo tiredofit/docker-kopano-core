@@ -9,5 +9,6 @@ liftoff
 
 rm -rf /var/run/kopano/server.pid
 
+ulimit -n 60000
 print_info "Starting Kopano Server"
 kopano-server "${SERVER_ADDITIONAL_ARGS}"

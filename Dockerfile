@@ -40,7 +40,7 @@ ARG VMIME_VERSION
 ARG Z_PUSH_VERSION
 
 ENV KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-10.0.6"} \
-    KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"master"} \
+    KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"v0.9.2"} \
     KOPANO_KDAV_VERSION=${KOPANO_KDAV_VERSION:-"master"} \
     KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
@@ -110,6 +110,7 @@ RUN set -x && \
                 build-base \
                 go \
                 git \
+                pkgconf \
                 py3-pip \
                 python3-dev \
                ### Kopano Core
@@ -180,8 +181,68 @@ RUN set -x && \
                 mariadb-connector-c \
                 libldap \
                 libldapcpp \
+                libproc \
                 openssl \
+                perl-app-cpanminus \
+                perl-digest-sha1 \
+                perl-digest-hmac \
+                perl-ntlm \
+                perl-html-tagset \
+                perl-lwp-mediatypes \
+                perl-encode-locale \
+                perl-http-date \
+                perl-uri \
+                perl-io-html \
+                perl-http-message \
+                perl-html-parser \
+                perl-cgi \
+                perl-crypt-openssl-random \
+                perl-crypt-openssl-guess \
+                perl-crypt-openssl-rsa \
+                perl-data-uniqid \
+                perl-digest-md5 \
+                perl-exporter-tiny \
+                perl-list-moreutils-xs \
+                perl-list-moreutils \
+                perl-module-runtime \
+                perl-dist-checkconflicts \
+                perl-file-copy-recursive \
+                perl-file-tail \
+                perl-socket6 \
+                perl-io-socket-inet6 \
+                perl-net-libidn \
+                perl-net-ssleay \
+                perl-io-socket-ssl \
+                perl-io-tee \
+                perl-json \
+                perl-mime-base64 \
+                perl-carp \
+                perl-json-webtoken \
+                perl-http-cookies \
+                perl-net-http \
+                perl-http-daemon \
+                perl-file-listing \
+                perl-www-robotrules \
+                perl-http-negotiate \
+                perl-capture-tiny \
+                perl-devel-symdump \
+                perl-test-pod \
+                perl-pod-parser \
+                perl-pod-coverage \
+                perl-try-tiny \
+                perl-libwww \
+                perl-parse-recdescent \
+                perl-mail-imapclient \
+                perl-test-taint \
+                perl-module-implementation \
+                perl-package-stash \
+                perl-readonly \
+                perl-regexp-common \
+                perl-sys-meminfo \
+                perl-term-readkey \
+                perl-unicode-string \
                 poppler \
+                procps \
                 py3-daemon \
                 py3-dateutil \
                 py3-dnspython \
