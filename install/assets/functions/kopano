@@ -1176,7 +1176,7 @@ EOF
             fi
 
 
-            if [ -v SERVER_OIDC_IDENTIFIER ]; then
+            if var_true ${SERVER_ENABLE_SSO} ; then
                 truefalse_yesno SERVER_OIDC_DISABLE_TLS_VALIDATION
                 server_oidc=$(cat<<EOF
 kcoidc_issuer_identifier = ${SERVER_OIDC_IDENTIFIER}
