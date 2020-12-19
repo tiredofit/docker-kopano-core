@@ -1,3 +1,11 @@
+## 0.91.0 2020-12-19 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Move Apache services around
+      - Change the way that OIDC is registered in server.config
+      - Changed ZPush Default Content body size to not rely on another default environment variable that may or may not exist
+
+
 ## 0.90.0 2020-12-16 <dave at tiredofit dot ca>
 
    ### Changed
