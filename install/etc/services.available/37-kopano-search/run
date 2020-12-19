@@ -10,7 +10,7 @@ liftoff
 rm -rf /var/run/kopano/search.pid
 
 wait_for_server search
-sleep 3
+sleep 30
 
 print_info "Starting Kopano Search"
 kopano-search "${SEARCH_ADDITIONAL_ARGS}"

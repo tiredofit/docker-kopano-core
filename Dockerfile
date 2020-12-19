@@ -122,6 +122,8 @@ RUN set -x && \
                 gsoap-dev \
                 icu-dev \
                 jsoncpp-dev \
+                libev-dev \
+                libffi-dev \
                 libhx-dev \
                 libical-dev \
                 libtool \
@@ -146,6 +148,7 @@ RUN set -x && \
                 openssl-dev \
                 ruby-dev \
                 rsync \
+                tidyhtml-dev \
                 ## LibS3
                 curl-dev \
                 zlib-dev \
@@ -170,10 +173,10 @@ RUN set -x && \
                 db-c++ \
                 gnu-libiconv \
                 gsoap \
-                gsoap \
                 jsoncpp \
+                libev \
+                libffi \
                 libgsasl \
-                libhx \
                 libhx \
                 libical \
                 libxslt \
@@ -254,15 +257,22 @@ RUN set -x && \
                 py3-openssl \
                 py3-sleekxmpp \
                 py3-soappy \
+                py3-tabulate \
                 py3-tlslite-ng \
                 py3-tzlocal \
-                python3 \
                 python3 \
                 swig \
                 w3m \
                 xapian-bindings-php7 \
                 xapian-bindings-python3 \
                 xorgproto \
+                ### Add more
+                py3-decorator \
+                py3-jwt \
+                py3-asn1 \
+                py3-six \
+                py3-validators \
+                py3-mimeparse \
                 ## Other RunDeps
                 bc \
                 fail2ban \
@@ -270,10 +280,18 @@ RUN set -x && \
                 inotify-tools \
                 man-db \
                 sqlite \
+                tidyhtml \
                 ## KDAV Hack
                 apache2 \
                 php7-apache2 \
                 && \
+    \
+    ### Install Python Dependencies
+    pip install bjoern && \
+    pip install bsddb3 && \
+    pip install inotify && \
+    pip install falcon && \
+    pip install pyJWT && \
     \
     ### Fetch Compass (Kopano Webapp)
     gem install compass && \
@@ -291,10 +309,6 @@ RUN set -x && \
     \
     make -j $(nproc) && \
     make install && \
-    \
-    ### Build py3-bsddb3
-    pip install bsddb3 && \
-    pip install inotify && \
     \
     ### Build LibS3
     git clone ${LIBS3_REPO_URL} /usr/src/libs3 && \
