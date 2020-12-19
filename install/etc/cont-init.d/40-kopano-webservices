@@ -35,7 +35,7 @@ if var_true "${ENABLE_KDAV}" ; then
 		mkdir -p /var/log/apache2
 		chown -R ${NGINX_USER}:${NGINX_GROUP} /var/log/apache2
 	else
-	    rm -rf /etc/services.avaialable/41-kopano-kdav-apache
+	    rm -rf /etc/services.available/41-kopano-kdav-apache
 	fi
 fi
 
