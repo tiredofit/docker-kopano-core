@@ -1,3 +1,8 @@
+## 0.92.0 2020-12-19 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Change the way Build Assets are loaded
+
 ## 0.91.0 2020-12-19 <dave at tiredofit dot ca>
 
    ### Changed
