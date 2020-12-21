@@ -1,3 +1,14 @@
+## 1.0.1 2020-12-21 <dave at tiredofit dot ca>
+
+   ### Added
+      - Add more package dependencies
+
+   ### Changed
+      - Change how OIDC is configured in server.cfg
+      - Fix Spelling mistake in web services setup
+      - Add ulimit for Kopano-Server process
+
+
 ## 1.0.0 2020-12-19 <dave at tiredofit dot ca>
 
    ### Changed
