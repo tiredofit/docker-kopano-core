@@ -124,7 +124,7 @@ RUN set -x && \
     \
     if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-core ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
-    \ 
+    \
     mkdir -p /rootfs/tiredofit && \
     cd /usr/src/kopano-core && \
     autoreconf -fiv && \
@@ -210,31 +210,35 @@ ARG KOPANO_WEBAPP_PLUGIN_SMIME_VERSION
 ARG KOPANO_WEBAPP_REPO_URL
 
 ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"tags/v4.7.0"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION:-"tags/v4.0.0"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION:-"tags/v4.0.0"} \
+    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v4.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION:-"tags/v2.0"} \
+    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION:-"tags/v1.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_JODIT_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_VERSION:-"master"} \
+    KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION=${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION:-"tags/v1.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_MDM_VERSION=${KOPANO_WEBAPP_PLUGIN_MDM_VERSION:-"tags/v3.3.0"} \
+    KOPANO_WEBAPP_PLUGIN_MEET_VERSION=${KOPANO_WEBAPP_PLUGIN_MEET_VERSION:-"master"} \
+    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION=${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION:-"1.0.2-1"} \
+    KOPANO_WEBAPP_PLUGIN_SMIME_VERSION=${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION:-"tags/v2.2.2"} \
+    \
     KOPANO_WEBAPP_REPO_URL=${KOPANO_WEBAPP_REPO_URL:-"https://stash.kopano.io/scm/kw/kopano-webapp.git"} \
     KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-owncloud-backend.git"} \
-    KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION:-"tags/v4.0.0"} \
     KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL:-"https://stash.kopano.io/scm/kwa/files.git"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL:-"https://github.com/datamate-rethink-it/kopano-seafile-backend.git"} \
-    KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL:-"https://stash.kopano.io/scm/kwa/files-smb-backend.git"} \
-    KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION:-"tags/v4.0.0"} \
-    KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v4.0.0"} \
-    KOPANO_WEBAPP_PLUGIN_JODIT_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-jodit.git"} \
-    KOPANO_WEBAPP_PLUGIN_JODIT_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-minimaltiny.git"} \
-    KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION:-"tags/1.0.0"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-quill.git"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL=${KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL:-"https://stash.kopano.io/scm/kwa/intranet.git"} \
-    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION:-"tags/v1.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_JODIT_REPO_URL=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_REPO_URL:-"https://stash.kopano.io/scm/kwa/htmleditor-jodit.git"} \
     KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL=${KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL:-"https://stash.kopano.io/scm/kwa/mattermost.git"} \
-    KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION=${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION:-"tags/v1.0.1"} \
     KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL=${KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL:-"https://stash.kopano.io/scm/kwa/mobile-device-management.git"} \
-    KOPANO_WEBAPP_PLUGIN_MDM_VERSION=${KOPANO_WEBAPP_PLUGIN_MDM_VERSION:-"tags/v3.2"} \
+    KOPANO_WEBAPP_PLUGIN_MEET_REPO_URL=${KOPANO_WEBAPP_PLUGIN_MEET_REPO_URL:-"https://stash.kopano.io/scm/kwa/meet.git"} \
     KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL=${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_REPO_URL:-"https://cloud.siedl.net/nextcloud/index.php/s/3yKYARgGwfSZe2c/download"} \
-    KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION=${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION:-"1.0.2-1"} \
-    KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL=${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL:-"https://stash.kopano.io/scm/kwa/smime.git"} \
-    KOPANO_WEBAPP_PLUGIN_SMIME_VERSION=${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION:-"tags/v2.2.2"}
+    KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL=${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL:-"https://stash.kopano.io/scm/kwa/smime.git"}
 
 ADD build-assets/kopano-webapp /build-assets
 
@@ -354,6 +358,19 @@ RUN set -x && \
     cp /usr/src/kopano-webapp/deploy/plugins/intranet/config.php /rootfs/assets/kopano/config/webapp/config-intranet.php && \
     ln -sf /etc/kopano/webapp/config-intranet.php /usr/src/kopano-webapp/deploy/plugins/intranet/config.php && \
     \
+    ## Meet
+    git clone ${KOPANO_WEBAPP_PLUGIN_MEET_REPO_URL} /usr/src/kopano-webapp/plugins/meet && \
+    cd /usr/src/kopano-webapp/plugins/meet && \
+    git checkout ${KOPANO_WEBAPP_PLUGIN_MEET_VERSION} && \
+    if [ -d "/build-assets/plugins/meet" ] ; then cp -R /build-assets/plugins/meet/* /usr/src/kopano-webapp/plugins/meet/ ; fi; \
+    if [ -d "/build-assets/scripts/plugin-meet" ] ; then for script in /build-assets/scripts/plugin-meet/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
+    make && \
+    mkdir -p /usr/src/kopano-webapp/deploy/plugins/meet && \
+    cp -R dist/kopano-webapp-plugin-*/* /usr/src/kopano-webapp/deploy/plugins/meet/ && \
+    cp /usr/src/kopano-webapp/deploy/plugins/meet/config.php.dist /rootfs/assets/kopano/config/webapp/config-meet.php && \
+    ln -sf /etc/kopano/webapp/config-meet.php /usr/src/kopano-webapp/deploy/plugins/meet/config.php && \
+    rm -rf /usr/src/kopano-webapp/deploy/plugins/meet/config.php.dist && \
+    \
     ## Mobile Device Management
     git clone ${KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL} /usr/src/kopano-webapp/plugins/mdm && \
     cd /usr/src/kopano-webapp/plugins/mdm && \
@@ -385,7 +402,7 @@ RUN set -x && \
     cp -R usr/share/kopano-webapp/plugins/rchat /usr/src/kopano-webapp/deploy/plugins/ && \
     ln -sf /etc/kopano/webapp/config-rchat.php /usr/src/kopano-webapp/deploy/plugins/rchat/config.php && \
     if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -R /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
-    if [ -d "/build-assets/scripts/plugin-rocketchat" ] ; then for script in /build-assets/scripts/plugin-rocketchat/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; 
+    if [ -d "/build-assets/scripts/plugin-rocketchat" ] ; then for script in /build-assets/scripts/plugin-rocketchat/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ;
     \
     ## S/MIME
 RUN set -x && \
