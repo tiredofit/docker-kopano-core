@@ -654,6 +654,9 @@ RUN set -x && \
     mkdir -p /assets/kdav/config/ && \
     cp -R /usr/share/kdav/config.php /assets/kdav/config/ && \
     ln -s /assets/kopano/scripts/core-tools/store-stats/store-stats.py /usr/sbin/store-stats && \
+    ### Cleanup some Store Stats issues
+    sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
+    sed -i "s|locale.format|locale.format_string|g" /assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
     ln -s /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py /usr/sbin/files-admin && \
     ln -s /assets/kopano/scripts/webapp-tools/webapp_admin/webapp_admin.py /usr/sbin/webapp-admin && \
     mkdir -p /assets/zpush/config && \
