@@ -10,7 +10,7 @@ ARG KOPANO_KCOIDC_VERSION
 ENV GO_VERSION=1.15 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"master"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
-    KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b3eaad3"} \
+    KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"620ddd9"} \
     KOPANO_KCOIDC_REPO_URL=${KOPANO_KCOIDC_REPO_URL:-"https://github.com/Kopano-dev/libkcoidc.git"} \
     KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"master"}
 
@@ -180,7 +180,7 @@ RUN set -x && \
     rm -rf /usr/src/*
 
 #### Kopano Webapp
-FROM tiredofit/alpine:3.12 as webapp-builder
+FROM tiredofit/alpine:3.13 as webapp-builder
 
 ARG KOPANO_WEBAPP_VERSION
 ARG KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL
@@ -209,7 +209,7 @@ ARG KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL
 ARG KOPANO_WEBAPP_PLUGIN_SMIME_VERSION
 ARG KOPANO_WEBAPP_REPO_URL
 
-ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"tags/v4.7.0"} \
+ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION:-"tags/v4.0.0"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION:-"master"} \
@@ -273,7 +273,7 @@ RUN set -x && \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
     # Polish Translation is throwin errors, so we remove for time being
-    rm -rf /usr/src/kopano-webapp/server/language/pl_PL* && \
+    #rm -rf /usr/src/kopano-webapp/server/language/pl_PL* && \
     #
     \
     ### Build
@@ -402,10 +402,9 @@ RUN set -x && \
     cp -R usr/share/kopano-webapp/plugins/rchat /usr/src/kopano-webapp/deploy/plugins/ && \
     ln -sf /etc/kopano/webapp/config-rchat.php /usr/src/kopano-webapp/deploy/plugins/rchat/config.php && \
     if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -R /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
-    if [ -d "/build-assets/scripts/plugin-rocketchat" ] ; then for script in /build-assets/scripts/plugin-rocketchat/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ;
+    if [ -d "/build-assets/scripts/plugin-rocketchat" ] ; then for script in /build-assets/scripts/plugin-rocketchat/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
     ## S/MIME
-RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL} /usr/src/kopano-webapp/plugins/smime && \
     cd /usr/src/kopano-webapp/plugins/smime && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION} && \
@@ -459,7 +458,7 @@ ARG KOPANO_DEPENDENCY_HASH
 ARG KOPANO_KDAV_VERSION
 ARG Z_PUSH_VERSION
 
-ENV KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b3eaad3"} \
+ENV KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"620ddd9"} \
     KOPANO_KDAV_VERSION=${KOPANO_KDAV_VERSION:-"master"} \
     Z_PUSH_VERSION=${Z_PUSH_VERSION:-"2.6.2"} \
     NGINX_LOG_ACCESS_LOCATION=/logs/nginx \
@@ -524,7 +523,7 @@ RUN set -x && \
                        libdigest-hmac-perl \
                        libev4 \
                        libfile-copy-recursive-perl \
-                       libgsoap-kopano-2.8.102 \
+                       libgsoap-kopano-2.8.109 \
                        libhtml-entities-numbered-perl \
                        libhx28 \
                        libical3 \
