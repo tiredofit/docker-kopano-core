@@ -260,7 +260,9 @@ RUN set -x && \
                 php7-dev \
                 ruby-dev \
                 rsync \
-                && \
+                tar \
+                xz \
+    && \
     \
     gem install compass && \
     \
@@ -269,7 +271,7 @@ RUN set -x && \
     cd /usr/src/kopano-webapp && \
     git checkout ${KOPANO_WEBAPP_VERSION} && \
     \
-    if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-core ; fi; \
+    if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-webapp ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
     # Polish Translation is throwin errors, so we remove for time being
@@ -597,6 +599,8 @@ RUN set -x && \
                      php-zip \
                      sqlite \
     && \
+    phpdismod opcache && \
+    phpenmod opcache && \
     rm -rf /etc/apache2/sites-enabled/* && \
     a2disconf other-vhosts-access-log && \
     echo "Listen 8888" > /etc/apache2/ports.conf && \

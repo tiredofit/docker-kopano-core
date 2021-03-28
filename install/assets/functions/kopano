@@ -199,6 +199,7 @@ EOF
     fi
 }
 
+
 configure_backup() {
     if [ "$SETUP_TYPE" = "AUTO" ]; then
         certificates "${BACKUP_SSL_CERT_FILE}"
@@ -989,6 +990,43 @@ EOF
             print_info "KDAV: Skipping Auto Configuration"
         fi
     fi
+}
+
+configure_kdav_apache() {
+    print_debug "Running KDAV Apache hack"
+	mkdir -p /var/log/apache2
+	chown -R ${NGINX_USER}:${NGINX_GROUP} /var/log/apache2
+    mkdir -p /etc/services.available/41-kopano-kdav-apache
+    ## Create Service
+    cat <<EOF > /etc/services.available/41-kopano-kdav-apache/run
+#!/usr/bin/with-contenv bash
+
+source /assets/functions/00-container
+prepare_service functions kopano
+PROCESS_NAME="kopano-kdav-apache"
+check_container_initialized
+liftoff
+
+print_info "Starting Apache for Kopano KDAV on port 8888"
+source /etc/apache2/envvars
+silent apache2 -DFOREGROUND
+EOF
+
+    chmod +x /etc/services.available/41-kopano-kdav-apache/run
+
+    ## Setup Logroate
+    cat <<EOF > /etc/logrotate.d/apache
+/logs/apache/*.log {
+daily
+ifempty
+rotate 7
+missingok
+copytruncate
+compress
+dateext
+}
+EOF
+    chmod 644 /etc/logrotate.d/apache
 }
 
 configure_migrator() {
