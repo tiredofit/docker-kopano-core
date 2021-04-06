@@ -216,7 +216,7 @@ ENV KOPANO_WEBAPP_VERSION=${KOPANO_WEBAPP_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION:-"tags/v4.0.0"} \
     KOPANO_WEBAPP_PLUGIN_FILES_VERSION=${KOPANO_WEBAPP_PLUGIN_FILES_VERSION:-"tags/v4.0.1"} \
     KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_VERSION:-"tags/v2.0"} \
-    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION:-"tags/v1.0.1"} \
+    KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION=${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_JODIT_VERSION=${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_JODIT_VERSION:-"master"} \
     KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION=${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION:-"tags/v1.0.1"} \
     KOPANO_WEBAPP_PLUGIN_MDM_VERSION=${KOPANO_WEBAPP_PLUGIN_MDM_VERSION:-"tags/v3.3.0"} \
@@ -403,6 +403,8 @@ RUN set -x && \
     cp etc/kopano/webapp/config-rchat.php /rootfs/assets/kopano/config/webapp/config-rchat.php && \
     cp -R usr/share/kopano-webapp/plugins/rchat /usr/src/kopano-webapp/deploy/plugins/ && \
     ln -sf /etc/kopano/webapp/config-rchat.php /usr/src/kopano-webapp/deploy/plugins/rchat/config.php && \
+    sed -i "/\/\/ The tab in the top tabbar/a \ \ \ \ \ \ site.tabOrderIndex = 30 + i;" /usr/src/kopano-webapp/deploy/plugins/rchat/js/RChatPlugin.js && \
+    sed -i "/site: site,/a \ \ \ \ \ \ tabOrderIndex: site.tabOrderIndex," /usr/src/kopano-webapp/deploy/plugins/rchat/js/RChatPlugin.js && \
     if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -R /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-rocketchat" ] ; then for script in /build-assets/scripts/plugin-rocketchat/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
@@ -562,6 +564,7 @@ RUN set -x && \
                        python3-olefile \
                        python3-pil \
                        python3-pip \
+                       python3-pkg-resources \
                        python3-prctl \
                        python3-requests \
                        python3-setproctitle \
@@ -580,7 +583,10 @@ RUN set -x && \
     ## Python Deps for Spamd
     pip3 install inotify && \
     \
-### Z-Push Install
+    ## Webapp PythoN Scripts
+    pip3 install dotty_dict && \
+    \
+    ### Z-Push Install
     mkdir /usr/share/zpush && \
     curl -sSL https://github.com/Z-Hub/Z-Push/archive/${Z_PUSH_VERSION}.tar.gz | tar xvfz - --strip 1 -C /usr/share/zpush && \
     ln -s /usr/share/z-push/src/z-push-admin.php /usr/sbin/z-push-admin && \
@@ -598,7 +604,7 @@ RUN set -x && \
                      php-xml \
                      php-zip \
                      sqlite \
-    && \
+                     && \
     phpdismod opcache && \
     phpenmod opcache && \
     rm -rf /etc/apache2/sites-enabled/* && \
@@ -660,7 +666,13 @@ RUN set -x && \
     ### Cleanup some Store Stats issues
     sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
     sed -i "s|locale.format|locale.format_string|g" /assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
+    ### Cleanup some Files Admin issues
+    chmod +x /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
     ln -s /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py /usr/sbin/files-admin && \
+    sed -i "s|\"server_ssl\": ssl,|\"server_ssl\": (ssl.lower() == 'true'),|g" /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
+    sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
+    ### Cleanup some webapp issues
+    sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/webapp-tools/webapp_admin/webapp_admin.py && \
     ln -s /assets/kopano/scripts/webapp-tools/webapp_admin/webapp_admin.py /usr/sbin/webapp-admin && \
     mkdir -p /assets/zpush/config && \
     cp -R /usr/share/zpush/src/config.php /assets/zpush/config/ && \
@@ -686,9 +698,6 @@ RUN set -x && \
     if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* / ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     rm -rf /build-assets/ && \
-    \
-    ### Fix some issues found by community
-    sed -i "s|\"server_ssl\": ssl,|\"server_ssl\": (ssl.lower() == 'true'),|g" /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
     \
     ##### Cleanup
     apt-get purge -y \
