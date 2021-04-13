@@ -1,3 +1,12 @@
+## 1.1.0 2021-04-13 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Kopano Core 11.x
+      - Additional OIDC Settings
+      - Fix Rocketchat Plugin with ordering
+      - Debian Base due to issues with Alpine and Go
+   
+
 ## 0.92.0 2020-12-19 <dave at tiredofit dot ca>
 
    ### Changed

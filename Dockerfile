@@ -274,9 +274,10 @@ RUN set -x && \
     if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-webapp ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
-    # Polish Translation is throwin errors, so we remove for time being
-    #rm -rf /usr/src/kopano-webapp/server/language/pl_PL* && \
-    #
+    # Translations are a source of problems, so we remove for time being other than English
+    \
+    cd /usr/src/kopano-webapp/server/language && \
+    find . -mindepth 1 -maxdepth 1 -type d -not -name en_US* -exec rm -rf '{}' \; && \
     \
     ### Build
     cd /usr/src/kopano-webapp && \
@@ -672,8 +673,8 @@ RUN set -x && \
     sed -i "s|\"server_ssl\": ssl,|\"server_ssl\": (ssl.lower() == 'true'),|g" /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
     sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/webapp-tools/files_admin/files_admin.py && \
     ### Cleanup some webapp issues
-    sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/webapp-tools/webapp_admin/webapp_admin.py && \
-    ln -s /assets/kopano/scripts/webapp-tools/webapp_admin/webapp_admin.py /usr/sbin/webapp-admin && \
+    sed -i "s|kopano.Server|kopano.server|g" /assets/kopano/scripts/webapp-tools/webapp_admin/kopano-webapp-admin.py && \
+    ln -s /assets/kopano/scripts/webapp-tools/webapp_admin/kopano-webapp-admin.py /usr/sbin/webapp-admin && \
     mkdir -p /assets/zpush/config && \
     cp -R /usr/share/zpush/src/config.php /assets/zpush/config/ && \
     cp -R /usr/share/zpush/src/autodiscover/config.php /assets/zpush/config/config-autodiscover.php && \
