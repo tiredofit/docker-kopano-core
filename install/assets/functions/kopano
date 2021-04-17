@@ -989,6 +989,8 @@ EOF
         else
             print_info "KDAV: Skipping Auto Configuration"
         fi
+
+        chown -R ${NGINX_USER}:${NGINX_GROUP} /usr/share/kdav
     fi
 }
 
@@ -1658,6 +1660,7 @@ configure_webapp() {
 ?>
 EOF
         fi
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/kdav
     fi
 }
 
@@ -1679,6 +1682,7 @@ configure_webapp_plugins() {
         configure_webapp_plugin_rocketchat
         configure_webapp_plugin_smime
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/kopano-webapp/plugins
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${CONFIG_PATH}"/webapp
     fi
 }
 
@@ -2403,6 +2407,7 @@ EOF
             awk 'BEGIN {p=1}/print <<<END/{print;system("cat ${ZPUSH_CUSTOM_INDEX_FILE}");p=0}/^END\;/{p=1} p' /usr/share/zpush/src/lib/core/zpush.php > "${zpush_custom_index}"
             cp -R "${zpush_custom_index}" /usr/share/zpush/src/lib/core/zpush.php
         fi
+        chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/zpush
     fi
 }
 
@@ -2424,6 +2429,7 @@ create_quota_templates() {
             cp -R "$f" "${TEMPLATE_MONITOR_PATH}"
         fi
     done
+    chown -R kopano:kopano "${TEMPLATE_MONITOR_PATH}"
 }
 
 create_user_scripts() {
@@ -2438,6 +2444,7 @@ create_user_scripts() {
             fi
         done
     fi
+    chown -R kopano:kopano "${SERVER_CUSTOM_USERSCRIPT_PATH}"
 }
 
 create_zpush_templates() {
@@ -2450,6 +2457,7 @@ create_zpush_templates() {
             cp -R "$f" "${TEMPLATE_ZPUSH_PATH}"
         fi
     done
+    chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${TEMPLATE_ZPUSH_PATH}"
 }
 
 move_remaining_config() {
@@ -2463,6 +2471,7 @@ move_remaining_config() {
             fi
         fi
     done
+    chown -R kopano:kopano "${CONFIG_PATH}"
     for f in /assets/kopano/config/webapp/*
     do
         if [ ! -d "$f" ]; then
@@ -2472,6 +2481,7 @@ move_remaining_config() {
             fi
         fi
     done
+    chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${CONFIG_PATH}"/webapp/
 }
 
 parse_config() {
