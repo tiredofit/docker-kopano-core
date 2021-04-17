@@ -977,7 +977,7 @@ configure_kdav() {
 <?php
 // Custom Generated KDav Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('MAPI_SERVER', '${KDAV_SOCKET_SERVER}');
 define('SABRE_AUTH_REALM', '${KDAV_REALM}');
@@ -1561,7 +1561,7 @@ configure_webapp() {
 <?php
 // Custom Generated Kopano Webapp Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
     define("CONFIG_CHECK", ${WEBAPP_CONFIG_CHECK});
     define("CONFIG_CHECK_COOKIES_HTTP", ${WEBAPP_CONFIG_CHECK_COOKIES_HTTP});
@@ -1688,14 +1688,14 @@ configure_webapp_plugins() {
 
 configure_webapp_plugin_contact_fax() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_CONTACT_FAX}" ; then
-        cp -R /assets/kopano/plugins/webapp/contactfax /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/contactfax /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Contact Fax - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-contactfax.php
 <?php
 // Custom Generated Kopano Webapp Contact Fax Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('PLUGIN_CONTACTFAXPLUGIN_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_USER});
 define('PLUGIN_CONTACTFAXPLUGIN_FAX_DOMAIN_NAME', '${WEBAPP_PLUGIN_CONTACT_FAX_DOMAIN_NAME}');
@@ -1707,7 +1707,7 @@ EOF
 
 configure_webapp_plugin_files() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
-        cp -R /assets/kopano/plugins/webapp/files /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/files /usr/share/kopano-webapp/plugins
         mkdir -p "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
         ln -sf ${WEBAPP_PLUGIN_FILES_CACHE_DIR} /var/lib/kopano-webapp/
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${WEBAPP_PLUGIN_FILES_CACHE_DIR}"
@@ -1758,7 +1758,7 @@ EOF
 <?php
 // Custom Generated Kopano Webapp Files Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('PLUGIN_FILES_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILES_DEFAULT_USER});
 define('PLUGIN_FILES_ASK_BEFORE_DELETE', ${WEBAPP_PLUGIN_FILES_ASK_BEFORE_DELETE});
@@ -1775,7 +1775,7 @@ EOF
 configure_webapp_plugin_files_backend_owncloud() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_OWNCLOUD}" ; then
-            cp -R /assets/kopano/plugins/webapp/filesbackendOwncloud /usr/share/kopano-webapp/plugins
+            cp -Rp /assets/kopano/plugins/webapp/filesbackendOwncloud /usr/share/kopano-webapp/plugins
         fi
     fi
 }
@@ -1783,14 +1783,14 @@ configure_webapp_plugin_files_backend_owncloud() {
 configure_webapp_plugin_files_backend_seafile() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SEAFILE}" ; then
-            cp -R /assets/kopano/plugins/webapp/filesbackendSeafile /usr/share/kopano-webapp/plugins
+            cp -Rp /assets/kopano/plugins/webapp/filesbackendSeafile /usr/share/kopano-webapp/plugins
             if [ "$SETUP_TYPE" = "AUTO" ]; then
                 print_notice "Webapp Plugin: Desktop Notifications - Auto Configuring"
                 cat <<EOF > "${CONFIG_PATH}"webapp/config-files-seafile-backend.php
 <?php
 // Custom Generated Kopano Webapp Files SeaFile Backend Notification Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('PLUGIN_FILESBACKENDSEAFILE_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_FILES_BACKEND_SEAFILE_DEFAULT_USER});
 ?>
@@ -1803,33 +1803,33 @@ EOF
 configure_webapp_plugin_files_backend_smb() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_FILES}" ; then
         if var_true "${WEBAPP_PLUGIN_ENABLE_FILES_BACKEND_SMB}" ; then
-            cp -R /assets/kopano/plugins/webapp/filesbackendSMB /usr/share/kopano-webapp/plugins
+            cp -Rp /assets/kopano/plugins/webapp/filesbackendSMB /usr/share/kopano-webapp/plugins
         fi
     fi
 }
 
 configure_webapp_plugin_htmleditor_jodit () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_HTMLEDITOR_JODIT}" ; then
-        cp -R /assets/kopano/plugins/webapp/htmleditor-jodit /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/htmleditor-jodit /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_htmleditor_quill () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_HTMLEDITOR_QUILL}" ; then
-        cp -R /assets/kopano/plugins/webapp/htmleditor-quill /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/htmleditor-quill /usr/share/kopano-webapp/plugins
     fi
 }
 
 configure_webapp_plugin_intranet () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_INTRANET}" ; then
-        cp -R /assets/kopano/plugins/webapp/intranet /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/intranet /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Intranet - Auto Configuring"
             cat <<EOF > ${CONFIG_PATH}webapp/config-intranet.php
 <?php
 // Custom Generated Kopano Webapp Intranet Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 \$intranet_items = array();
 EOF
@@ -1906,14 +1906,14 @@ EOD
 
 configure_webapp_plugin_mattermost () {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MATTERMOST}" ; then
-        cp -R /assets/kopano/plugins/webapp/mattermost /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/mattermost /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Mattermost - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-mattermost.php
 <?php
 // Custom Generated Kopano Webapp Mattermost Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('PLUGIN_MATTERMOST_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MATTERMOST_DEFAULT_USER});
 define('PLUGIN_MATTERMOST_URL', '${WEBAPP_PLUGIN_MATTERMOST_HOST}');
@@ -1926,14 +1926,14 @@ EOF
 configure_webapp_plugin_mdm() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MDM}" ; then
         source /assets/defaults/z-push
-        cp -R /assets/kopano/plugins/webapp/mdm /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/mdm /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: MDM - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-mdm.php
 <?php
 // Custom Generated Kopano Webapp Manual Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('PLUGIN_MDM_USER_DEFAULT_ENABLE_MDM', ${WEBAPP_PLUGIN_MDM_DEFAULT_USER});
 define('PLUGIN_MDM_SERVER', '${ZPUSH_HOSTNAME}');
@@ -1946,13 +1946,13 @@ EOF
 
 configure_webapp_plugin_meet() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_MEET}" ; then
-        cp -R /assets/kopano/plugins/webapp/meet /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/meet /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: Meet - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-meet.php
 // Custom Generated Kopano Webapp Meet Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 <?php
 define('PLUGIN_MEET_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_MEET_DEFAULT_USER});
@@ -1967,14 +1967,14 @@ EOF
 
 configure_webapp_plugin_pim_folder() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_PIM_FOLDER}" ; then
-        cp -R /assets/kopano/plugins/webapp/pimfolder /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/pimfolder /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: PIM Folder - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-pimfolder.php
 <?php
 // Custom Generated Kopano Webapp PIM Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('PLUGIN_PIMFOLDER_USER_DEFAULT_ENABLE', ${WEBAPP_PLUGIN_PIM_FOLDER_DEFAULT_USER});
 ?>
@@ -1985,7 +1985,7 @@ EOF
 
 configure_webapp_plugin_rocketchat() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_ROCKETCHAT}" ; then
-        cp -R /assets/kopano/plugins/webapp/rchat /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/rchat /usr/share/kopano-webapp/plugins
         chown -R ${NGINX_USER}:${NGINX_GROUP} /usr/share/kopano-webapp/plugins
         chmod -R 777 /usr/share/kopano-webapp/plugins/rchat
         if [ "$SETUP_TYPE" = "AUTO" ]; then
@@ -2005,14 +2005,14 @@ EOF
 
 configure_webapp_plugin_smime() {
     if var_true "${WEBAPP_PLUGIN_ENABLE_SMIME}" ; then
-        cp -R /assets/kopano/plugins/webapp/smime /usr/share/kopano-webapp/plugins
+        cp -Rp /assets/kopano/plugins/webapp/smime /usr/share/kopano-webapp/plugins
         if [ "$SETUP_TYPE" = "AUTO" ]; then
             print_notice "Webapp Plugin: S/MIME - Auto Configuring"
             cat <<EOF > "${CONFIG_PATH}"webapp/config-smime.php
 <?php
 // Custom Generated Kopano Webapp S/MIME Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 DEFINE('PLUGIN_SMIME_USER_DEFAULT_ENABLE_SMIME', ${WEBAPP_PLUGIN_SMIME_DEFAULT_USER});
 DEFINE('PLUGIN_SMIME_CACERTS', '${WEBAPP_PLUGIN_SMIME_CACERTS_LOCATION}');
@@ -2059,7 +2059,7 @@ configure_zpush() {
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('MEMCACHED_SERVERS','${ZPUSH_MEMCACHED_HOST}:${ZPUSH_MEMCACHED_PORT}');
 define('MEMCACHED_DOWN_LOCK_FILE', '/tmp/z-push-memcache-down');
@@ -2109,7 +2109,7 @@ EOF
 <?php
 // Custom Generated ZPush Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
     define('TIMEZONE', '${TIMEZONE}');
     define('BASE_PATH', dirname(\$_SERVER['SCRIPT_FILENAME']). '/');
@@ -2247,7 +2247,7 @@ EOF
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('MAPI_SERVER', '${ZPUSH_SOCKET_SERVER}');
 
@@ -2278,7 +2278,7 @@ EOF
 <?php
 // Custom Generated ZPush Kopano Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('HASHFIELD', 'account');
 define('CONTACTWORKER', 'Kopano');
@@ -2319,7 +2319,7 @@ EOF
 <?php
 // Custom Generated ZPush GAB Sync Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
 define('HASHFIELD', 'account');
 define('AMOUNT_OF_CHUNKS', 10);
@@ -2359,7 +2359,7 @@ EOF
 <?php
 // Custom Generated ZPush AutoDiscover Configuration! Do not edit, instead set ENV Vars
 // If you want to use your own configuration files set SETUP_TYPE=MANUAL when starting container
-// Last Generated on $(date)
+// Last Generated on $(TZ=${TIMEZONE} date -d @${script_start_time} '+%Y-%m-%d %H:%M:%S')
 
     define('ZPUSH_HOST', '${ZPUSH_HOSTNAME}');
     define('TIMEZONE', '${TIMEZONE}');
@@ -2405,7 +2405,7 @@ EOF
             print_debug "Z-Push: Changing Z-Push Custom HTML Output with template"
             zpush_custom_index=$(mktemp)
             awk 'BEGIN {p=1}/print <<<END/{print;system("cat ${ZPUSH_CUSTOM_INDEX_FILE}");p=0}/^END\;/{p=1} p' /usr/share/zpush/src/lib/core/zpush.php > "${zpush_custom_index}"
-            cp -R "${zpush_custom_index}" /usr/share/zpush/src/lib/core/zpush.php
+            cp -Rp "${zpush_custom_index}" /usr/share/zpush/src/lib/core/zpush.php
         fi
         chown -R "${NGINX_USER}":"${NGINX_GROUP}" /usr/share/zpush
     fi
@@ -2426,7 +2426,7 @@ create_quota_templates() {
     do
         if [ ! -f "${TEMPLATE_MONITOR_PATH}"/"$(basename "$f")" ] ; then
             print_debug "Quota Templates: Copying Template: $(basename "$f")"
-            cp -R "$f" "${TEMPLATE_MONITOR_PATH}"
+            cp -Rp "$f" "${TEMPLATE_MONITOR_PATH}"
         fi
     done
     chown -R kopano:kopano "${TEMPLATE_MONITOR_PATH}"
@@ -2440,7 +2440,7 @@ create_user_scripts() {
         do
             if [ ! -f "${SERVER_CUSTOM_USERSCRIPT_PATH}"/"$(basename "$f")" ] ; then
                 print_debug "User Scripts: Copying User Script: $(basename "$f")"
-                cp -R "$f" "${SERVER_CUSTOM_USERSCRIPT_PATH}"
+                cp -Rp "$f" "${SERVER_CUSTOM_USERSCRIPT_PATH}"
             fi
         done
     fi
@@ -2454,7 +2454,7 @@ create_zpush_templates() {
     do
         if [ ! -f "${TEMPLATE_ZPUSH_PATH}"/"$(basename "$f")" ] ; then
             print_debug "Copying Template: $(basename "$f")"
-            cp -R "$f" "${TEMPLATE_ZPUSH_PATH}"
+            cp -Rp "$f" "${TEMPLATE_ZPUSH_PATH}"
         fi
     done
     chown -R "${NGINX_USER}":"${NGINX_GROUP}" "${TEMPLATE_ZPUSH_PATH}"
@@ -2467,7 +2467,7 @@ move_remaining_config() {
         if [ ! -d "$f" ]; then
             if [ ! -f "${CONFIG_PATH}"/"$(basename "$f")" ] ; then
                 print_debug "Copying Config: $(basename "$f")"
-                cp -R "$f" "${CONFIG_PATH}"
+                cp -Rp "$f" "${CONFIG_PATH}"
             fi
         fi
     done
@@ -2477,7 +2477,7 @@ move_remaining_config() {
         if [ ! -d "$f" ]; then
             if [ ! -f "${CONFIG_PATH}"/webapp/"$(basename "$f")" ] ; then
                 print_debug "Copying Config: $(basename "$f")"
-                cp -R "$f" "${CONFIG_PATH}"/webapp/
+                cp -Rp "$f" "${CONFIG_PATH}"/webapp/
             fi
         fi
     done

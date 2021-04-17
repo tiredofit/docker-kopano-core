@@ -14,7 +14,7 @@ fail2ban_create_data_dir() {
 	if [ ! -f ${FAIL2BAN_CONFIG_PATH} ] ; then
 		print_debug "Fail2ban: Creating Config Dir"
 		mkdir -p ${FAIL2BAN_CONFIG_PATH}
-		cp -R /etc/fail2ban/* ${FAIL2BAN_CONFIG_PATH}
+		cp -Rp /etc/fail2ban/* ${FAIL2BAN_CONFIG_PATH}
 	fi
 
 	print_debug "Fail2ban: Linking Config to Persistent Storage"
