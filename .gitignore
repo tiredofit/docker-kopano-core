@@ -1,12 +1,2 @@
-/install/usr/share/kopano-webapp/plugins
-/build-assets/container/*
-!/build-assets/container/.empty
-/build-assets/kopano-core/*
-!/build-assets/kopano-core/.empty
-!/build-assets/kopano-core/patches/
-/build-assets/kopano-meet/*
-!/build-assets/kopano-meet/.empty
-/build-assets/kopano-webapp/*
-!/build-assets/kopano-webapp/.empty
-/build-assets/misc/*
-!/build-assets/misc/.empty
+/build-assets/*
+!/build-assets/.empty
