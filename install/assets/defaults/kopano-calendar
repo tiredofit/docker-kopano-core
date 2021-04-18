@@ -1,3 +1,0 @@
-#!/usr/bin/with-contenv bash
-
-CALENDAR_WEBROOT=${CALENDAR_WEBROOT:-"/usr/share/kopano-calendar/calendar-webapp"}
