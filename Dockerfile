@@ -31,9 +31,6 @@ RUN set -x && \
     ### Package updates
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y \
-                    apt-utils \
-                    && \
     \
     # Fetch Go
     mkdir -p /usr/local/go && \
@@ -134,7 +131,7 @@ RUN set -x && \
     git clone ${KOPANO_CORE_REPO_URL} /usr/src/kopano-core && \
     cd /usr/src/kopano-core && \
     git checkout ${KOPANO_CORE_VERSION} && \
-    if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-core ; fi; \
+    if [ -d "/build-assets/src" ] ; then cp -Rp /build-assets/src/* /usr/src/kopano-core ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done ; fi ;
 RUN set -x && \
     mkdir -p /rootfs/tiredofit && \
@@ -191,9 +188,9 @@ RUN set -x && \
     sed -i "s|locale.format|locale.format_string|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
 
     mkdir -p /rootfs/assets/kopano/config && \
-    cp -R /rootfs/etc/kopano/* /rootfs/assets/kopano/config/ && \
+    cp -Rp /rootfs/etc/kopano/* /rootfs/assets/kopano/config/ && \
     mkdir -p /rootfs/assets/kopano/templates && \
-    cp -R /rootfs/etc/kopano/quotamail/* /rootfs/assets/kopano/templates && \
+    cp -Rp /rootfs/etc/kopano/quotamail/* /rootfs/assets/kopano/templates && \
     rm -rf /rootfs/etc/kopano/quotamail && \
     mkdir -p /rootfs/assets/kopano/userscripts && \
     mkdir -p /rootfs/assets/kopano/userscripts/createcompany.d \
@@ -202,7 +199,7 @@ RUN set -x && \
              /rootfs/assets/kopano/userscripts/deletecompany.d \
              /rootfs/assets/kopano/userscripts/deletegroup.d \
              /rootfs/assets/kopano/userscripts/deleteuser.d && \
-    cp -R /rootfs/usr/lib/kopano/userscripts /rootfs/assets/kopano/userscripts && \
+    cp -Rp /rootfs/usr/lib/kopano/userscripts /rootfs/assets/kopano/userscripts && \
 
     rm -rf /rootfs/etc/kopano && \
     ln -sf /config /rootfs/etc/kopano && \
@@ -329,7 +326,7 @@ RUN set -x && \
     cd /usr/src/kopano-webapp && \
     git checkout ${KOPANO_WEBAPP_VERSION} && \
     \
-    if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* /usr/src/kopano-webapp ; fi; \
+    if [ -d "/build-assets/src" ] ; then cp -Rp /build-assets/src/* /usr/src/kopano-webapp ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
     # Translations are a source of problems, so we remove for time being other than English
@@ -353,7 +350,7 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_FILES_REPO_URL} /usr/src/kopano-webapp/plugins/files && \
     cd /usr/src/kopano-webapp/plugins/files && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_FILES_VERSION} && \
-    if [ -d "/build-assets/plugins/files" ] ; then cp -R /build-assets/plugins/files/* /usr/src/kopano-webapp/plugins/files/ ; fi; \
+    if [ -d "/build-assets/plugins/files" ] ; then cp -Rp /build-assets/plugins/files/* /usr/src/kopano-webapp/plugins/files/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-files" ] ; then for script in /build-assets/scripts/plugin-files/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/files/config.php /rootfs/assets/kopano/config/webapp/config-files.php && \
@@ -363,7 +360,7 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_REPO_URL} /usr/src/kopano-webapp/plugins/filesbackendOwncloud && \
     cd /usr/src/kopano-webapp/plugins/filesbackendOwncloud && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_FILES_OWNCLOUD_VERSION} && \
-    if [ -d "/build-assets/plugins/filesbackendOwncloud" ] ; then cp -R /build-assets/plugins/filesbackendOwncloud/* /usr/src/kopano-webapp/plugins/filesbackendOwncloud/ ; fi; \
+    if [ -d "/build-assets/plugins/filesbackendOwncloud" ] ; then cp -Rp /build-assets/plugins/filesbackendOwncloud/* /usr/src/kopano-webapp/plugins/filesbackendOwncloud/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-filesbackendOwncloud" ] ; then for script in /build-assets/scripts/plugin-filesbackendOwncloud/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     \
@@ -371,9 +368,9 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_REPO_URL} /usr/src/kopano-webapp/plugins/filesbackendSeafile && \
     cd /usr/src/kopano-webapp/plugins/filesbackendSeafile && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_FILES_SEAFILE_VERSION} && \
-    if [ -d "/build-assets/plugins/filesbackendSeafile" ] ; then cp -R /build-assets/plugins/filesbackendSeafile/* /usr/src/kopano-webapp/plugins/filesbackendSeafile/ ; fi; \
+    if [ -d "/build-assets/plugins/filesbackendSeafile" ] ; then cp -Rp /build-assets/plugins/filesbackendSeafile/* /usr/src/kopano-webapp/plugins/filesbackendSeafile/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-filesbackendSeafile" ] ; then for script in /build-assets/scripts/plugin-filesbackendSeafile/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
-    cp -R php src && \
+    cp -Rp php src && \
     make && \
     make deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/filesbackendSeafile/config.php /rootfs/assets/kopano/config/webapp/config-files-backend-seafile.php && \
@@ -383,28 +380,28 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_FILES_SMB_REPO_URL} /usr/src/kopano-webapp/plugins/filesbackendSMB && \
     cd /usr/src/kopano-webapp/plugins/filesbackendSMB && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_FILES_SMB_VERSION} && \
-    if [ -d "/build-assets/plugins/filesbackendSMB" ] ; then cp -R /build-assets/plugins/filesbackendSMB/* /usr/src/kopano-webapp/plugins/filesbackendSMB/ ; fi; \
+    if [ -d "/build-assets/plugins/filesbackendSMB" ] ; then cp -Rp /build-assets/plugins/filesbackendSMB/* /usr/src/kopano-webapp/plugins/filesbackendSMB/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-filesbackendSMB" ] ; then for script in /build-assets/scripts/plugin-filesbackendSMB/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     \
     ## HTML Editor: Minimal
     git clone ${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_MINIMALTINY_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny && \
     cd /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny && \
-    if [ -d "/build-assets/plugins/htmleditor-minimaltiny" ] ; then cp -R /build-assets/plugins/htmleditor-minimaltiny/* /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny/ ; fi; \
+    if [ -d "/build-assets/plugins/htmleditor-minimaltiny" ] ; then cp -Rp /build-assets/plugins/htmleditor-minimaltiny/* /usr/src/kopano-webapp/plugins/htmleditor-minimaltiny/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-htmleditor-minimaltiny" ] ; then for script in /build-assets/scripts/plugin-htmleditorminimaltiny/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     \
     ## HTML Editor: Jodit
     git clone ${KOPANO_WEBAPP_PLUGIN_JODIT_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-jodit && \
     cd /usr/src/kopano-webapp/plugins/htmleditor-jodit && \
-    if [ -d "/build-assets/plugins/htmleditor-jodit" ] ; then cp -R /build-assets/plugins/htmleditor-jodit/* /usr/src/kopano-webapp/plugins/htmleditor-jodit/ ; fi; \
+    if [ -d "/build-assets/plugins/htmleditor-jodit" ] ; then cp -Rp /build-assets/plugins/htmleditor-jodit/* /usr/src/kopano-webapp/plugins/htmleditor-jodit/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-htmleditor-jodit" ] ; then for script in /build-assets/scripts/plugin-htmleditorjodit/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     \
     ## HTML Editor: Quill
     git clone ${KOPANO_WEBAPP_PLUGIN_HTMLEDITOR_QUILL_REPO_URL} /usr/src/kopano-webapp/plugins/htmleditor-quill && \
     cd /usr/src/kopano-webapp/plugins/htmleditor-quill && \
-    if [ -d "/build-assets/plugins/htmleditor-quill" ] ; then cp -R /build-assets/plugins/htmleditor-quill/* /usr/src/kopano-webapp/plugins/htmleditor-quill/ ; fi; \
+    if [ -d "/build-assets/plugins/htmleditor-quill" ] ; then cp -Rp /build-assets/plugins/htmleditor-quill/* /usr/src/kopano-webapp/plugins/htmleditor-quill/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-htmleditor-quill" ] ; then for script in /build-assets/scripts/plugin-htmleditorquill/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     \
@@ -412,7 +409,7 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_INTRANET_REPO_URL} /usr/src/kopano-webapp/plugins/intranet && \
     cd /usr/src/kopano-webapp/plugins/intranet && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_INTRANET_VERSION} && \
-    if [ -d "/build-assets/plugins/intranet" ] ; then cp -R /build-assets/plugins/intranet/* /usr/src/kopano-webapp/plugins/intranet/ ; fi; \
+    if [ -d "/build-assets/plugins/intranet" ] ; then cp -Rp /build-assets/plugins/intranet/* /usr/src/kopano-webapp/plugins/intranet/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-htmleditor-intranet" ] ; then for script in /build-assets/scripts/plugin-intranet/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/intranet/config.php /rootfs/assets/kopano/config/webapp/config-intranet.php && \
@@ -422,11 +419,11 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_MEET_REPO_URL} /usr/src/kopano-webapp/plugins/meet && \
     cd /usr/src/kopano-webapp/plugins/meet && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_MEET_VERSION} && \
-    if [ -d "/build-assets/plugins/meet" ] ; then cp -R /build-assets/plugins/meet/* /usr/src/kopano-webapp/plugins/meet/ ; fi; \
+    if [ -d "/build-assets/plugins/meet" ] ; then cp -Rp /build-assets/plugins/meet/* /usr/src/kopano-webapp/plugins/meet/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-meet" ] ; then for script in /build-assets/scripts/plugin-meet/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     make && \
     mkdir -p /usr/src/kopano-webapp/deploy/plugins/meet && \
-    cp -R dist/kopano-webapp-plugin-*/* /usr/src/kopano-webapp/deploy/plugins/meet/ && \
+    cp -Rp dist/kopano-webapp-plugin-*/* /usr/src/kopano-webapp/deploy/plugins/meet/ && \
     cp /usr/src/kopano-webapp/deploy/plugins/meet/config.php.dist /rootfs/assets/kopano/config/webapp/config-meet.php && \
     ln -sf /etc/kopano/webapp/config-meet.php /usr/src/kopano-webapp/deploy/plugins/meet/config.php && \
     rm -rf /usr/src/kopano-webapp/deploy/plugins/meet/config.php.dist && \
@@ -435,7 +432,7 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_MDM_REPO_URL} /usr/src/kopano-webapp/plugins/mdm && \
     cd /usr/src/kopano-webapp/plugins/mdm && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_MDM_VERSION} && \
-    if [ -d "/build-assets/plugins/mdm" ] ; then cp -R /build-assets/plugins/mdm/* /usr/src/kopano-webapp/plugins/mdm/ ; fi; \
+    if [ -d "/build-assets/plugins/mdm" ] ; then cp -Rp /build-assets/plugins/mdm/* /usr/src/kopano-webapp/plugins/mdm/ ; fi; \
     if [ -f "/build-assets/scripts/plugin-mdm.sh" ] ; then /build-assets/scripts/plugin-mdm.sh ; fi; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/mdm/config.php /rootfs/assets/kopano/config/webapp/config-mdm.php && \
@@ -445,7 +442,7 @@ RUN set -x && \
     git clone ${KOPANO_WEBAPP_PLUGIN_MATTERMOST_REPO_URL} /usr/src/kopano-webapp/plugins/mattermost && \
     cd /usr/src/kopano-webapp/plugins/mattermost && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_MATTERMOST_VERSION} && \
-    if [ -d "/build-assets/plugins/mattermost" ] ; then cp -R /build-assets/plugins/mattermost/* /usr/src/kopano-webapp/plugins/mattermost/ ; fi; \
+    if [ -d "/build-assets/plugins/mattermost" ] ; then cp -Rp /build-assets/plugins/mattermost/* /usr/src/kopano-webapp/plugins/mattermost/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-mattermost" ] ; then for script in /build-assets/scripts/plugin-mattermost/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/mattermost/config.php /rootfs/assets/kopano/config/webapp/config-mattermost.php && \
@@ -459,25 +456,25 @@ RUN set -x && \
     ar x kopano-rocketchat-${KOPANO_WEBAPP_PLUGIN_ROCKETCHAT_VERSION}.deb && \
     tar xvfJ data.tar.xz && \
     cp etc/kopano/webapp/config-rchat.php /rootfs/assets/kopano/config/webapp/config-rchat.php && \
-    cp -R usr/share/kopano-webapp/plugins/rchat /usr/src/kopano-webapp/deploy/plugins/ && \
+    cp -Rp usr/share/kopano-webapp/plugins/rchat /usr/src/kopano-webapp/deploy/plugins/ && \
     ln -sf /etc/kopano/webapp/config-rchat.php /usr/src/kopano-webapp/deploy/plugins/rchat/config.php && \
     sed -i "/\/\/ The tab in the top tabbar/a \ \ \ \ \ \ site.tabOrderIndex = 30 + i;" /usr/src/kopano-webapp/deploy/plugins/rchat/js/RChatPlugin.js && \
     sed -i "/site: site,/a \ \ \ \ \ \ tabOrderIndex: site.tabOrderIndex," /usr/src/kopano-webapp/deploy/plugins/rchat/js/RChatPlugin.js && \
-    if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -R /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
+    if [ -d "/build-assets/plugins/rocketchat" ] ; then cp -Rp /build-assets/plugins/rocketchat/* /usr/src/kopano-webapp/deploy/plugins/rchat/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-rocketchat" ] ; then for script in /build-assets/scripts/plugin-rocketchat/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     \
     ## S/MIME
     git clone ${KOPANO_WEBAPP_PLUGIN_SMIME_REPO_URL} /usr/src/kopano-webapp/plugins/smime && \
     cd /usr/src/kopano-webapp/plugins/smime && \
     git checkout ${KOPANO_WEBAPP_PLUGIN_SMIME_VERSION} && \
-    if [ -d "/build-assets/plugins/smime" ] ; then cp -R /build-assets/plugins/smime/* /usr/src/kopano-webapp/plugins/smime/ ; fi; \
+    if [ -d "/build-assets/plugins/smime" ] ; then cp -Rp /build-assets/plugins/smime/* /usr/src/kopano-webapp/plugins/smime/ ; fi; \
     if [ -d "/build-assets/scripts/plugin-smime" ] ; then for script in /build-assets/scripts/plugin-smime/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     ant deploy && \
     cp /usr/src/kopano-webapp/deploy/plugins/smime/config.php /rootfs/assets/kopano/config/webapp/config-smime.php && \
     ln -sf /etc/kopano/webapp/config-smime.php /usr/src/kopano-webapp/deploy/plugins/smime/config.php && \
     \
     ### Move files to RootFS
-    cp -R /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
+    cp -Rp /usr/src/kopano-webapp/deploy/* /rootfs/usr/share/kopano-webapp/ && \
     cd /rootfs/usr/share/kopano-webapp/ && \
     mv *.dist /rootfs/assets/kopano/config/webapp && \
     ln -sf /etc/kopano/webapp/config.php config.php && \
@@ -514,7 +511,7 @@ RUN set -x && \
     composer install && \
     \
     mkdir -p /rootfs/assets/kdav/config/ && \
-    cp -R /rootfs/usr/share/kdav/config.php /rootfs/assets/kdav/config/ && \
+    cp -Rp /rootfs/usr/share/kdav/config.php /rootfs/assets/kdav/config/ && \
     chown -R ${NGINX_USER}:${NGINX_GROUP} /rootfs/usr/share/kdav && \
     chown -R ${NGINX_USER}:${NGINX_GROUP} /rootfs/assets/kdav && \
     \
@@ -525,17 +522,17 @@ RUN set -x && \
     ln -s /usr/share/z-push/src/z-push-admin.php /rootfs/usr/sbin/z-push-admin && \
     ln -s /usr/share/z-push/src/z-push-top.php /rootfs/usr/sbin/z-push-top && \
     mkdir -p /rootfs/assets/zpush/config && \
-    cp -R /rootfs/usr/share/zpush/src/config.php /rootfs/assets/zpush/config/ && \
-    cp -R /rootfs/usr/share/zpush/src/autodiscover/config.php /rootfs/assets/zpush/config/config-autodiscover.php && \
-    cp -R /rootfs/usr/share/zpush/tools/gab2contacts/config.php /rootfs/assets/zpush/config/config-gab2contacts.php && \
-    cp -R /rootfs/usr/share/zpush/tools/gab-sync/config.php /rootfs/assets/zpush/config/config-gab-sync.php && \
+    cp -Rp /rootfs/usr/share/zpush/src/config.php /rootfs/assets/zpush/config/ && \
+    cp -Rp /rootfs/usr/share/zpush/src/autodiscover/config.php /rootfs/assets/zpush/config/config-autodiscover.php && \
+    cp -Rp /rootfs/usr/share/zpush/tools/gab2contacts/config.php /rootfs/assets/zpush/config/config-gab2contacts.php && \
+    cp -Rp /rootfs/usr/share/zpush/tools/gab-sync/config.php /rootfs/assets/zpush/config/config-gab-sync.php && \
     mkdir -p /rootfs/assets/zpush/config/backend && \
     mkdir -p /rootfs/assets/zpush/config/backend/ipcmemcached && \
-    cp -R /rootfs/usr/share/zpush/src/backend/ipcmemcached/config.php /rootfs/assets/zpush/config/backend/ipcmemcached/ && \
+    cp -Rp /rootfs/usr/share/zpush/src/backend/ipcmemcached/config.php /rootfs/assets/zpush/config/backend/ipcmemcached/ && \
     mkdir -p /rootfs/assets/zpush/config/backend/kopano && \
-    cp -R /rootfs/usr/share/zpush/src/backend/kopano/config.php /rootfs/assets/zpush/config/backend/kopano/ && \
+    cp -Rp /rootfs/usr/share/zpush/src/backend/kopano/config.php /rootfs/assets/zpush/config/backend/kopano/ && \
     mkdir -p /rootfs/assets/zpush/config/backend/sqlstatemachine && \
-    cp -R /rootfs/usr/share/zpush/src/backend/sqlstatemachine/config.php /rootfs/assets/zpush/config/backend/sqlstatemachine/ && \
+    cp -Rp /rootfs/usr/share/zpush/src/backend/sqlstatemachine/config.php /rootfs/assets/zpush/config/backend/sqlstatemachine/ && \
     chown -R ${NGINX_USER}:${NGINX_GROUP} /rootfs/usr/share/zpush && \
     chown -R ${NGINX_USER}:${NGINX_GROUP} /rootfs/assets/zpush && \
     \
@@ -591,7 +588,6 @@ ENV KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"620ddd9"} \
     PHP_LOG_LOCATION=/logs/php-fpm
 
 RUN set -x && \
-    mkdir -p /tiredofit && \
     ### Add user and Group
     addgroup --gid 998 kopano && \
     adduser --uid 998 \
@@ -606,9 +602,6 @@ RUN set -x && \
     \
     apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-                            apt-utils \
-                            && \
     \
 ### Kopano Dependencies
     cd /usr/src/kopano-dependencies && \
@@ -657,8 +650,6 @@ RUN set -x && \
                 libwebpdemux2 \
                 libwebpmux3 \
                 man \
-                php-memcached \
-                php-tokenizer \
                 poppler-utils \
                 python3-bsddb3 \
                 python3-certifi \
@@ -713,10 +704,6 @@ RUN set -x && \
                      php-zip \
                      sqlite \
                      && \
-    #php-ext enable corephpdismod opcache && \
-    #phpenmod opcache && \
-    #phpenmod xmlwriter && \
-    #phpenmod tokenizer && \
     rm -rf /etc/apache2/sites-enabled/* && \
     a2disconf other-vhosts-access-log && \
     a2enmod rewrite && \
@@ -739,19 +726,17 @@ RUN set -x && \
     tar xavf /usr/src/webapp/kopano-webapp.tar.zst -C / && \
     \
     ### Build Assets Override
-    if [ -d "/build-assets/src" ] ; then cp -R /build-assets/src/* / ; fi; \
+    if [ -d "/build-assets/src" ] ; then cp -Rp /build-assets/src/* / ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done && \ ; fi ; \
     rm -rf /build-assets/ && \
     \
     php-ext enable core && \
+    \
     ##### Cleanup
     apt-get purge -y \
                     ${BUILD_DEPS} \
-                    apt-utils \
                     && \
     \
-    ls -l /usr/src/core/* && \
-    ls -l /usr/src/webapp/* && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* && \
