@@ -1,3 +1,11 @@
+## 2.1.0 2021-05-17 <dave at tiredofit dot ca>
+
+   ### Added
+      - Kopano Core 11.0.2
+      - Kopano build dependencies b1bca6e
+      - GO Version 1.16.4
+
+
 ## 2.0.0 2021-04-13 <dave at tiredofit dot ca>
 
    ### Changed
