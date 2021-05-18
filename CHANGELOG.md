@@ -1,3 +1,9 @@
+## 2.1.1 2021-05-17 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Add fixes to get rid of warnings for kopano.Server in python scripts
+
+
 ## 2.1.0 2021-05-17 <dave at tiredofit dot ca>
 
    ### Added

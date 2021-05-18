@@ -183,8 +183,10 @@ RUN set -x && \
     mkdir -p /rootfs/usr/sbin && \
     ln -s /assets/kopano/scripts/core-tools/store-stats/store-stats.py /rootfs/usr/sbin/store-stats && \
     sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
+    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/Import-ics/import-ics.py && \
+    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/contacts2csv/contact2csv.py && \
     sed -i "s|locale.format|locale.format_string|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
-
+    \
     mkdir -p /rootfs/assets/kopano/config && \
     cp -Rp /rootfs/etc/kopano/* /rootfs/assets/kopano/config/ && \
     mkdir -p /rootfs/assets/kopano/templates && \
