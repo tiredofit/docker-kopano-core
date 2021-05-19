@@ -1,3 +1,10 @@
+## 2.1.2 2021-05-18 <dave at tiredofit dot ca>
+
+   ### Added
+      - Fix and repair some Kopano core-tools addons
+      - Create shortcuts for delete-items,find-item,kopano-cleanup,show-item-information
+
+
 ## 2.1.1 2021-05-17 <dave at tiredofit dot ca>
 
    ### Changed

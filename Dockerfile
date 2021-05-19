@@ -180,12 +180,19 @@ RUN set -x && \
     find /rootfs/assets/kopano/scripts -name '*.py' -exec chmod +x {} \; && \
     \
     ## Cleanup some of the scripts
-    mkdir -p /rootfs/usr/sbin && \
-    ln -s /assets/kopano/scripts/core-tools/store-stats/store-stats.py /rootfs/usr/sbin/store-stats && \
     sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
     sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/Import-ics/import-ics.py && \
     sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/contacts2csv/contact2csv.py && \
+    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/show-item-information/show-item-information.py && \
+    sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" /rootfs/assets/kopano/scripts/core-tools/delete-items/delete-items.py && \
     sed -i "s|locale.format|locale.format_string|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
+    sed -i "s|# \!/usr/bin/env python|#\!/usr/bin/env python3|g" /rootfs/assets/kopano/scripts/core-tools/kopano-cleanup/kopano-cleanup.py && \
+    mkdir -p /rootfs/usr/sbin && \
+    ln -s /assets/kopano/scripts/core-tools/store-stats/store-stats.py /rootfs/usr/sbin/store-stats && \
+    ln -s /assets/kopano/scripts/core-tools/delete-items/delete-items.py /rootfs/usr/sbin/delete-items && \
+    ln -s /assets/kopano/scripts/core-tools/find-item/find-item.py /rootfs/usr/sbin/find-item && \
+    ln -s /assets/kopano/scripts/core-tools/kopano-cleanup/kopano-cleanup.py /rootfs/usr/sbin/kopano-cleanup && \
+    ln -s /assets/kopano/scripts/core-tools/show-item-information/show-item-information.py /rootfs/usr/sbin/show-item-information && \
     \
     mkdir -p /rootfs/assets/kopano/config && \
     cp -Rp /rootfs/etc/kopano/* /rootfs/assets/kopano/config/ && \
