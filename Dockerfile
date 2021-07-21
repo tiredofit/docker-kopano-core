@@ -7,7 +7,7 @@ ARG KOPANO_DEPENDENCY_HASH
 ARG KOPANO_KCOIDC_REPO_URL
 ARG KOPANO_KCOIDC_VERSION
 
-ENV GO_VERSION=1.16.4 \
+ENV GO_VERSION=1.16.5 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-11.0.2"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b1bca6e"} \
@@ -116,11 +116,11 @@ RUN set -x && \
                 && \
     make -j $(nproc) && \
     make install && \
-    mkdir -p /rootfs/tiredofit && \
+    mkdir -p /rootfs/assets/.changelogs/ && \
     make DESTDIR=/rootfs install && \
     PYTHON="$(which python3)" make DESTDIR=/rootfs python && \
-    echo "Kopano kcOIDC ${KOPANO_KCOIDC_VERSION} built from ${KOPANO_KCOIDC_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-kcoidc.version && \
-    echo "Commit: $(cd /usr/src/libkcoidc ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-kcoidc.version && \
+    echo "Kopano kcOIDC ${KOPANO_KCOIDC_VERSION} built from ${KOPANO_KCOIDC_REPO_URL} on $(date)" > /rootfs/assets/.changelogs/kopano-kcoidc.version && \
+    echo "Commit: $(cd /usr/src/libkcoidc ; echo $(git rev-parse HEAD))" >> /rootfs/assets/.changelogs/kopano-kcoidc.version && \
     cd /rootfs && \
     mkdir -p /kopano-core/ && \
     tar cavf /kopano-core/kopano-kcoidc.tar.zst . && \
@@ -133,7 +133,7 @@ RUN set -x && \
     git checkout ${KOPANO_CORE_VERSION} && \
     if [ -d "/build-assets/src" ] ; then cp -Rp /build-assets/src/* /usr/src/kopano-core ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done ; fi ; \
-    mkdir -p /rootfs/tiredofit && \
+    mkdir -p /rootfs/assets/.changelogs/ && \
     autoreconf -fiv && \
     ./configure \
                 --prefix /usr \
@@ -218,10 +218,10 @@ RUN set -x && \
     chown -R kopano /var/run/kopano-search && \
     cd /rootfs && \
     find . -name .git -type d -print0|xargs -0 rm -rf -- && \
-    echo "Kopano Core ${KOPANO_CORE_VERSION} built from ${KOPANO_CORE_REPO_URL} on $(date)" > /rootfs/tiredofit/kopano-core.version && \
-    echo "Commit: $(cd /usr/src/kopano-core ; echo $(git rev-parse HEAD))" >> /rootfs/tiredofit/kopano-core.version && \
-    env | grep KOPANO | sed "/KOPANO_KCOIDC/d" | sort >> /rootfs/tiredofit/kopano-core.version && \
-    echo "Dependency Hash '${KOPANO_DEPENDENCY_HASH} from: 'https://download.kopano.io/community/dependencies:'" >> /rootfs/tiredofit/kopano-core.version && \
+    echo "Kopano Core ${KOPANO_CORE_VERSION} built from ${KOPANO_CORE_REPO_URL} on $(date)" > /rootfs/assets/.changelogs/kopano-core.version && \
+    echo "Commit: $(cd /usr/src/kopano-core ; echo $(git rev-parse HEAD))" >> /rootfs/assets/.changelogs/kopano-core.version && \
+    env | grep KOPANO | sed "/KOPANO_KCOIDC/d" | sort >> /rootfs/assets/.changelogs/kopano-core.version && \
+    echo "Dependency Hash '${KOPANO_DEPENDENCY_HASH} from: 'https://download.kopano.io/community/dependencies:'" >> /rootfs/assets/.changelogs/kopano-core.version && \
     tar cavf /kopano-core/kopano-core.tar.zst . && \
     cd /usr/src/kopano-dependencies && \
     mkdir -p /kopano-dependencies && \
@@ -236,8 +236,8 @@ RUN set -x && \
     rm -rf /usr/src/*
 
 FROM scratch
-LABEL maintainer="Dave Conroy (dave at tiredofit dot ca)"
+LABEL maintainer="Dave Conroy (github.com/tiredofit)"
 
 COPY --from=kopano-core-builder /kopano-core/* /kopano-core/
 COPY --from=kopano-core-builder /kopano-dependencies/* /kopano-dependencies/
-ADD CHANGELOG.md /CORE-CHANGELOG.md
+ADD CHANGELOG.md /tiredofit_docker-kopano-core.md

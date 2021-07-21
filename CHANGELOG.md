@@ -1,3 +1,9 @@
+## 2.1.3 2021-07-21 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Cleanup Dockerfile
+
+
 ## 2.1.2 2021-05-18 <dave at tiredofit dot ca>
 
    ### Added
