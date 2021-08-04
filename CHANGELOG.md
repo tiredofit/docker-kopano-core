@@ -1,3 +1,14 @@
+## 2.2.0 2021-08-04 <dave at tiredofit dot ca>
+
+   ### Added
+      - Golang 1.16.6 for building kcoidc
+
+   ### Changed
+      - Fix stray mkdir appearing in /
+      - Stop hardcoding PHP version and rely on PHP_BASE environment variable to introduce multi versioned CI builds
+      - Delete stray mapi.ini causing a PHP error on the console
+
+
 ## 2.1.3 2021-07-21 <dave at tiredofit dot ca>
 
    ### Changed

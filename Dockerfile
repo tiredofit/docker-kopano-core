@@ -1,4 +1,4 @@
-FROM tiredofit/nginx-php-fpm:debian-7.3-buster as kopano-core-builder
+FROM tiredofit/nginx-php-fpm:debian-8.0-buster as kopano-core-builder
 
 #### Kopano Core
 ARG KOPANO_CORE_VERSION
@@ -7,7 +7,7 @@ ARG KOPANO_DEPENDENCY_HASH
 ARG KOPANO_KCOIDC_REPO_URL
 ARG KOPANO_KCOIDC_VERSION
 
-ENV GO_VERSION=1.16.5 \
+ENV GO_VERSION=1.16.6 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-11.0.2"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b1bca6e"} \
@@ -43,7 +43,7 @@ RUN set -x && \
     echo "deb [trusted=yes] file:/usr/src/kopano-dependencies ./" > /etc/apt/sources.list.d/kopano-dependencies.list && \
     \
     apt-get update -y && \
-    BUILD_DEPS=' \
+    BUILD_DEPS=" \
                         autoconf \
                         automake \
                         autotools-dev \
@@ -80,7 +80,7 @@ RUN set -x && \
                         libxml2-dev \
                         lsb-release \
                         m4 \
-                        php7.3-dev \
+                        php${PHP_BASE}-dev \
                         pkg-config \
                         python3-dateutil \
                         python3-dev \
@@ -95,7 +95,7 @@ RUN set -x && \
                         unzip \
                         zlib1g-dev \
                         zstd \
-    ' \
+    " \
     && \
     apt-get install -y --no-install-recommends \
                         ${BUILD_DEPS} \
@@ -172,7 +172,7 @@ RUN set -x && \
     ###
     \
     ### Miscellanious Scripts
-    mkdir -p mkdir -p /rootfs/assets/kopano/scripts && \
+    mkdir -p /rootfs/assets/kopano/scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/Core-tools.git /rootfs/assets/kopano/scripts/core-tools && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/lab-scripts.git /rootfs/assets/kopano/scripts/lab-scripts && \
     git clone --depth 1 https://stash.kopano.io/scm/ksc/mail-migrations.git /rootfs/assets/kopano/scripts/mail-migrations && \
@@ -207,11 +207,12 @@ RUN set -x && \
              /rootfs/assets/kopano/userscripts/deletegroup.d \
              /rootfs/assets/kopano/userscripts/deleteuser.d && \
     cp -Rp /rootfs/usr/lib/kopano/userscripts /rootfs/assets/kopano/userscripts && \
-
+    \
     rm -rf /rootfs/etc/kopano && \
+    rm -rf /rootfs/etc/php/${PHP_BASE}/cli/conf.d/mapi.ini && \
     ln -sf /config /rootfs/etc/kopano && \
     ln -s /usr/bin/kopano-autorespond /rootfs/usr/sbin/kopano-autorespond && \
-
+    \
     mkdir -p /var/run/kopano && \
     mkdir -p /var/run/kopano-search && \
     chown -R kopano /var/run/kopano && \
