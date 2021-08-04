@@ -1,4 +1,4 @@
-FROM tiredofit/nginx-php-fpm:debian-8.0-buster as kopano-core-builder
+FROM tiredofit/nginx-php-fpm:debian-7.3-buster as kopano-core-builder
 
 #### Kopano Core
 ARG KOPANO_CORE_VERSION

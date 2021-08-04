@@ -1,3 +1,9 @@
+## 2.2.1 2021-08-04 <dave at tiredofit dot ca>
+
+   ### Added
+      - Force default Kopano Core to use nginx-php-fpm:7.3 for build
+
+
 ## 2.2.0 2021-08-04 <dave at tiredofit dot ca>
 
    ### Added
