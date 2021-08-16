@@ -209,7 +209,9 @@ RUN set -x && \
     cp -Rp /rootfs/usr/lib/kopano/userscripts /rootfs/assets/kopano/userscripts && \
     \
     rm -rf /rootfs/etc/kopano && \
-    rm -rf /rootfs/etc/php/${PHP_BASE}/cli/conf.d/mapi.ini && \
+    mkdir -p /rootfs/etc/php/${PHP_BASE}/mods-available/ && \
+    mv /rootfs/etc/php/${PHP_BASE}/cli/conf.d/mapi.ini /rootfs/etc/php/${PHP_BASE}/mods-available/ && \
+    echo ";priority=20" >> /rootfs/etc/php/${PHP_BASE}/mods-available/mapi.ini && \
     ln -sf /config /rootfs/etc/kopano && \
     ln -s /usr/bin/kopano-autorespond /rootfs/usr/sbin/kopano-autorespond && \
     \
