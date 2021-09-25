@@ -1,4 +1,4 @@
-FROM tiredofit/nginx-php-fpm:debian-7.3-buster as kopano-core-builder
+FROM docker.io/tiredofit/nginx-php-fpm:debian-7.3-buster as kopano-core-builder
 
 #### Kopano Core
 ARG KOPANO_CORE_VERSION
@@ -7,10 +7,10 @@ ARG KOPANO_DEPENDENCY_HASH
 ARG KOPANO_KCOIDC_REPO_URL
 ARG KOPANO_KCOIDC_VERSION
 
-ENV GO_VERSION=1.16.6 \
+ENV GO_VERSION=1.17.1 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-11.0.2"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
-    KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"b1bca6e"} \
+    KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"f12dde4"} \
     KOPANO_KCOIDC_REPO_URL=${KOPANO_KCOIDC_REPO_URL:-"https://github.com/Kopano-dev/libkcoidc.git"} \
     KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"master"}
 
@@ -155,6 +155,7 @@ RUN set -x && \
                 TCMALLOC_CFLAGS=" " \
                 TCMALLOC_LIBS="-ltcmalloc_minimal" \
                 && \
+    echo "** Starting to build Kopano Core with '$(php -v | head -n1)'" && \
     make -j$(nproc) && \
     make \
         DESTDIR=/rootfs \

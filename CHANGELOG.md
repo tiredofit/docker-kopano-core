@@ -1,3 +1,9 @@
+## 2.2.3 2021-09-25 <dave at tiredofit dot ca>
+
+   ### Added
+      - Update dependencies
+
+
 ## 2.2.2 2021-08-16 <dave at tiredofit dot ca>
 
    ### Added
