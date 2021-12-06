@@ -1,3 +1,9 @@
+## 2.3.0 2021-12-06 <dave at tiredofit dot ca>
+
+   ### Added
+      - Add Kopano Prometheus Exporter
+
+
 ## 2.2.3 2021-09-25 <dave at tiredofit dot ca>
 
    ### Added

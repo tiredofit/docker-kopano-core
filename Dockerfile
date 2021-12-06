@@ -6,13 +6,17 @@ ARG KOPANO_CORE_REPO_URL
 ARG KOPANO_DEPENDENCY_HASH
 ARG KOPANO_KCOIDC_REPO_URL
 ARG KOPANO_KCOIDC_VERSION
+ARG KOPANO_PROMETHEUS_EXPORTER_REPO_URL
+ARG KOPANO_PROMETHEUS_EXPORTER_VERSION
 
-ENV GO_VERSION=1.17.3 \
+ENV GO_VERSION=1.17.4 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-11.0.2"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"f12dde4"} \
     KOPANO_KCOIDC_REPO_URL=${KOPANO_KCOIDC_REPO_URL:-"https://github.com/Kopano-dev/libkcoidc.git"} \
-    KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"master"}
+    KOPANO_KCOIDC_VERSION=${KOPANO_KCOIDC_VERSION:-"master"} \
+    KOPANO_PROMETHEUS_EXPORTER_REPO_URL=${KOPANO_PROMETHEUS_EXPORTER_REPO_URL:-"https://github.com/Kopano-dev/prometheus-kopano-exporter.git"} \
+    KOPANO_PROMETHEUS_EXPORTER_REPO_VERSION=${KOPANO_PROMETHEUS_EXPORTER_REPO_VERSION:-"master"}
 
 ADD build-assets /build-assets
 
@@ -124,6 +128,22 @@ RUN set -x && \
     cd /rootfs && \
     mkdir -p /kopano-core/ && \
     tar cavf /kopano-core/kopano-kcoidc.tar.zst . && \
+    cd /usr/src && \
+    rm -rf /rootfs && \
+    \
+    ### Build Prometheus Exporter
+    git clone ${KOPANO_PROMETHEUS_EXPORTER_REPO_URL} /usr/src/prometheus-exporter && \
+    cd /usr/src/prometheus-exporter && \
+    git checkout ${KOPANO_PROMETHEUS_EXPORTER_REPO_VERSION} && \
+    GOROOT=/usr/local/go PATH=/usr/local/go/bin:$PATH make -j $(nproc) && \
+    mkdir -p /rootfs/assets/.changelogs/ && \
+    echo "Kopano Prometheus ${KOPANO_PROMETHEUS_EXPORTER_REPO_VERSION} built from ${KOPANO_PROMETHEUS_EXPORTER_REPO_URL} on $(date)" > /rootfs/assets/.changelogs/kopano-prometheus-exporter.version && \
+    echo "Commit: $(cd /usr/src/prometheus-exporter ; echo $(git rev-parse HEAD))" >> /rootfs/assets/.changelogs/kopano-prometheus-exporter.version && \
+    mkdir -p /rootfs/usr/sbin && \
+    cp /usr/src/prometheus-exporter/bin/prometheus-kopano-exporter /rootfs/usr/sbin/ && \
+    cd /rootfs && \
+    mkdir -p /kopano-prometheus_exporter/ && \
+    tar cavf /kopano-prometheus_exporter/kopano-prometheus-exporter.tar.zst . && \
     cd /usr/src && \
     rm -rf /rootfs && \
     \
@@ -244,4 +264,5 @@ LABEL maintainer="Dave Conroy (github.com/tiredofit)"
 
 COPY --from=kopano-core-builder /kopano-core/* /kopano-core/
 COPY --from=kopano-core-builder /kopano-dependencies/* /kopano-dependencies/
+COPY --from=kopano-core-builder /kopano-prometheus-exporter/* /kopano-prometheus-exporter/
 ADD CHANGELOG.md /tiredofit_docker-kopano-core.md
