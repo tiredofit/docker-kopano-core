@@ -142,8 +142,8 @@ RUN set -x && \
     mkdir -p /rootfs/usr/sbin && \
     cp /usr/src/prometheus-exporter/bin/prometheus-kopano-exporter /rootfs/usr/sbin/ && \
     cd /rootfs && \
-    mkdir -p /kopano-prometheus_exporter/ && \
-    tar cavf /kopano-prometheus_exporter/kopano-prometheus-exporter.tar.zst . && \
+    mkdir -p /kopano-prometheus-exporter/ && \
+    tar cavf /kopano-prometheus-exporter/kopano-prometheus-exporter.tar.zst . && \
     cd /usr/src && \
     rm -rf /rootfs && \
     \
