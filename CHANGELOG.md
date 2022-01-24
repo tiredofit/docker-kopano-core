@@ -1,3 +1,9 @@
+## 2.3.1 2022-01-24 <dave at tiredofit dot ca>
+
+   ### Added
+      - Update Kopano Dependencies
+
+
 ## 2.3.0 2021-12-06 <dave at tiredofit dot ca>
 
    ### Added
