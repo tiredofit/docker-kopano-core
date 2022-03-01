@@ -1,3 +1,9 @@
+## 2.4.0 2022-03-01 <dave at tiredofit dot ca>
+
+   ### Added
+      - Switch to 'master' since kopano-11.0.2 is stale by 10 months
+
+
 ## 2.3.1 2022-01-24 <dave at tiredofit dot ca>
 
    ### Added
