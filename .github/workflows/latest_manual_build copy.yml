@@ -1,18 +1,20 @@
-### Application Level Image CI
-### Dave Conroy <dave at tiredofit dot ca>
 
-name: 'build'
+# Manual Workflow (Application)
+
+name: latest_manual
 
 on:
-  push:
-    paths:
-    - '**'
-    - '!README.md'
+  workflow_dispatch:
+    inputs:
+      Manual Build:
+        description: 'Manual Build of Latest Sources (untagged)'
+        required: false
 jobs:
-  v8_0_debian_buster:
+  php80_debian_buster_latest:
     env:
-      RELEASE: "8.0"
-      DISTRIB: buster
+      PHP_VERSION: "8.0"
+      DISTRO: "debian"
+      DISTRO_VARIANT: "buster"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -32,34 +34,21 @@ jobs:
 
             case ${BRANCH} in
               "main" | "master" )
-                  BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE},${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB}"
+                  ## Irrelevant
+                  BRANCHTAG="${DOCKER_IMAGE}:debian-php${PHP_VERSION},${DOCKER_IMAGE}:debian-php${PHP_VERSION}-${DISTRIB}"
                 ;;
               "develop" )
+                  ## Irrelevant
                   BRANCHTAG="${DOCKER_IMAGE}:develop"
                 ;;
               * )
-                  if [ -n "${{ secrets.LATEST }}" ] ; then
-                    if [ "${BRANCHTAG}" = "${{ secrets.LATEST }}" ]; then
-                      BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest,${DOCKER_IMAGE}:latest"
-                    else
-                      BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest"
-                    fi
-                  else
-                    BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest"
-                  fi
+                  BRANCHTAG="${DOCKER_IMAGE}:${DISTRO}-${DISTRO_VARIANT}-php${PHP_VERSION}-kc${BRANCH}-latest"
                 ;;
             esac
           fi
 
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-               GITTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB}-$(echo $GITHUB_REF | sed 's|refs/tags/||g')"
-          fi
+          TAGS="${BRANCHTAG}"
 
-          if [ -n "${BRANCHTAG}" ] && [ -n "${GITTAG}" ]; then
-            TAGS=${BRANCHTAG},${GITTAG}"
-          else
-            TAGS="${BRANCHTAG}${GITTAG}"
-          fi
 
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
@@ -85,8 +74,9 @@ jobs:
         run: |
           if [ -f "Dockerfile" ] ; then
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_repository=\"https://github.com/${GITHUB_REPOSITORY}\"" Dockerfile
-            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.runtime_version=\"${RELEASE}\"" Dockerfile
-            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.distro=\"${DISTRIB}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.runtime_version=\"${PHP_VERSION}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.distro=\"${DISTRO_VARIANT}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.kopano-core.version=\"${BRANCH}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_commit=\"${GITHUB_SHA}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_committed_by=\"${GITHUB_ACTOR}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.image_build_date=\"$(date +'%Y-%m-%d %H:%M:%S')\"" Dockerfile
@@ -95,19 +85,13 @@ jobs:
               mkdir -p install/assets/.changelogs ; cp CHANGELOG.md install/assets/.changelogs/${GITHUB_REPOSITORY/\//_}.md
             fi
 
-            if [[ $GITHUB_REF == refs/tags/* ]]; then
-              sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_tag=\"${GITHUB_REF#refs/tags/v}\"" Dockerfile
-            fi
-
-            if [[ $GITHUB_REF == refs/heads/* ]]; then
-              sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_branch=\"${GITHUB_REF#refs/heads/}\"" Dockerfile
-            fi
+            echo "Kopano Core ${KOPANO_VERSION} latest commit from ${BRANCH} branch" >> install/assets/.changelogs/kopano-core-latest.md
           fi
 
       - name: Switch
         id: Switch
         run: |
-          sed -i "s|FROM docker.io/tiredofit/nginx-php-fpm:debian-.* as|FROM docker.io/tiredofit/nginx-php-fpm:debian-${RELEASE}-${DISTRIB} as|g" Dockerfile
+          sed -i "s|FROM docker.io/tiredofit/nginx-php-fpm:${DISTRO}-.* as|FROM docker.io/tiredofit/nginx-php-fpm:${DISTRO}-${PHP_VERSION}-${DISTRO_VARIANT} as|g" Dockerfile
       - name: Build
         uses: docker/build-push-action@v2
         with:
@@ -118,10 +102,11 @@ jobs:
           push: true
           tags: ${{ steps.prep.outputs.tags }}
 
-  v7_4_debian_buster:
+  php74_debian_buster_latest:
     env:
-      RELEASE: "7.4"
-      DISTRIB: buster
+      PHP_VERSION: "7.4"
+      DISTRO: "debian"
+      DISTRO_VARIANT: "buster"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -141,34 +126,20 @@ jobs:
 
             case ${BRANCH} in
               "main" | "master" )
-                  BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE},${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB}"
+                  ## Irrelevant
+                  BRANCHTAG="${DOCKER_IMAGE}:debian-php${PHP_VERSION},${DOCKER_IMAGE}:debian-php${PHP_VERSION}-${DISTRIB}"
                 ;;
               "develop" )
+                  ## Irrelevant
                   BRANCHTAG="${DOCKER_IMAGE}:develop"
                 ;;
               * )
-                  if [ -n "${{ secrets.LATEST }}" ] ; then
-                    if [ "${BRANCHTAG}" = "${{ secrets.LATEST }}" ]; then
-                      BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest,${DOCKER_IMAGE}:latest"
-                    else
-                      BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest"
-                    fi
-                  else
-                    BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest"
-                  fi
+                  BRANCHTAG="${DOCKER_IMAGE}:${DISTRO}-${DISTRO_VARIANT}-php${PHP_VERSION}-kc${BRANCH}-latest"
                 ;;
             esac
           fi
 
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-               GITTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB}-$(echo $GITHUB_REF | sed 's|refs/tags/||g')"
-          fi
-
-          if [ -n "${BRANCHTAG}" ] && [ -n "${GITTAG}" ]; then
-            TAGS=${BRANCHTAG},${GITTAG}
-          else
-            TAGS="${BRANCHTAG}${GITTAG}"
-          fi
+          TAGS="${BRANCHTAG}"
 
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
@@ -194,8 +165,9 @@ jobs:
         run: |
           if [ -f "Dockerfile" ] ; then
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_repository=\"https://github.com/${GITHUB_REPOSITORY}\"" Dockerfile
-            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.runtime_version=\"${RELEASE}\"" Dockerfile
-            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.distro=\"${DISTRIB}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.runtime_version=\"${PHP_VERSION}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.distro=\"${DISTRO_VARIANT}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.kopano-core.version=\"${BRANCH}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_commit=\"${GITHUB_SHA}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_committed_by=\"${GITHUB_ACTOR}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.image_build_date=\"$(date +'%Y-%m-%d %H:%M:%S')\"" Dockerfile
@@ -204,19 +176,13 @@ jobs:
               mkdir -p install/assets/.changelogs ; cp CHANGELOG.md install/assets/.changelogs/${GITHUB_REPOSITORY/\//_}.md
             fi
 
-            if [[ $GITHUB_REF == refs/tags/* ]]; then
-              sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_tag=\"${GITHUB_REF#refs/tags/v}\"" Dockerfile
-            fi
-
-            if [[ $GITHUB_REF == refs/heads/* ]]; then
-              sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_branch=\"${GITHUB_REF#refs/heads/}\"" Dockerfile
-            fi
+            echo "Kopano Core ${KOPANO_VERSION} latest commit from ${BRANCH} branch" >> install/assets/.changelogs/kopano-core-latest.md
           fi
 
       - name: Switch
         id: Switch
         run: |
-          sed -i "s|FROM docker.io/tiredofit/nginx-php-fpm:debian-.* as|FROM docker.io/tiredofit/nginx-php-fpm:debian-${RELEASE}-${DISTRIB} as|g" Dockerfile
+          sed -i "s|FROM docker.io/tiredofit/nginx-php-fpm:${DISTRO}-.* as|FROM docker.io/tiredofit/nginx-php-fpm:${DISTRO}-${PHP_VERSION}-${DISTRO_VARIANT} as|g" Dockerfile
       - name: Build
         uses: docker/build-push-action@v2
         with:
@@ -227,10 +193,12 @@ jobs:
           push: true
           tags: ${{ steps.prep.outputs.tags }}
 
-  v7_3_debian_buster:
+
+  php73_debian_buster_latest:
     env:
-      RELEASE: "7.3"
-      DISTRIB: buster
+      PHP_VERSION: "7.3"
+      DISTRO: "debian"
+      DISTRO_VARIANT: "buster"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -250,34 +218,20 @@ jobs:
 
             case ${BRANCH} in
               "main" | "master" )
-                  BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE},${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB},${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB}-latest"
+                  ## Irrelevant
+                  BRANCHTAG="${DOCKER_IMAGE}:debian-php${PHP_VERSION},${DOCKER_IMAGE}:debian-php${PHP_VERSION}-${DISTRIB}"
                 ;;
               "develop" )
+                  ## Irrelevant
                   BRANCHTAG="${DOCKER_IMAGE}:develop"
                 ;;
               * )
-                  if [ -n "${{ secrets.LATEST }}" ] ; then
-                    if [ "${BRANCHTAG}" = "${{ secrets.LATEST }}" ]; then
-                      BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest,${DOCKER_IMAGE}:latest"
-                    else
-                      BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest"
-                    fi
-                  else
-                    BRANCHTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH},${DOCKER_IMAGE}:debian-${RELEASE}-${BRANCH}-latest"
-                  fi
+                  BRANCHTAG="${DOCKER_IMAGE}:${DISTRO}-${DISTRO_VARIANT}-php${PHP_VERSION}-kc${BRANCH}-latest"
                 ;;
             esac
           fi
 
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-               GITTAG="${DOCKER_IMAGE}:debian-${RELEASE}-${DISTRIB}-$(echo $GITHUB_REF | sed 's|refs/tags/||g'),${DOCKER_IMAGE}:$(echo $GITHUB_REF | sed 's|refs/tags/||g')"
-          fi
-
-          if [ -n "${BRANCHTAG}" ] && [ -n "${GITTAG}" ]; then
-            TAGS=${BRANCHTAG},${GITTAG}
-          else
-            TAGS="${BRANCHTAG}${GITTAG}"
-          fi
+          TAGS="${BRANCHTAG}"
 
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=docker_image::${DOCKER_IMAGE}
@@ -303,8 +257,9 @@ jobs:
         run: |
           if [ -f "Dockerfile" ] ; then
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_repository=\"https://github.com/${GITHUB_REPOSITORY}\"" Dockerfile
-            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.runtime_version=\"${RELEASE}\"" Dockerfile
-            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.distro=\"${DISTRIB}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.runtime_version=\"${PHP_VERSION}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.nginx-php-fpm.distro=\"${DISTRO_VARIANT}\"" Dockerfile
+            sed -i "/FROM .*/a LABEL tiredofit.kopano-core.version=\"${BRANCH}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_commit=\"${GITHUB_SHA}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_committed_by=\"${GITHUB_ACTOR}\"" Dockerfile
             sed -i "/FROM .*/a LABEL tiredofit.kopano-core.image_build_date=\"$(date +'%Y-%m-%d %H:%M:%S')\"" Dockerfile
@@ -313,19 +268,13 @@ jobs:
               mkdir -p install/assets/.changelogs ; cp CHANGELOG.md install/assets/.changelogs/${GITHUB_REPOSITORY/\//_}.md
             fi
 
-            if [[ $GITHUB_REF == refs/tags/* ]]; then
-              sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_tag=\"${GITHUB_REF#refs/tags/v}\"" Dockerfile
-            fi
-
-            if [[ $GITHUB_REF == refs/heads/* ]]; then
-              sed -i "/FROM .*/a LABEL tiredofit.kopano-core.git_branch=\"${GITHUB_REF#refs/heads/}\"" Dockerfile
-            fi
+            echo "Kopano Core ${KOPANO_VERSION} latest commit from ${BRANCH} branch" >> install/assets/.changelogs/kopano-core-latest.md
           fi
 
       - name: Switch
         id: Switch
         run: |
-          sed -i "s|FROM docker.io/tiredofit/nginx-php-fpm:debian-.* as|FROM docker.io/tiredofit/nginx-php-fpm:debian-${RELEASE}-${DISTRIB} as|g" Dockerfile
+          sed -i "s|FROM docker.io/tiredofit/nginx-php-fpm:${DISTRO}-.* as|FROM docker.io/tiredofit/nginx-php-fpm:${DISTRO}-${PHP_VERSION}-${DISTRO_VARIANT} as|g" Dockerfile
       - name: Build
         uses: docker/build-push-action@v2
         with:
