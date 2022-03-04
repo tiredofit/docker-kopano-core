@@ -1,3 +1,9 @@
+## 2.4.2 2022-03-03 <dave at tiredofit dot ca>
+
+   ### Added
+      - Kopano Core 10.1.1
+
+
 ## 2.4.1 2022-03-03 <dave at tiredofit dot ca>
 
    ### Added
