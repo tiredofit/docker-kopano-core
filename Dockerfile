@@ -154,6 +154,12 @@ RUN set -x && \
     if [ -d "/build-assets/src" ] ; then cp -Rp /build-assets/src/* /usr/src/kopano-core ; fi; \
     if [ -d "/build-assets/scripts" ] ; then for script in /build-assets/scripts/*.sh; do echo "** Applying $script"; bash $script; done ; fi ; \
     mkdir -p /rootfs/assets/.changelogs/ && \
+    # PHP 8 compile capability
+    sed -i '/^mapi_la_SOURCES = /i if WITH_PHP8\nphplib_LTLIBRARIES = mapi.la\nendif' Makefile.am && \
+    sed -i '/elif test -d \"\/etc\/php7\/apache2\/conf.d\"; then/i \        elif test -d \"\/etc\/php8\/conf.d\"; then\n                PHP_SYSCONF_DIR=\"\/etc\/php8\/conf.d\"\n  elif test -d "\/etc\/php\/8.0\/conf.d"; then\n                PHP_SYSCONF_DIR=\"/etc/php/8.0/conf.d\"' autoconf/php.m4 && \
+    sed -i '/AM_CONDITIONAL(\[WITH_PHP7\]/a AM_CONDITIONAL([WITH_PHP8], [test "$with_php" = 8])' configure.ac && \
+    sed -i "/\[7\.\*\], \[with_php=7\]/i \                [8\.\*\]\, \[with_php=8\]," configure.ac && \
+    #
     autoreconf -fiv && \
     ./configure \
                 --prefix /usr \
@@ -169,6 +175,7 @@ RUN set -x && \
                 --enable-release \
                 --enable-pybind \
                 --enable-static \
+                --with-php=$(php -v | head -n1 | awk '{print $2}' | cut -d . -f1) \
                 PYTHON="$(which python3)" \
                 PYTHON_CFLAGS="$(pkg-config python3 --cflags)"\
                 PYTHON_LIBS="$(pkg-config python3 --libs)" \
@@ -246,6 +253,7 @@ RUN set -x && \
     echo "Commit: $(cd /usr/src/kopano-core ; echo $(git rev-parse HEAD))" >> /rootfs/assets/.changelogs/kopano-core.version && \
     env | grep KOPANO | sed "/KOPANO_KCOIDC/d" | sort >> /rootfs/assets/.changelogs/kopano-core.version && \
     echo "Dependency Hash '${KOPANO_DEPENDENCY_HASH} from: 'https://download.kopano.io/community/dependencies:'" >> /rootfs/assets/.changelogs/kopano-core.version && \
+    echo "Kopano Server reported version: $(kopano-server -V | awk '{print $2}')" >> /rootfs/assets/.changelogs/kopano-core.version && \
     tar cavf /kopano-core/kopano-core.tar.zst . && \
     cd /usr/src/kopano-dependencies && \
     mkdir -p /kopano-dependencies && \
