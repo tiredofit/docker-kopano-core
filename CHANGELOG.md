@@ -1,3 +1,9 @@
+## 2.4.3 2022-03-08 <dave at tiredofit dot ca>
+
+   ### Added
+      - Add PHP 8 build support into source
+
+
 ## 2.4.2 2022-03-05 <dave at tiredofit dot ca>
 
    ### Added
