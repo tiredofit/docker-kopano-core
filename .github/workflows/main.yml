@@ -2,13 +2,13 @@
 ### Dave Conroy <dave at tiredofit dot ca>
 
 name: 'build'
-#
-#on:
-#  push:
-#    paths:
-#    - '**'
-#    - '!README.md'
-#jobs:
+
+on:
+  push:
+    paths:
+    - '**'
+    - '!README.md'
+jobs:
 #  kc10_php80_debian_buster:
 #    env:
 #      KC_VERSION: "10"
