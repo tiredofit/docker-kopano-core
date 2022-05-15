@@ -9,7 +9,7 @@ ARG KOPANO_KCOIDC_VERSION
 ARG KOPANO_PROMETHEUS_EXPORTER_REPO_URL
 ARG KOPANO_PROMETHEUS_EXPORTER_VERSION
 
-ENV GO_VERSION=1.17.7 \
+ENV GO_VERSION=1.18 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"master"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"398ec61"} \
@@ -228,13 +228,7 @@ RUN set -x && \
     cp -Rp /rootfs/etc/kopano/quotamail/* /rootfs/assets/kopano/templates && \
     rm -rf /rootfs/etc/kopano/quotamail && \
     mkdir -p /rootfs/assets/kopano/userscripts && \
-    mkdir -p /rootfs/assets/kopano/userscripts/createcompany.d \
-             /rootfs/assets/kopano/userscripts/creategroup.d \
-             /rootfs/assets/kopano/userscripts/createuser.d \
-             /rootfs/assets/kopano/userscripts/deletecompany.d \
-             /rootfs/assets/kopano/userscripts/deletegroup.d \
-             /rootfs/assets/kopano/userscripts/deleteuser.d && \
-    cp -Rp /rootfs/usr/lib/kopano/userscripts /rootfs/assets/kopano/userscripts && \
+    cp -Rp /rootfs/usr/lib/kopano/userscripts/* /rootfs/assets/kopano/userscripts/ && \
     \
     rm -rf /rootfs/etc/kopano && \
     mkdir -p /rootfs/etc/php/${PHP_BASE}/mods-available/ && \

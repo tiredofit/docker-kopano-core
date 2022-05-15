@@ -1,3 +1,9 @@
+## 2.4.4 2022-05-15 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Fix an issue with userscripts locations and update dependencies
+
+
 ## 2.4.3 2022-03-08 <dave at tiredofit dot ca>
 
    ### Added
