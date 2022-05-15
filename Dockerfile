@@ -220,13 +220,7 @@ RUN set -x && \
     cp -Rp /rootfs/etc/kopano/quotamail/* /rootfs/assets/kopano/templates && \
     rm -rf /rootfs/etc/kopano/quotamail && \
     mkdir -p /rootfs/assets/kopano/userscripts && \
-    mkdir -p /rootfs/assets/kopano/userscripts/createcompany.d \
-             /rootfs/assets/kopano/userscripts/creategroup.d \
-             /rootfs/assets/kopano/userscripts/createuser.d \
-             /rootfs/assets/kopano/userscripts/deletecompany.d \
-             /rootfs/assets/kopano/userscripts/deletegroup.d \
-             /rootfs/assets/kopano/userscripts/deleteuser.d && \
-    cp -Rp /rootfs/usr/lib/kopano/userscripts /rootfs/assets/kopano/userscripts && \
+    cp -Rp /rootfs/usr/lib/kopano/userscripts/* /rootfs/assets/kopano/userscripts/ && \
     \
     rm -rf /rootfs/etc/kopano && \
     mkdir -p /rootfs/etc/php/${PHP_BASE}/mods-available/ && \
