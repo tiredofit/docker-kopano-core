@@ -9,7 +9,7 @@ ARG KOPANO_KCOIDC_VERSION
 ARG KOPANO_PROMETHEUS_EXPORTER_REPO_URL
 ARG KOPANO_PROMETHEUS_EXPORTER_VERSION
 
-ENV GO_VERSION=1.18.3 \
+ENV GO_VERSION=1.19.2 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-8.7.25"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"398ec61"} \
@@ -18,7 +18,7 @@ ENV GO_VERSION=1.18.3 \
     KOPANO_PROMETHEUS_EXPORTER_REPO_URL=${KOPANO_PROMETHEUS_EXPORTER_REPO_URL:-"https://github.com/Kopano-dev/prometheus-kopano-exporter.git"} \
     KOPANO_PROMETHEUS_EXPORTER_REPO_VERSION=${KOPANO_PROMETHEUS_EXPORTER_REPO_VERSION:-"master"}
 
-ADD build-assets /build-assets
+COPY build-assets /build-assets
 
 RUN set -x && \
     ### Add user and Group
@@ -200,12 +200,7 @@ RUN set -x && \
     find /rootfs/assets/kopano/scripts -name '*.py' -exec chmod +x {} \; && \
     \
     ## Cleanup some of the scripts
-    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
-    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/Import-ics/import-ics.py && \
-    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/contacts2csv/contact2csv.py && \
-    sed -i "s|kopano.Server|kopano.server|g" /rootfs/assets/kopano/scripts/core-tools/show-item-information/show-item-information.py && \
     sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" /rootfs/assets/kopano/scripts/core-tools/delete-items/delete-items.py && \
-    sed -i "s|locale.format|locale.format_string|g" /rootfs/assets/kopano/scripts/core-tools/store-stats/store-stats.py && \
     sed -i "s|# \!/usr/bin/env python|#\!/usr/bin/env python3|g" /rootfs/assets/kopano/scripts/core-tools/kopano-cleanup/kopano-cleanup.py && \
     mkdir -p /rootfs/usr/sbin && \
     ln -s /assets/kopano/scripts/core-tools/store-stats/store-stats.py /rootfs/usr/sbin/store-stats && \
@@ -258,5 +253,5 @@ LABEL maintainer="Dave Conroy (github.com/tiredofit)"
 COPY --from=kopano-core-builder /kopano-core/* /kopano-core/
 COPY --from=kopano-core-builder /kopano-dependencies/* /kopano-dependencies/
 COPY --from=kopano-core-builder /kopano-prometheus-exporter/* /kopano-prometheus-exporter/
-ADD CHANGELOG.md /tiredofit_docker-kopano-core.md
+COPY CHANGELOG.md /tiredofit_docker-kopano-core.md
 

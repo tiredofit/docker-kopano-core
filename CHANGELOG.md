@@ -1,3 +1,9 @@
+## 2.4.5 2022-11-26 <dave at tiredofit dot ca>
+
+   ### Changed
+      - Revert some fixes to the Python scripts
+
+
 ## 2.4.4 2022-05-14 <dave at tiredofit dot ca>
 
    ### Changed
