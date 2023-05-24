@@ -9,7 +9,7 @@ ARG KOPANO_KCOIDC_VERSION
 ARG KOPANO_PROMETHEUS_EXPORTER_REPO_URL
 ARG KOPANO_PROMETHEUS_EXPORTER_VERSION
 
-ENV GO_VERSION=1.19.2 \
+ENV GO_VERSION=1.19.6 \
     KOPANO_CORE_VERSION=${KOPANO_CORE_VERSION:-"kopanocore-8.7.25"} \
     KOPANO_CORE_REPO_URL=${KOPANO_CORE_REPO_URL:-"https://github.com/Kopano-dev/kopano-core.git"} \
     KOPANO_DEPENDENCY_HASH=${KOPANO_DEPENDENCY_HASH:-"398ec61"} \
@@ -222,7 +222,7 @@ RUN set -x && \
     mv /rootfs/etc/php/${PHP_BASE}/cli/conf.d/mapi.ini /rootfs/etc/php/${PHP_BASE}/mods-available/ && \
     echo ";priority=20" >> /rootfs/etc/php/${PHP_BASE}/mods-available/mapi.ini && \
     ln -sf /config /rootfs/etc/kopano && \
-    ln -s /usr/bin/kopano-autorespond /rootfs/usr/sbin/kopano-autorespond && \
+    ln -s /usr/bin/kopano-autorespond.py /rootfs/usr/sbin/kopano-autorespond && \
     \
     mkdir -p /var/run/kopano && \
     mkdir -p /var/run/kopano-search && \
